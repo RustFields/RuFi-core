@@ -76,7 +76,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-          run: echo "todo run Semantic Release"
+        run: echo "todo run Semantic Release"
 #        run: |
 #          npm install
 #          npx semantic-release
