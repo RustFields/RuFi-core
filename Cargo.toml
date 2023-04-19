@@ -1,5 +1,5 @@
 [package]
-name = "RuFi-core"
+name = "rufi_core"
 version = "0.1.0"
 edition = "2021"
 
