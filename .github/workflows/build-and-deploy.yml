@@ -31,18 +31,61 @@ jobs:
       - name: Run tests
         run: cargo test --verbose
 
-  release:
-    runs-on: ubuntu-latest
+  test-release:
+    name: Test Release
     needs:
       - check
+    runs-on: ubuntu-latest
+    if: >-
+      !github.event.repository.fork
+      && (
+        github.event_name != 'pull_request'
+        || github.event.pull_request.head.repo.full_name == github.repository
+      )
+    concurrency:
+      group: test-release-${{ github.event.number || github.ref }}
+      cancel-in-progress: true
     steps:
-      - name: release
-        run: echo "TODO"
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+      - name: Deploy
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: cargo login && cargo publish --dry-run
+
+  release:
+    if: github.event_name == 'push'
+    needs:
+      - check
+      - test-release
+    runs-on: ubuntu-latest
+    concurrency:
+      group: release
+      cancel-in-progress: false
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive
+          fetch-depth: 0
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+          run: echo "todo run Semantic Release"
+#        run: |
+#          npm install
+#          npx semantic-release
 
   success:
     runs-on: ubuntu-latest
     needs:
       - check
+      - test-release
       - release
     if: >-
       always() && (
