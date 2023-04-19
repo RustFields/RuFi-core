@@ -30,10 +30,20 @@ jobs:
 
       - name: Run tests
         run: cargo test --verbose
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - check
+    steps:
+      - name: release
+        run: echo "TODO"
+
   success:
     runs-on: ubuntu-latest
     needs:
       - check
+      - release
     if: >-
       always() && (
         contains(join(needs.*.result, ','), 'failure')
