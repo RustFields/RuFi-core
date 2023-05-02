@@ -1,7 +1,7 @@
 use crate::core::path::slot::slot::Slot;
 
 pub mod slot {
-    #[derive(PartialEq, Debug)]
+    #[derive(PartialEq, Debug, Clone)]
     pub enum Slot{
         Nbr(i32),
         Rep(i32),
