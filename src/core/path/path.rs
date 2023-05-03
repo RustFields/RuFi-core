@@ -2,7 +2,7 @@ pub mod path {
     use crate::core::path::slot::slot::Slot;
 
     /// A Path is a collection of Slots that behave like an immutable stack
-    #[derive(PartialEq, Debug, Clone)]
+    #[derive(PartialEq, Debug, Clone, Eq, Hash)]
     pub struct Path {
         pub slots: Vec<Slot>,
     }
