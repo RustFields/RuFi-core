@@ -36,6 +36,7 @@ impl Path {
         self.slots.is_empty()
     }
 
+    /// Return a String representation of the Path
     pub fn to_str(&self) -> String {
         let slots = &self.slots;
         let path = String::from("P://");
@@ -43,11 +44,12 @@ impl Path {
             &slots.into_iter().map(|slot| slot.to_str()).collect::<Vec<String>>().join("/")
     }
 
+    /// Check if the Path matches another Path
     pub fn matches(&self, p: &Path) -> bool {
         self == p
     }
 
-    /// Get the first Slot of the Path
+    /// Return the first Slot of the Path
     pub fn head(&self) -> &Slot {
         self.slots.first().unwrap()
     }
