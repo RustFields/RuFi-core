@@ -60,8 +60,10 @@ mod tests {
 
     #[test]
     fn test_is_root() {
-        let path = Path::new(Vec::new());
-        assert!(path.is_root())
+        let empty_path = Path::new(Vec::new());
+        let not_empty_path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        assert!(empty_path.is_root());
+        assert!(!not_empty_path.is_root())
     }
 
     #[test]
@@ -100,5 +102,12 @@ mod tests {
     fn test_to_str() {
         let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
         assert_eq!(path.to_str(), "P://Rep(0)/Nbr(0)/Nbr(1)/Branch(0)")
+    }
+
+    #[test]
+    fn test_matches() {
+        let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        assert!(path.matches(&Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)])));
+        assert!(!path.matches(&Path::new(vec![Nbr(0), Nbr(1), Branch(0)])))
     }
 }
