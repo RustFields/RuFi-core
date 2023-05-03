@@ -49,11 +49,7 @@ impl Path {
 
     /// Get the first Slot of the Path
     pub fn head(&self) -> &Slot {
-        if let Some(head) = self.slots.first() {
-            head
-        } else {
-            panic!("Path is empty")
-        }
+        self.slots.first().unwrap()
     }
 }
 
