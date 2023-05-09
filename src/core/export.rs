@@ -38,22 +38,22 @@ impl Export{
         }
     }
 
-    pub fn get(&self, path: Path) -> Option<A> {
+    pub fn get<A>(&self, path: Path) -> Option<A> {
         self.map.get(&path).and_then(|value| Some(value)).cloned()
     }
 
-    pub fn paths(&self) -> &HashMap<Path, A> {
+    pub fn paths(&self) -> &HashMap<Path, Box<dyn Any>> {
         &self.map
     }
 
-    pub fn eq(&self, other: Export<A>) -> bool {
+    pub fn eq(&self, other: Export) -> bool {
         self.map == other.map
     }
 
     pub fn to_str(&self) -> String {
         let mut string = String::new();
-        for (path, _value) in self.map.iter() { //unimplemented!("value to string, due to generic type A not supporting to_string()")
-            string.push_str(&format!("{}\n", path.to_str()));
+        for (path, value) in self.map.iter() { //unimplemented!("value to string, due to generic type A not supporting to_string()")
+            string.push_str(&format!("{} -> {}, ", path.to_str(), value.to_string()));
         }
         string
     }
