@@ -30,10 +30,12 @@ impl Export{
     pub fn root<A>(&self) -> A {
         self.get(Path::new(Vec::new())).unwrap()
     }
-
-    pub fn put(&mut self, path: Path, value: A) -> A {
-        self.map.insert(path, value.clone());
-        value
+    pub fn put<A>(&self, path: &Path, value: &A) -> Self {
+        let mut map = self.map.clone();
+        map.insert(path, value);
+        Export{
+            map,
+        }
     }
 
     pub fn get(&self, path: Path) -> Option<A> {
