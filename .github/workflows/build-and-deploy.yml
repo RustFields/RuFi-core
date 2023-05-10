@@ -5,6 +5,7 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
+  GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
 
 jobs:
   check:
@@ -17,18 +18,21 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: Run tests on ${{ matrix.os }}
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        id: rust-toolchain
+        with:
+          toolchain: stable
+
       - name: Show Env
         run: cargo --version
 
-      - name: Build
-        run: cargo build --verbose
-
-      - name: Run tests
+      - name: Cargo test
         run: cargo test --verbose
 
   test-release:
@@ -51,14 +55,27 @@ jobs:
         with:
           submodules: recursive
           fetch-depth: 0
-      - name: Deploy
-        uses: actions-rs/toolchain@v1
+          token: ${{ secrets.GH_ACCESS_TOKEN }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        id: rust-toolchain
         with:
           toolchain: stable
-          override: true
-      - uses: katyo/publish-crates@v2
+
+      - name: Login on crates.io
+        uses: actions-rs/cargo@v1
         with:
-          dry-run: true
+          command: login
+          args: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          npm install
+          npx semantic-release --dry-run
 
   release:
     if: github.event_name == 'push'
@@ -76,14 +93,26 @@ jobs:
           submodules: recursive
           fetch-depth: 0
           token: ${{ secrets.GH_ACCESS_TOKEN }}
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@master
+        id: rust-toolchain
+        with:
+          toolchain: stable
+
+      - name: Login on crates.io
+        uses: actions-rs/cargo@v1
+        with:
+          command: login
+          args: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-        run: echo "todo run Semantic Release"
-#        run: |
-#          npm install
-#          npx semantic-release
+        run: |
+          npm install
+          npx semantic-release
 
   success:
     runs-on: ubuntu-latest
