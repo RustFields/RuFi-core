@@ -5,18 +5,22 @@ pub mod export_factory {
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot;
 
+    /// Returns an empty Path.
     pub fn empty_path() -> Path {
         Path::new(Vec::new())
     }
 
+    /// Returns an empty Export.
     pub fn empty_export() -> Export {
         Export::new(HashMap::new())
     }
 
+    /// Returns a Path with the given Slots.
     pub fn path(slots: Vec<Slot>) -> Path {
         Path::new(slots)
     }
 
+    /// Returns an Export with the given HashMap.
     pub fn export_from(exps: Vec<(Path, Box<dyn Any>)>) -> Export {
         Export{
             map: HashMap::from_iter(exps.into_iter())
