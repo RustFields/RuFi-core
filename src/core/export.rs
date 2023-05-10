@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use crate::core::export::export::Export;
 use crate::core::path::path::path::Path;
 
-pub mod export{
+pub mod export {
     use std::any::Any;
     use std::collections::HashMap;
     use crate::core::path::path::path::Path;
