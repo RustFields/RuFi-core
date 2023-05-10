@@ -1,7 +1,9 @@
 use crate::core::path::slot::slot::Slot;
-
+#[doc = r"A slot is a representation for a construct of the language that forms an execution path."]
 pub mod slot {
     #[derive(PartialEq, Debug, Clone, Eq, Hash)]
+    #[doc = r"Slot is an enum that represents the different constructs of the language.
+    Can be Nbr(index), Rep(index), Branch(index) or Exchange(index)."]
     pub enum Slot{
         Nbr(i32),
         Rep(i32),
@@ -10,7 +12,9 @@ pub mod slot {
     }
 }
 
+#[doc = r"Implementation of the Slot."]
 impl Slot{
+    #[doc = "Return a String representation of the Slot."]
     pub fn to_str(&self) -> String {
         match self {
             Slot::Nbr(index) => "Nbr(".to_owned()+&index.to_string()+")",
