@@ -9,28 +9,35 @@ pub mod export {
     use crate::core::path::path::path::Path;
 
     #[derive(Debug)]
+    /// Abstraction for the result of local computation.
+    /// It is an AST decorated with the computation value.
     pub struct Export{
         pub(crate) map: HashMap<Path, Box<dyn Any>>,
     }
 }
 
 impl Export {
+    /// Creates an Export with the passed HashMap.
     pub fn new(map: HashMap<Path, Box<dyn Any>>) -> Self {
         Export{ map }
     }
 
+    /// Inserts a value in the Export at the given Path.
     pub fn put<A: 'static>(&mut self, path: Path, value: A) {
         self.map.insert(path, Box::new(value));
     }
 
+    /// Returns the value at the given Path.
     pub fn get<A: 'static>(&self, path: &Path) -> Option<&A> {
         self.map.get(path).and_then(|value| value.downcast_ref::<A>())
     }
 
+    /// Returns the root value.
     pub fn root<A: 'static>(&self) -> &A {
         self.get(&Path::new(Vec::new())).unwrap()
     }
 
+    /// Returns the HashMap of the Export.
     pub fn paths(&self) -> &HashMap<Path, Box<dyn Any>> {
         &self.map
     }
