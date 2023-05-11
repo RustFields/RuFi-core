@@ -12,6 +12,7 @@ use crate::core::path::path::path::Path;
 use crate::core::path::slot::slot::Slot;
 
 impl Path {
+
     /// Factory method to create a new Path
     pub fn new(slots: Vec<Slot>) -> Self {
         Path { slots }

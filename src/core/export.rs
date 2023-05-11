@@ -8,15 +8,16 @@ pub mod export {
     use std::collections::HashMap;
     use crate::core::path::path::path::Path;
 
-    #[derive(Debug)]
     /// Abstraction for the result of local computation.
     /// It is an AST decorated with the computation value.
+    #[derive(Debug)]
     pub struct Export{
         pub(crate) map: HashMap<Path, Box<dyn Any>>,
     }
 }
 
 impl Export {
+
     /// Creates an Export with the passed HashMap.
     pub fn new(map: HashMap<Path, Box<dyn Any>>) -> Self {
         Export{ map }
