@@ -1,3 +1,55 @@
+## [1.1.0](https://github.com/RustFields/RuFi-core/compare/1.0.0...1.1.0) (2023-05-11)
+
+
+### Features
+
+* add Export ([2961083](https://github.com/RustFields/RuFi-core/commit/29610832464573345cd9e6346ea518452d00f8e0))
+* add Export working API with tests ([2151f68](https://github.com/RustFields/RuFi-core/commit/2151f6896d481d3d64a01a3c0b5d0570398cfaff))
+* add export_factory module ([55071b6](https://github.com/RustFields/RuFi-core/commit/55071b65b304491f3181261e3b8c3e1074fb8421))
+* add method to create empty export and new export from path, update test ([2f50853](https://github.com/RustFields/RuFi-core/commit/2f508536e652b7c7b8f82dd449f758cf30af5078))
+* core module is public ([1dfefd2](https://github.com/RustFields/RuFi-core/commit/1dfefd219ecafb29bf1cdd4cd0d6385be5d87522))
+* slots in Path is visible only in this crate ([a090212](https://github.com/RustFields/RuFi-core/commit/a090212088ebe081e375d3ce4436654ecac214c6))
+
+
+### Bug Fixes
+
+* add Eq and Hash derive to Path ([4e35674](https://github.com/RustFields/RuFi-core/commit/4e356744961800ad2de260f7bb663c27e154fc59))
+* add Eq and Hash derive to Slot ([9822ef2](https://github.com/RustFields/RuFi-core/commit/9822ef2e0075937ce6bb02317d86cad437e5c3a9))
+
+
+### Build and continuous integration
+
+* fix Semantic Release commit for updating version in Cargo.toml ([e35bb7c](https://github.com/RustFields/RuFi-core/commit/e35bb7c7fcb1988c6a04a0162af4dc05b355d8d8))
+
+
+### Refactoring
+
+* add generics ([e64d462](https://github.com/RustFields/RuFi-core/commit/e64d4620d510349f26a087766f483767282a22b2))
+* put method is immutable ([8e11a57](https://github.com/RustFields/RuFi-core/commit/8e11a57ed7f96e7cc022220b160f5efd9d8c331c))
+
+
+### General maintenance
+
+* add empty space ([1e17af1](https://github.com/RustFields/RuFi-core/commit/1e17af161145caa33343b202e4325f66e2d8c625))
+
+
+### Tests
+
+* remove inner module for tests ([6a70078](https://github.com/RustFields/RuFi-core/commit/6a70078b098df6be357dfca625ae0bd4cb1b926a))
+
+
+### Style improvements
+
+* change style for docs ([6ce00f2](https://github.com/RustFields/RuFi-core/commit/6ce00f24c382af26743cbc50e99e8640041f1681))
+
+
+### Documentation
+
+* add docs to Export ([6d26c80](https://github.com/RustFields/RuFi-core/commit/6d26c80aa40c513881ae38ea2bde70e9783a87bb))
+* add docs to export_factory ([c09ad8a](https://github.com/RustFields/RuFi-core/commit/c09ad8abcb503c3318a77a44502a1a35441b4b78))
+* add docs to Slot ([1e57456](https://github.com/RustFields/RuFi-core/commit/1e57456bc5d7bd9c39deb4c7825cb171dd87c99f))
+* improve documentation ([d25640e](https://github.com/RustFields/RuFi-core/commit/d25640edf2a0c02cceb6c9a6deff9f4105e54d95))
+
 ## 1.0.0 (2023-05-08)
 
 
