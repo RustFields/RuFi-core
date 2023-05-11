@@ -2,6 +2,7 @@ use crate::core::sensor_id::sensor_id::SensorId;
 
 ///Sensor is piece of hardware that allow the device to interact with the environment.
 pub mod sensor_id {
+    #[derive(PartialEq, Debug, Clone, Eq, Hash)]
     pub struct SensorId {
         pub(crate) sensor_id: String
     }
