@@ -5,7 +5,6 @@ on:
 
 env:
   CARGO_TERM_COLOR: always
-  GH_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
 
 jobs:
   check:
@@ -68,6 +67,14 @@ jobs:
         with:
           command: login
           args: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+
+      - name: Set Semantic Release configuration
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_ACCESS_TOKEN }}
+        run: |
+          cp ./release-dry-run.config.js ./release.config.js
+          git add -A
+          git commit -m "ci: update Semantic Release config"
 
       - name: Release
         env:
