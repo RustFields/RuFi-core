@@ -75,8 +75,8 @@ impl Context {
         unimplemented!("TODO implement the to string")
     }
 
-    pub fn sense<A>(&self, local_sensor_id: SensorId) -> Option<A> {
-        unimplemented!("TODO implement sense")
+    pub fn sense<A: 'static>(&self, local_sensor_id: SensorId) -> Option<&A> {
+        self.local_sensor.get(&local_sensor_id).and_then(|value| value.downcast_ref::<A>())
     }
 
     pub fn nbr_sense<A>(&self, nbr_sensor_id: SensorId, nbr_id: i32) -> Option<A> {
@@ -114,5 +114,14 @@ mod test {
         // map.insert(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10));
         // let export = Export::new(map);
         unimplemented!("TODO")
+    }
+
+    #[test]
+    fn test_sense(){
+        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
+        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
+        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        assert_eq!(context.sense::<i32>(SensorId::new("test".to_string())).unwrap(), &10);
     }
 }
