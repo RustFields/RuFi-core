@@ -54,8 +54,8 @@ impl Context {
         }
     }
 
-    pub fn exports_map(&self) -> HashMap<i32, Export> {
-        unimplemented!("TODO implement the exports map")
+    pub fn exports_map(&self) -> HashMap<&i32, &Export> {
+        self.current_exports.iter().map(|(id, export)| (id, export)).collect()
     }
 
     pub fn update_export(&self, id: i32, data: Export) {
@@ -96,7 +96,13 @@ mod test {
 
     #[test]
     fn test_exports_map() {
-        unimplemented!("TODO test the exports map")
+        let export = Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)]));
+        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
+        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
+        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        let export_map: HashMap<&i32, &Export> = HashMap::from([(&0, &export)]);
+        assert_eq!(context.exports_map().len(), export_map.len());
     }
 
     #[test]
