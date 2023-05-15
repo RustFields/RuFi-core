@@ -12,7 +12,6 @@ use crate::core::path::path::path::Path;
 use crate::core::path::slot::slot::Slot;
 
 impl Path {
-
     /// Factory method to create a new Path
     pub fn new(slots: Vec<Slot>) -> Self {
         Path { slots }
@@ -41,8 +40,11 @@ impl Path {
     pub fn to_str(&self) -> String {
         let slots = &self.slots;
         let path = String::from("P://");
-        path +
-            &slots.into_iter().map(|slot| slot.to_str()).collect::<Vec<String>>().join("/")
+        path + &slots
+            .into_iter()
+            .map(|slot| slot.to_str())
+            .collect::<Vec<String>>()
+            .join("/")
     }
 
     /// Check if the Path matches another Path
@@ -59,7 +61,7 @@ impl Path {
 #[cfg(test)]
 mod tests {
     use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{Nbr, Rep, Branch};
+    use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
 
     #[test]
     fn test_is_root() {
