@@ -85,9 +85,8 @@ impl Context {
     /// * `nbr_id` the neighbor id
     /// * `T` the type of the value
     /// * return the value if it exists
-    pub fn nbr_sense<A: 'static>(&self, sensor_id: SensorId, nbr_id: i32) -> Option<A> {
-        // self.nbr_sensor.get(&sensor_id).map(|value| value.get(&nbr_id)).and_then(|value| value.downcast_ref::<A>())
-        unimplemented!("todo")
+    pub fn nbr_sense<A: 'static>(&self, sensor_id: SensorId, nbr_id: i32) -> Option<&A> {
+        self.nbr_sensor.get(&sensor_id).and_then(|value| value.get(&nbr_id)).and_then(|value| value.downcast_ref::<A>())
     }
 }
 
@@ -138,5 +137,14 @@ mod test {
         let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
         let context = Context::new(7, local_sensor, nbr_sensor, current_export);
         assert_eq!(context.local_sense::<i32>(SensorId::new("test".to_string())).unwrap(), &10);
+    }
+
+    #[test]
+    fn test_nbr_sense() {
+        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
+        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
+        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        assert_eq!(context.nbr_sense::<i32>(SensorId::new("test".to_string()), 0).unwrap(), &10);
     }
 }
