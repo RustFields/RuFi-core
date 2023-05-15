@@ -66,9 +66,8 @@ impl Context {
         unimplemented!("TODO implement the exports")
     }
 
-    pub fn read_slot<A>(&self, index: i32, path: Path) -> Option<&A> {
-        // self.exports_map().get(&index).and_then(|export| export.get(&path))
-        unimplemented!("TODO implement the read slot")
+    pub fn read_slot<A: 'static>(&self, index: i32, path: Path) -> Option<&A> {
+        self.exports_map().get(&index).and_then(|export| export.get(&path))
     }
 
     pub fn to_string(&self) -> String {
@@ -116,10 +115,11 @@ mod test {
 
     #[test]
     fn test_read_slot() {
-        // let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        // map.insert(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10));
-        // let export = Export::new(map);
-        unimplemented!("TODO")
+        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
+        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
+        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        assert_eq!(context.read_slot::<i32>(0, Path::new(vec![Rep(0), Nbr(0)])).unwrap(), &10);
     }
 
     #[test]
