@@ -25,7 +25,7 @@ pub mod context {
         pub(crate) self_id: i32,
         pub(crate) local_sensor: HashMap<SensorId, Box<dyn Any>>,
         pub(crate) nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
-        pub(crate) current_exports: Vec<(i32, Export)>
+        pub(crate) exports: HashMap<i32, Export>
     }
 }
 
@@ -43,38 +43,40 @@ impl Context {
     /// * `current_export` - the exports of the neighbours
     pub fn new(
         self_id: i32,
-        local_s: HashMap<SensorId, Box<dyn Any>>,
-        nbr_s: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
-        current_ex: Vec<(i32, Export)>) -> Context {
+        local_sensor: HashMap<SensorId, Box<dyn Any>>,
+        nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
+        exports: HashMap<i32, Export>) -> Context {
         Context {
             self_id,
-            local_sensor: local_s,
-            nbr_sensor: nbr_s,
-            current_exports: current_ex.into_iter().collect()
+            local_sensor,
+            nbr_sensor,
+            exports
         }
     }
 
-    pub fn exports_map(&self) -> HashMap<&i32, &Export> {
-        self.current_exports.iter().map(|(id, export)| (id, export)).collect()
+    /// Add an export of a device to the context.
+    ///
+    /// * `id`  the ID of the device
+    /// * `data` the export of the device
+    pub fn put_export(&mut self, id: i32, data: Export) {
+        self.exports.insert(id, data);
     }
 
-    pub fn update_export(&self, id: i32, data: Export) {
-        unimplemented!("TODO implement the update export")
+    /// Read the value corresponding to the given path from the export of a device.
+    ///
+    /// * `id` the ID of the device
+    /// * `path` the path to the value
+    /// * `A` the type of the value
+    /// * return the value if it exists
+    pub fn read_export_value<A: 'static>(&self, id: i32, path: Path) -> Option<&A> {
+        self.exports.get(&id).and_then(|export| export.get(&path))
     }
 
-    pub fn exports(&self) -> Vec<(i32, Export)> {
-        unimplemented!("TODO implement the exports")
-    }
-
-    pub fn read_slot<A: 'static>(&self, index: i32, path: Path) -> Option<&A> {
-        self.exports_map().get(&index).and_then(|export| export.get(&path))
-    }
-
-    pub fn to_string(&self) -> String {
-        unimplemented!("TODO implement the to string")
-    }
-
-    pub fn sense<A: 'static>(&self, local_sensor_id: SensorId) -> Option<&A> {
+    /// Get the value of the given sensor.
+    /// * `name` the name of the sensor
+    /// * `T` the type of the value
+    /// * return the value if it exists
+    pub fn local_sense<A: 'static>(&self, local_sensor_id: SensorId) -> Option<&A> {
         self.local_sensor.get(&local_sensor_id).and_then(|value| value.downcast_ref::<A>())
     }
 
@@ -94,40 +96,41 @@ mod test {
     use crate::core::sensor_id::sensor_id::SensorId;
 
     #[test]
-    fn test_exports_map() {
-        let export = Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)]));
-        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
-        let export_map: HashMap<&i32, &Export> = HashMap::from([(&0, &export)]);
-        assert_eq!(context.exports_map().len(), export_map.len());
-    }
-
-    #[test]
     fn test_new() {
         let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
         let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
         let context = Context::new(7, local_sensor, nbr_sensor, current_export);
         assert_eq!(context.self_id, 7);
     }
 
     #[test]
-    fn test_read_slot() {
+    fn test_put_export(){
         let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
         let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
-        assert_eq!(context.read_slot::<i32>(0, Path::new(vec![Rep(0), Nbr(0)])).unwrap(), &10);
+        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let mut context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        assert_eq!(context.exports.len(), 1);
+        let add_export = Export::new(HashMap::from([(Path::new(vec![Branch(0), Nbr(0)]), Box::new(5) as Box<dyn Any>)]));
+        context.put_export(1, add_export);
+        assert_eq!(context.exports.len(), 2)
     }
 
     #[test]
-    fn test_sense(){
+    fn test_read_export_value() {
         let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
         let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: Vec<(i32, Export)> = Vec::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
         let context = Context::new(7, local_sensor, nbr_sensor, current_export);
-        assert_eq!(context.sense::<i32>(SensorId::new("test".to_string())).unwrap(), &10);
+        assert_eq!(context.read_export_value::<i32>(0, Path::new(vec![Rep(0), Nbr(0)])).unwrap(), &10);
+    }
+
+    #[test]
+    fn test_local_sense(){
+        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
+        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
+        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        assert_eq!(context.local_sense::<i32>(SensorId::new("test".to_string())).unwrap(), &10);
     }
 }
