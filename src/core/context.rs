@@ -98,7 +98,7 @@ mod test {
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
+    use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
     use crate::core::sensor_id::sensor_id::SensorId;
 
     #[test]
