@@ -13,13 +13,13 @@ pub mod context {
 
     /// Context implementation
     ///
-    /// * `selfId` the ID of the device
+    /// * `selfId` The ID of the device that this context is for.
     ///
-    /// * `currentExports` the exports of the neighbours
+    /// * `local_sensor` The values perceived by the local sensors of the device.
     ///
-    /// * `localSensor` TODO (in hello-scafi whether the sensor is the source)
+    /// * `nbr_sensor` The values perceived by the sensors for each neighbor of the device.
     ///
-    /// * `nbrSensor` map each neighbours to the corresponding value
+    /// * `exports` All the export that are available to the device.
     #[derive(Debug)]
     pub struct Context {
         pub(crate) self_id: i32,
@@ -30,17 +30,17 @@ pub mod context {
 }
 
 impl Context {
-    /// ## Create new Context from the given parameters.
+    /// ## Create new Context of a device from the given parameters.
     ///
     /// ### Arguments
     ///
     /// * `self_id` - the ID of the device
     ///
-    /// * `local_sensor` - TODO
+    /// * `local_sensor` - The values perceived by the local sensors of the device.
     ///
-    /// * `nbr_sensor` - map each neighbours to the corresponding value
+    /// * `nbr_sensor` - The values perceived by the sensors for each neighbor of the device.
     ///
-    /// * `current_export` - the exports of the neighbours
+    /// * `exports` - All the export that are available to the device.
     pub fn new(
         self_id: i32,
         local_sensor: HashMap<SensorId, Box<dyn Any>>,
@@ -80,8 +80,14 @@ impl Context {
         self.local_sensor.get(&local_sensor_id).and_then(|value| value.downcast_ref::<A>())
     }
 
-    pub fn nbr_sense<A>(&self, nbr_sensor_id: SensorId, nbr_id: i32) -> Option<A> {
-        unimplemented!("TODO implement nbr sense")
+    /// Get the value of the given sensor for the given neighbor.
+    /// * `sensor_id` the neighbor sensor id
+    /// * `nbr_id` the neighbor id
+    /// * `T` the type of the value
+    /// * return the value if it exists
+    pub fn nbr_sense<A: 'static>(&self, sensor_id: SensorId, nbr_id: i32) -> Option<A> {
+        // self.nbr_sensor.get(&sensor_id).map(|value| value.get(&nbr_id)).and_then(|value| value.downcast_ref::<A>())
+        unimplemented!("todo")
     }
 }
 
