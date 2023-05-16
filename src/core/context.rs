@@ -1,15 +1,15 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::core::context::context::Context;
 use crate::core::export::export::Export;
 use crate::core::path::path::path::Path;
 use crate::core::sensor_id::sensor_id::SensorId;
+use std::any::Any;
+use std::collections::HashMap;
 
 pub mod context {
-    use std::any::Any;
-    use std::collections::HashMap;
     use crate::core::export::export::Export;
     use crate::core::sensor_id::sensor_id::SensorId;
+    use std::any::Any;
+    use std::collections::HashMap;
 
     /// Context implementation
     ///
@@ -25,7 +25,7 @@ pub mod context {
         pub(crate) self_id: i32,
         pub(crate) local_sensor: HashMap<SensorId, Box<dyn Any>>,
         pub(crate) nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
-        pub(crate) exports: HashMap<i32, Export>
+        pub(crate) exports: HashMap<i32, Export>,
     }
 }
 
@@ -45,12 +45,13 @@ impl Context {
         self_id: i32,
         local_sensor: HashMap<SensorId, Box<dyn Any>>,
         nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
-        exports: HashMap<i32, Export>) -> Context {
+        exports: HashMap<i32, Export>,
+    ) -> Context {
         Context {
             self_id,
             local_sensor,
             nbr_sensor,
-            exports
+            exports,
         }
     }
 
@@ -77,7 +78,9 @@ impl Context {
     /// * `T` the type of the value
     /// * return the value if it exists
     pub fn local_sense<A: 'static>(&self, local_sensor_id: SensorId) -> Option<&A> {
-        self.local_sensor.get(&local_sensor_id).and_then(|value| value.downcast_ref::<A>())
+        self.local_sensor
+            .get(&local_sensor_id)
+            .and_then(|value| value.downcast_ref::<A>())
     }
 
     /// Get the value of the given sensor for the given neighbor.
@@ -86,42 +89,60 @@ impl Context {
     /// * `T` the type of the value
     /// * return the value if it exists
     pub fn nbr_sense<A: 'static>(&self, sensor_id: SensorId, nbr_id: i32) -> Option<&A> {
-        self.nbr_sensor.get(&sensor_id).and_then(|value| value.get(&nbr_id)).and_then(|value| value.downcast_ref::<A>())
+        self.nbr_sensor
+            .get(&sensor_id)
+            .and_then(|value| value.get(&nbr_id))
+            .and_then(|value| value.downcast_ref::<A>())
     }
 }
 
 #[cfg(test)]
 mod test {
-    use std::any::Any;
-    use std::collections::HashMap;
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::export_factory::export_factory::empty_path;
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
     use crate::core::sensor_id::sensor_id::SensorId;
+    use std::any::Any;
+    use std::collections::HashMap;
 
     fn context_builder() -> Context {
-        let local_sensor = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let export = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        let local_sensor = HashMap::from([(
+            SensorId::new("test".to_string()),
+            Box::new(10) as Box<dyn Any>,
+        )]);
+        let nbr_sensor = HashMap::from([(
+            SensorId::new("test".to_string()),
+            HashMap::from([(0, Box::new(10) as Box<dyn Any>)]),
+        )]);
+        let export = HashMap::from([(
+            0,
+            Export::new(HashMap::from([(
+                Path::new(vec![Rep(0), Nbr(0)]),
+                Box::new(10) as Box<dyn Any>,
+            )])),
+        )]);
         Context::new(7, local_sensor, nbr_sensor, export)
     }
 
     #[test]
-    fn assert_on_fields(){
+    fn assert_on_fields() {
         let context = context_builder();
         assert_eq!(context.self_id, 7);
         assert_eq!(context.exports.len(), 1);
         assert_eq!(context.local_sensor.len(), 1);
-        assert_eq!(context.nbr_sensor.len() , 1);
+        assert_eq!(context.nbr_sensor.len(), 1);
     }
 
     #[test]
-    fn test_put_export(){
+    fn test_put_export() {
         let mut context = context_builder();
         assert_eq!(context.exports.len(), 1);
-        let add_export = Export::new(HashMap::from([(Path::new(vec![Branch(0), Nbr(0)]), Box::new(5) as Box<dyn Any>)]));
+        let add_export = Export::new(HashMap::from([(
+            Path::new(vec![Branch(0), Nbr(0)]),
+            Box::new(5) as Box<dyn Any>,
+        )]));
         context.put_export(1, add_export);
         assert_eq!(context.exports.len(), 2)
     }
@@ -129,20 +150,35 @@ mod test {
     #[test]
     fn test_read_export_value() {
         let context = context_builder();
-        assert_eq!(context.read_export_value::<i32>(0, Path::new(vec![Rep(0), Nbr(0)])).unwrap(), &10);
+        assert_eq!(
+            context
+                .read_export_value::<i32>(0, Path::new(vec![Rep(0), Nbr(0)]))
+                .unwrap(),
+            &10
+        );
         assert_eq!(context.read_export_value::<i32>(1, empty_path()), None);
         assert_eq!(context.read_export_value::<i32>(0, empty_path()), None);
     }
 
     #[test]
-    fn test_local_sense(){
+    fn test_local_sense() {
         let context = context_builder();
-        assert_eq!(context.local_sense::<i32>(SensorId::new("test".to_string())).unwrap(), &10);
+        assert_eq!(
+            context
+                .local_sense::<i32>(SensorId::new("test".to_string()))
+                .unwrap(),
+            &10
+        );
     }
 
     #[test]
     fn test_nbr_sense() {
         let context = context_builder();
-        assert_eq!(context.nbr_sense::<i32>(SensorId::new("test".to_string()), 0).unwrap(), &10);
+        assert_eq!(
+            context
+                .nbr_sense::<i32>(SensorId::new("test".to_string()), 0)
+                .unwrap(),
+            &10
+        );
     }
 }

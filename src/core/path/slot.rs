@@ -2,11 +2,11 @@ use crate::core::path::slot::slot::Slot;
 
 /// A slot is a representation for a construct of the language that forms an execution path.
 pub mod slot {
-    
+
     /// Slot is an enum that represents the different constructs of the language.
     /// Can be Nbr(index), Rep(index), Branch(index) or Exchange(index).
     #[derive(PartialEq, Debug, Clone, Eq, Hash)]
-    pub enum Slot{
+    pub enum Slot {
         Nbr(i32),
         Rep(i32),
         Branch(i32),
@@ -14,25 +14,24 @@ pub mod slot {
     }
 }
 
-impl Slot{
-    
+impl Slot {
     /// Return a String representation of the Slot.
     pub fn to_str(&self) -> String {
         match self {
-            Slot::Nbr(index) => "Nbr(".to_owned()+&index.to_string()+")",
-            Slot::Rep(index) => "Rep(".to_owned()+&index.to_string()+")",
-            Slot::Branch(index) => "Branch(".to_owned()+&index.to_string()+")",
-            Slot::Exchange(index) => "Exchange(".to_owned()+&index.to_string()+")",
+            Slot::Nbr(index) => "Nbr(".to_owned() + &index.to_string() + ")",
+            Slot::Rep(index) => "Rep(".to_owned() + &index.to_string() + ")",
+            Slot::Branch(index) => "Branch(".to_owned() + &index.to_string() + ")",
+            Slot::Exchange(index) => "Exchange(".to_owned() + &index.to_string() + ")",
         }
     }
 }
 
 #[cfg(test)]
-mod test{
+mod test {
     use super::*;
 
     #[test]
-    fn test_slot_creation(){
+    fn test_slot_creation() {
         let nbr = Slot::Nbr(0);
         let rep = Slot::Rep(0);
         let branch = Slot::Branch(0);
