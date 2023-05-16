@@ -3,6 +3,12 @@ pub mod vm_status {
     use crate::core::path::slot::slot::Slot;
     use std::collections::LinkedList;
 
+    /// Models the status of the virtual machine.
+    ///
+    /// * `path` - The path of the computation.
+    /// * `index` - The index of the current slot.
+    /// * `neighbour` - The id of the current neighbour. If the current slot is not a folding slot, this value is None.
+    /// * `stack` - Stack that contains the list of the statuses
     #[derive(Debug)]
     pub struct VMStatus {
         pub(crate) path: Path,
@@ -12,6 +18,15 @@ pub mod vm_status {
     }
 
     impl VMStatus {
+
+        /// ## Create new VMStatus from the given parameters.
+        ///
+        /// ### Arguments
+        ///
+        /// * `path` The path of the computation.
+        /// * `index` The index of the current slot.
+        /// * `neighbour` The id of the current neighbour. If the current slot is not a folding slot, this value is None.
+        /// * `stack` Stack that contains the list of the statuses
         pub fn new(
             path: Path,
             index: i32,
@@ -26,10 +41,14 @@ pub mod vm_status {
             }
         }
 
+        /// Whether the VM is folding or not.
         pub fn is_folding(&self) -> bool {
             self.neighbour.is_some()
         }
 
+        /// Fold the current slot into the given neighbour.
+        ///
+        /// * `neighbour` he id of the neighbour.
         pub fn fold_into(&self, neighbour: Option<i32>) -> Self {
             Self {
                 path: self.path.clone(),
@@ -39,6 +58,7 @@ pub mod vm_status {
             }
         }
 
+        /// Fold out of the current slot.
         pub fn fold_out(&self) -> Self {
             Self {
                 path: self.path.clone(),
@@ -48,6 +68,7 @@ pub mod vm_status {
             }
         }
 
+        /// Push the current status on the stack.
         pub fn push(&self) -> Self {
             let mut new_stack = self.stack.clone();
             new_stack.push_front((
@@ -63,6 +84,7 @@ pub mod vm_status {
             }
         }
 
+        /// Pop the current status from the stack.
         pub fn pop(&self) -> Self {
             let mut new_stack = self.stack.clone();
             let front = new_stack.pop_front();
@@ -77,6 +99,9 @@ pub mod vm_status {
             }
         }
 
+        /// Nest the given slot.
+        ///
+        /// * `slot` the slot to nest.
         pub fn nest(&self, slot: Slot) -> Self {
             Self {
                 path: self.path.push(slot),
@@ -86,6 +111,7 @@ pub mod vm_status {
             }
         }
 
+        /// Increment the index of the current slot.
         pub fn inc_index(&self) -> Self {
             Self {
                 path: self.path.clone(),
