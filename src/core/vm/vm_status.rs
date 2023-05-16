@@ -73,7 +73,7 @@ pub mod vm_status {
         }
 
         pub fn nest(&self, slot: Slot) -> VMStatus {
-            let mut new_path = self.path.clone();
+            let new_path = self.path.clone();
             new_path.push(slot);
             VMStatus::new(new_path, 0, self.neighbour.clone(), self.stack.clone())
         }
