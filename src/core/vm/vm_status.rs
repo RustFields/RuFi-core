@@ -30,61 +30,69 @@ pub mod vm_status {
             self.neighbour.is_some()
         }
 
-        pub fn fold_into(&self, neighbour: Option<i32>) -> VMStatus {
-            VMStatus::new(
-                self.path.clone(),
-                self.index.clone(),
+        pub fn fold_into(&self, neighbour: Option<i32>) -> Self {
+            Self {
+                path: self.path.clone(),
+                index: self.index.clone(),
                 neighbour,
-                self.stack.clone(),
-            )
+                stack: self.stack.clone(),
+            }
         }
 
-        pub fn fold_out(&self) -> VMStatus {
-            VMStatus::new(
-                self.path.clone(),
-                self.index.clone(),
-                None,
-                self.stack.clone(),
-            )
+        pub fn fold_out(&self) -> Self {
+            Self {
+                path: self.path.clone(),
+                index: self.index.clone(),
+                neighbour: None,
+                stack: self.stack.clone(),
+            }
         }
 
-        pub fn push(&self) -> VMStatus {
+        pub fn push(&self) -> Self {
             let mut new_stack = self.stack.clone();
             new_stack.push_front((
                 self.path.clone(),
                 self.index.clone(),
                 self.neighbour.clone(),
             ));
-            VMStatus::new(
-                self.path.clone(),
-                self.index.clone(),
-                self.neighbour.clone(),
-                new_stack,
-            )
+            Self {
+                path: self.path.clone(),
+                index: self.index.clone(),
+                neighbour: self.neighbour.clone(),
+                stack: new_stack,
+            }
         }
 
-        pub fn pop(&self) -> VMStatus {
+        pub fn pop(&self) -> Self {
             let mut new_stack = self.stack.clone();
             new_stack.pop_front();
             match self.stack.clone().front() {
-                Some(&(ref p, i, n)) => VMStatus::new(p.clone(), i, n, new_stack),
+                Some(&(ref p, i, n)) => Self {
+                    path: p.clone(),
+                    index: i,
+                    neighbour: n,
+                    stack: new_stack,
+                },
                 _ => panic!(),
             }
         }
 
-        pub fn nest(&self, slot: Slot) -> VMStatus {
-            let new_path = self.path.clone();
-            new_path.push(slot);
-            VMStatus::new(new_path, 0, self.neighbour.clone(), self.stack.clone())
+        pub fn nest(&self, slot: Slot) -> Self {
+            Self {
+                path: self.path.push(slot),
+                index: 0,
+                neighbour: self.neighbour.clone(),
+                stack: self.stack.clone(),
+            }
         }
 
-        pub fn inc_index(&self) -> VMStatus {
-            VMStatus::new(
-                self.path.clone(),
-                self.index + 1,
-                self.neighbour.clone(),
-                self.stack.clone(),
-            )
+        pub fn inc_index(&self) -> Self {
+            Self {
+                path: self.path.clone(),
+                index: self.index + 1,
+                neighbour: self.neighbour.clone(),
+                stack: self.stack.clone(),
+            }
         }
     }
 }
