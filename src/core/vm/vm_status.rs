@@ -17,8 +17,8 @@ pub mod vm_status {
             index: i32,
             neighbour: Option<i32>,
             stack: LinkedList<(Path, i32, Option<i32>)>,
-        ) -> VMStatus {
-            VMStatus {
+        ) -> Self {
+            Self {
                 path,
                 index,
                 neighbour,
@@ -65,12 +65,12 @@ pub mod vm_status {
 
         pub fn pop(&self) -> Self {
             let mut new_stack = self.stack.clone();
-            new_stack.pop_front();
-            match self.stack.clone().front() {
-                Some(&(ref p, i, n)) => Self {
+            let front = new_stack.pop_front();
+            match front {
+                Some((p, i, n)) => Self {
                     path: p.clone(),
-                    index: i,
-                    neighbour: n,
+                    index: i.clone(),
+                    neighbour: n.clone(),
                     stack: new_stack,
                 },
                 _ => panic!(),
