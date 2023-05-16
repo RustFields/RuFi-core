@@ -4,15 +4,15 @@ use crate::core::sensor_id::sensor_id::SensorId;
 pub mod sensor_id {
     #[derive(PartialEq, Debug, Clone, Eq, Hash)]
     pub struct SensorId {
-        pub(crate) sensor_id: String
+        pub(crate) name: String
     }
 }
 
 impl SensorId {
     /// Given a string, creates a new sensor id
-    pub fn new(id: String) -> SensorId {
+    pub fn new(name: String) -> SensorId {
         SensorId {
-            sensor_id: id
+            name
         }
     }
 }
@@ -23,7 +23,7 @@ mod tests {
 
     #[test]
     fn test_new() {
-        let sensor_id = SensorId::new("test".to_string());
-        assert_eq!(sensor_id.sensor_id, "test".to_string())
+        let sensor_id = SensorId::new("foo".to_string());
+        assert_eq!(sensor_id.name, "foo".to_string())
     }
 }
