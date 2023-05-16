@@ -96,25 +96,30 @@ mod test {
     use std::collections::HashMap;
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
+    use crate::core::export_factory::export_factory::empty_path;
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
     use crate::core::sensor_id::sensor_id::SensorId;
 
+    fn context_builder() -> Context {
+        let local_sensor = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
+        let nbr_sensor = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
+        let export = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
+        Context::new(7, local_sensor, nbr_sensor, export)
+    }
+
     #[test]
-    fn test_new() {
-        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+    fn assert_on_fields(){
+        let context = context_builder();
         assert_eq!(context.self_id, 7);
+        assert_eq!(context.exports.len(), 1);
+        assert_eq!(context.local_sensor.len(), 1);
+        assert_eq!(context.nbr_sensor.len() , 1);
     }
 
     #[test]
     fn test_put_export(){
-        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let mut context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        let mut context = context_builder();
         assert_eq!(context.exports.len(), 1);
         let add_export = Export::new(HashMap::from([(Path::new(vec![Branch(0), Nbr(0)]), Box::new(5) as Box<dyn Any>)]));
         context.put_export(1, add_export);
@@ -123,28 +128,21 @@ mod test {
 
     #[test]
     fn test_read_export_value() {
-        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        let context = context_builder();
         assert_eq!(context.read_export_value::<i32>(0, Path::new(vec![Rep(0), Nbr(0)])).unwrap(), &10);
+        assert_eq!(context.read_export_value::<i32>(1, empty_path()), None);
+        assert_eq!(context.read_export_value::<i32>(0, empty_path()), None);
     }
 
     #[test]
     fn test_local_sense(){
-        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        let context = context_builder();
         assert_eq!(context.local_sense::<i32>(SensorId::new("test".to_string())).unwrap(), &10);
     }
 
     #[test]
     fn test_nbr_sense() {
-        let local_sensor: HashMap<SensorId, Box<dyn Any>> = HashMap::from([(SensorId::new("test".to_string()), Box::new(10) as Box<dyn Any>)]);
-        let nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>> = HashMap::from([(SensorId::new("test".to_string()), HashMap::from([(0, Box::new(10) as Box<dyn Any>)]))]);
-        let current_export: HashMap<i32, Export> = HashMap::from([(0, Export::new(HashMap::from([(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10) as Box<dyn Any>)])))]);
-        let context = Context::new(7, local_sensor, nbr_sensor, current_export);
+        let context = context_builder();
         assert_eq!(context.nbr_sense::<i32>(SensorId::new("test".to_string()), 0).unwrap(), &10);
     }
 }
