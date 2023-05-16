@@ -18,7 +18,6 @@ pub mod vm_status {
     }
 
     impl VMStatus {
-
         /// ## Create new VMStatus from the given parameters.
         ///
         /// ### Arguments
@@ -125,10 +124,10 @@ pub mod vm_status {
 
 #[cfg(test)]
 mod test {
-    use std::collections::LinkedList;
     use crate::core::export_factory::export_factory::{empty_path, path};
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
     use crate::core::vm::vm_status::vm_status::VMStatus;
+    use std::collections::LinkedList;
 
     #[test]
     fn test_empty() {
@@ -156,9 +155,15 @@ mod test {
     #[should_panic]
     fn test_as_stack_panic() {
         let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
-        status.push()
-            .fold_into(Some(7)).nest(Nbr(2)).push()
-            .fold_into(Some(8)).nest(Rep(4)).inc_index().push()
+        status
+            .push()
+            .fold_into(Some(7))
+            .nest(Nbr(2))
+            .push()
+            .fold_into(Some(8))
+            .nest(Rep(4))
+            .inc_index()
+            .push()
             .pop()
             .pop()
             .pop()
@@ -191,6 +196,14 @@ mod test {
         assert_eq!(status.index, 0);
         assert_eq!(status.inc_index().index, 1);
         assert_eq!(status.inc_index().inc_index().inc_index().index, 3);
-        assert_eq!(status.inc_index().inc_index().nest(Nbr(0)).inc_index().index, 1)
+        assert_eq!(
+            status
+                .inc_index()
+                .inc_index()
+                .nest(Nbr(0))
+                .inc_index()
+                .index,
+            1
+        )
     }
 }
