@@ -1,3 +1,38 @@
+## [1.2.0](https://github.com/RustFields/RuFi-core/compare/1.1.0...1.2.0) (2023-05-16)
+
+
+### Features
+
+* add context module ([67f11c2](https://github.com/RustFields/RuFi-core/commit/67f11c26edd03cbb43b241511e7e44b92b5cec28))
+* add functions to context ([e2cdc7b](https://github.com/RustFields/RuFi-core/commit/e2cdc7b0ce97bca4c1d950943e93711cddb67c03))
+* add sensor_id module ([dd89933](https://github.com/RustFields/RuFi-core/commit/dd89933d7b5c8ff8280e74ec581e26ebaf6ae323))
+* implement exports_map function and test ([316cb39](https://github.com/RustFields/RuFi-core/commit/316cb392b2e1675067ea86a0b31722456408e00d))
+* implement nbr_sense function and test ([ec947c9](https://github.com/RustFields/RuFi-core/commit/ec947c9fa22a428428cc20a65bac5739d57dce84))
+* implement read_slot function and test ([1423b77](https://github.com/RustFields/RuFi-core/commit/1423b7731bd72982751f900fd9cb98d2557187b1))
+* implement sense function and test ([f3b5805](https://github.com/RustFields/RuFi-core/commit/f3b5805921ff7f3f10311da4247f2ad0f1f4f684))
+
+
+### Bug Fixes
+
+* add derive to sensor_id ([6c1e5e4](https://github.com/RustFields/RuFi-core/commit/6c1e5e4a460aac18ce7f59e069b3f5bfbbd96583))
+
+
+### Documentation
+
+* update Context docs ([adb1363](https://github.com/RustFields/RuFi-core/commit/adb1363e7e4b965501def700f0a95d4fd3289077))
+
+
+### Refactoring
+
+* change methods and params names ([bf2d31a](https://github.com/RustFields/RuFi-core/commit/bf2d31a704ea1e19febc69d3f14fa0291e8fcc59))
+* refactor names in sensor_id ([32a258c](https://github.com/RustFields/RuFi-core/commit/32a258c055539380ba524c65207f59fa797d5d49))
+
+
+### Tests
+
+* add import to tests ([3f2e5a1](https://github.com/RustFields/RuFi-core/commit/3f2e5a13239941c84e3c7d0e34e4517cc7a64ff3))
+* improve tests for context ([9928267](https://github.com/RustFields/RuFi-core/commit/9928267ea8591097e6d4244c9a0db3e1d81fcd82))
+
 ## [1.1.0](https://github.com/RustFields/RuFi-core/compare/1.0.0...1.1.0) (2023-05-11)
 
 
