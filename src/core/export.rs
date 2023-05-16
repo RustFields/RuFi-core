@@ -1,26 +1,25 @@
-use std::any::Any;
-use std::collections::HashMap;
 use crate::core::export::export::Export;
 use crate::core::path::path::path::Path;
+use std::any::Any;
+use std::collections::HashMap;
 
 pub mod export {
+    use crate::core::path::path::path::Path;
     use std::any::Any;
     use std::collections::HashMap;
-    use crate::core::path::path::path::Path;
 
     /// Abstraction for the result of local computation.
     /// It is an AST decorated with the computation value.
     #[derive(Debug)]
-    pub struct Export{
+    pub struct Export {
         pub(crate) map: HashMap<Path, Box<dyn Any>>,
     }
 }
 
 impl Export {
-
     /// Creates an Export with the passed HashMap.
     pub fn new(map: HashMap<Path, Box<dyn Any>>) -> Self {
-        Export{ map }
+        Export { map }
     }
 
     /// Inserts a value in the Export at the given Path.
@@ -30,7 +29,9 @@ impl Export {
 
     /// Returns the value at the given Path.
     pub fn get<A: 'static>(&self, path: &Path) -> Option<&A> {
-        self.map.get(path).and_then(|value| value.downcast_ref::<A>())
+        self.map
+            .get(path)
+            .and_then(|value| value.downcast_ref::<A>())
     }
 
     /// Returns the root value.
@@ -46,8 +47,8 @@ impl Export {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
     use super::*;
+    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
 
     #[test]
     fn test_new_empty() {
@@ -78,7 +79,10 @@ mod tests {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
         map.insert(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10));
         let export = Export::new(map);
-        assert_eq!(export.get::<i32>(&Path::new(vec![Rep(0), Nbr(0)])).unwrap(), &10);
+        assert_eq!(
+            export.get::<i32>(&Path::new(vec![Rep(0), Nbr(0)])).unwrap(),
+            &10
+        );
     }
 
     #[test]
@@ -107,7 +111,7 @@ mod tests {
     }
 
     #[test]
-    fn test_paths(){
+    fn test_paths() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
         let mut map2: HashMap<Path, Box<dyn Any>> = HashMap::new();
         map.insert(Path::new(vec![]), Box::new(10));

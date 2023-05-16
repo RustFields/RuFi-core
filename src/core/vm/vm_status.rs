@@ -1,3 +1,1 @@
-pub mod vm_status {
-
-}
+pub mod vm_status {}
