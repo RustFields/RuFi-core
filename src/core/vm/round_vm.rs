@@ -79,7 +79,7 @@ impl RoundVM {
     pub fn unless_folding_on_others(&self) -> bool {
         match self.neighbor() {
             Some(neighbor) => neighbor == self.self_id(),
-            None() => true,
+            None => true,
         }
     }
 }
