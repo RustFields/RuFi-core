@@ -181,7 +181,7 @@ mod test {
         let s6 = s5.pop();
         assert_eq!(s4.index, 1);
         assert_eq!(s4.neighbour, Some(8));
-        assert_eq!(s4.path, path(vec![Rep(4), Nbr(2)]));
+        assert_eq!(s4.path.slots, vec![Rep(4), Nbr(2)]);
         assert_eq!(s5.index, 0);
         assert_eq!(s5.neighbour, Some(7));
         assert_eq!(s5.path, path(vec![Nbr(2)]));
