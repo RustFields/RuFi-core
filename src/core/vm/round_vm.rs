@@ -42,7 +42,7 @@ impl RoundVM {
     }
 
     /// The first export of the stack.
-    pub fn exports_head(&self) -> &Export {
+    pub fn export_data(&self) -> &Export {
         self.exports_stack.first().unwrap()
     }
 
