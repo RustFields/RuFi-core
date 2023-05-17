@@ -14,7 +14,11 @@ use crate::core::path::slot::slot::Slot;
 impl Path {
     /// Factory method to create a new Path
     pub fn new(slots: Vec<Slot>) -> Self {
-        Path { slots }
+        let mut reversed_slots = slots;
+        reversed_slots.reverse();
+        Self {
+            slots: reversed_slots
+        }
     }
 
     /// Push a Slot into the Path
