@@ -24,7 +24,7 @@ impl Path {
     /// Push a Slot into the Path
     pub fn push(&self, slot: Slot) -> Self {
         Self {
-            slots: [&self.slots[..], &[slot]].concat(),
+            slots: [&[slot], &self.slots[..]].concat(),
         }
     }
 
