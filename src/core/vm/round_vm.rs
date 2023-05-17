@@ -33,8 +33,8 @@ impl RoundVM {
     /// * `status` The status of the current round.
     ///
     /// * `exports_stack` The stack of exports of the current round.
-    pub fn new(context: Context, status: VMStatus, exports_stack: Vec<Export>) -> RoundVM {
-        RoundVM {
+    pub fn new(context: Context, status: VMStatus, exports_stack: Vec<Export>) -> Self {
+        Self {
             context,
             status,
             exports_stack,
