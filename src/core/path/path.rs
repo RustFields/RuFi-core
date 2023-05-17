@@ -14,20 +14,26 @@ use crate::core::path::slot::slot::Slot;
 impl Path {
     /// Factory method to create a new Path
     pub fn new(slots: Vec<Slot>) -> Self {
-        Path { slots }
+        let mut reversed_slots = slots;
+        reversed_slots.reverse();
+        Self {
+            slots: reversed_slots
+        }
     }
 
     /// Push a Slot into the Path
     pub fn push(&self, slot: Slot) -> Self {
         Self {
-            slots: [&self.slots[..], &[slot]].concat(),
+            slots: [&[slot], &self.slots[..]].concat(),
         }
     }
 
     /// Remove the first Slot from the Path
     pub fn pull(&self) -> Self {
+        let mut new_slots = self.slots.clone();
+        new_slots.drain(..1);
         Self {
-            slots: self.slots[..self.slots.len() - 1].to_vec(),
+            slots: new_slots,
         }
     }
 
@@ -74,7 +80,7 @@ mod tests {
     #[test]
     fn test_not_empty_head() {
         let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
-        assert_eq!(path.head(), &Rep(0))
+        assert_eq!(path.head(), &Branch(0))
     }
 
     #[test]
@@ -87,13 +93,13 @@ mod tests {
     #[test]
     fn test_push() {
         let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1)]).push(Branch(0));
-        assert_eq!(path.slots, vec![Rep(0), Nbr(0), Nbr(1), Branch(0)])
+        assert_eq!(path.slots, vec![Branch(0), Nbr(1), Nbr(0), Rep(0)])
     }
 
     #[test]
     fn test_not_empty_pull() {
         let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
-        assert_eq!(path.pull(), Path::new(vec![Rep(0), Nbr(0), Nbr(1)]))
+        assert_eq!(path.pull().slots, vec![Nbr(1), Nbr(0), Rep(0)])
     }
 
     #[test]
@@ -106,7 +112,7 @@ mod tests {
     #[test]
     fn test_to_str() {
         let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
-        assert_eq!(path.to_str(), "P://Rep(0)/Nbr(0)/Nbr(1)/Branch(0)")
+        assert_eq!(path.to_str(), "P://Branch(0)/Nbr(1)/Nbr(0)/Rep(0)")
     }
 
     #[test]
