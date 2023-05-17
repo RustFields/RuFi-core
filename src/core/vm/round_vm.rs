@@ -1,9 +1,14 @@
+use std::any::Any;
+use std::fmt::Error;
 use crate::core::context::context::Context;
 use crate::core::export::export::Export;
+use crate::core::path::path::path::Path;
+use crate::core::sensor_id::sensor_id::SensorId;
 use crate::core::vm::round_vm::round_vm::RoundVM;
 use crate::core::vm::vm_status::vm_status::VMStatus;
 
 pub mod round_vm {
+    use std::any::Any;
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::vm::vm_status::vm_status::VMStatus;
@@ -51,6 +56,11 @@ impl RoundVM {
         self.context.self_id
     }
 
+    /// TODO
+    pub fn register_root(&self, v: Box<dyn Any>) {
+        unimplemented!("todo")
+    }
+
     /// If the computation is folding on a neighbor, get the id of the neighbor
     ///
     /// Returns the id.
@@ -61,6 +71,36 @@ impl RoundVM {
     ///  The index of the current computation.
     pub fn index(&self) -> i32 {
         self.status.index
+    }
+
+    /// TODO
+    pub fn previous_round_val<A:'static + Clone>(&self) -> Option<A>{
+        self.context.read_export_value(self.self_id(), self.status.path.to_owned()).cloned()
+    }
+
+    /// TODO
+    pub fn neighbor_val<A: 'static>(&self) -> A {
+        unimplemented!("todo")
+        // self.context.read_export_value(self.neighbor().unwrap(), self.status.path).unwrap()//.or_else(self.out_of_domain_exception())
+    }
+
+    /// TODO
+    pub fn local_sense<A: 'static>(&self, sensor_id: SensorId) -> A {
+        unimplemented!()
+        //self.context.local_sense(sensor_id).unwrap()//.or_else(self.nbr_sensor_unknown_exception())
+    }
+
+    /// TODO
+    pub fn neighbor_sense<A: 'static>(&self, sensor_id: SensorId) -> A {
+        unimplemented!("todo")
+    }
+
+    // TODO pub fn folded_eval(&self, expr: => A)
+
+
+    /// todo
+    fn ensure(b: bool, s: String) {
+        unimplemented!("todo")
     }
 
     /// Whether the device is contained in the neighbor list
@@ -83,3 +123,41 @@ impl RoundVM {
         }
     }
 }
+
+#[cfg(test)]
+mod tests{
+    use std::any::Any;
+    use std::collections::{HashMap, LinkedList};
+    use crate::core::context::context::Context;
+    use crate::core::export::export::Export;
+    use crate::core::export_factory::export_factory::empty_path;
+    use crate::core::path::path::path::Path;
+    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
+    use crate::core::sensor_id::sensor_id::SensorId;
+    use crate::core::vm::round_vm::round_vm::RoundVM;
+    use crate::core::vm::vm_status::vm_status::VMStatus;
+
+    fn round_vm_builder() -> RoundVM {
+        let local_sensor = HashMap::from([(
+            SensorId::new("test".to_string()),
+            Box::new(10) as Box<dyn Any>,
+        )]);
+        let nbr_sensor = HashMap::from([(
+            SensorId::new("test".to_string()),
+            HashMap::from([(0, Box::new(10) as Box<dyn Any>)]),
+        )]);
+        let export = HashMap::from([(
+            0,
+            Export::new(HashMap::from([(
+                Path::new(vec![Rep(0), Nbr(0)]),
+                Box::new(10) as Box<dyn Any>,
+            )])),
+        )]);
+
+        let context = Context::new(7, local_sensor, nbr_sensor, export);
+        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
+        let exports_stack = vec![];
+        RoundVM::new(context, status, exports_stack)
+    }
+}
+
