@@ -1,3 +1,19 @@
+## [2.0.0](https://github.com/RustFields/RuFi-core/compare/1.2.0...2.0.0) (2023-05-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* fix path behavior
+
+### Bug Fixes
+
+* fix path behavior ([2e24e85](https://github.com/RustFields/RuFi-core/commit/2e24e85820e1f1ace4147cb0e6cba63b35e6098e))
+
+
+### Refactoring
+
+* apply rustfmt rules ([630846e](https://github.com/RustFields/RuFi-core/commit/630846eb15ab6e2c4fee43ae75a6090a7497a69c))
+
 ## [1.2.0](https://github.com/RustFields/RuFi-core/compare/1.1.0...1.2.0) (2023-05-16)
 
 
