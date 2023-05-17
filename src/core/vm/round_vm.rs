@@ -17,9 +17,9 @@ pub mod round_vm {
     /// * `exports_stack` The stack of exports of the current round.
     #[derive(Debug)]
     pub struct RoundVM {
-        pub (crate) context: Context,
-        pub (crate) status: VMStatus,
-        pub (crate) exports_stack: Vec<Export>,
+        pub(crate) context: Context,
+        pub(crate) status: VMStatus,
+        pub(crate) exports_stack: Vec<Export>,
     }
 }
 
@@ -54,7 +54,7 @@ impl RoundVM {
     /// If the computation is folding on a neighbor, get the id of the neighbor
     ///
     /// Returns the id.
-    pub fn neighbor(&self) -> Option<i32>{
+    pub fn neighbor(&self) -> Option<i32> {
         self.status.neighbour
     }
 
