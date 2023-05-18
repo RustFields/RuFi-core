@@ -1,14 +1,13 @@
-use std::any::Any;
-use std::fmt::Error;
 use crate::core::context::context::Context;
 use crate::core::export::export::Export;
 use crate::core::path::path::path::Path;
+use crate::core::path::slot::slot::Slot;
 use crate::core::sensor_id::sensor_id::SensorId;
 use crate::core::vm::round_vm::round_vm::RoundVM;
 use crate::core::vm::vm_status::vm_status::VMStatus;
+use std::any::Any;
 
 pub mod round_vm {
-    use std::any::Any;
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::vm::vm_status::vm_status::VMStatus;
@@ -19,12 +18,13 @@ pub mod round_vm {
     ///
     /// * `status` The status of the current round.
     ///
-    /// * `exports_stack` The stack of exports of the current round.
+    /// * `export_stack` The stack of exports of the current round.
     #[derive(Debug)]
     pub struct RoundVM {
         pub(crate) context: Context,
         pub(crate) status: VMStatus,
-        pub(crate) exports_stack: Vec<Export>,
+        pub(crate) export_stack: Vec<Export>,
+        pub(crate) isolated: bool,
     }
 }
 
@@ -37,81 +37,86 @@ impl RoundVM {
     ///
     /// * `status` The status of the current round.
     ///
-    /// * `exports_stack` The stack of exports of the current round.
-    pub fn new(context: Context, status: VMStatus, exports_stack: Vec<Export>) -> Self {
+    /// * `export_stack` The stack of exports of the current round.
+    pub fn new(context: Context, status: VMStatus, export_stack: Vec<Export>) -> Self {
         Self {
             context,
             status,
-            exports_stack,
+            export_stack,
+            isolated: false,
         }
     }
 
     /// The first export of the stack.
-    pub fn export_data(&self) -> &Export {
-        self.exports_stack.first().unwrap()
+    pub fn export_data(&mut self) -> &mut Export {
+        self.export_stack.first_mut().unwrap()
     }
 
     /// The id of the device.
-    pub fn self_id(&self) -> i32 {
-        self.context.self_id
+    pub fn self_id(&self) -> &i32 {
+        &self.context.self_id
     }
 
-    /// TODO
-    pub fn register_root(&self, v: Box<dyn Any>) {
-        unimplemented!("todo")
+    pub fn register_root(&mut self, v: Box<dyn Any>) {
+        self.export_data().put(Path::new(vec![]), v);
     }
 
     /// If the computation is folding on a neighbor, get the id of the neighbor
     ///
     /// Returns the id.
-    pub fn neighbor(&self) -> Option<i32> {
-        self.status.neighbour
+    pub fn neighbor(&self) -> &Option<i32> {
+        &self.status.neighbour
     }
 
     ///  The index of the current computation.
-    pub fn index(&self) -> i32 {
-        self.status.index
+    pub fn index(&self) -> &i32 {
+        &self.status.index
     }
 
-    /// TODO
-    pub fn previous_round_val<A:'static + Clone>(&self) -> Option<A>{
-        self.context.read_export_value(self.self_id(), self.status.path.to_owned()).cloned()
+    pub fn previous_round_val<A: 'static + Clone>(&self) -> Option<&A> {
+        self.context
+            .read_export_value::<A>(self.self_id(), &self.status.path)
     }
 
-    /// TODO
-    pub fn neighbor_val<A: 'static>(&self) -> A {
-        unimplemented!("todo")
-        // self.context.read_export_value(self.neighbor().unwrap(), self.status.path).unwrap()//.or_else(self.out_of_domain_exception())
+    pub fn neighbor_val<A: 'static + Clone>(&self) -> &A {
+        self.context
+            .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
+            .unwrap()
     }
 
-    /// TODO
-    pub fn local_sense<A: 'static>(&self, sensor_id: SensorId) -> A {
+    pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> &A {
+        self.context.local_sense::<A>(sensor_id).unwrap()
+    }
+
+    pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> &A {
+        self.context
+            .nbr_sense(sensor_id, &self.neighbor().unwrap())
+            .unwrap()
+    }
+
+    pub fn folded_eval<A>(&mut self, expr: A, id: i32) -> Option<A> {
         unimplemented!()
-        //self.context.local_sense(sensor_id).unwrap()//.or_else(self.nbr_sensor_unknown_exception())
     }
 
-    /// TODO
-    pub fn neighbor_sense<A: 'static>(&self, sensor_id: SensorId) -> A {
-        unimplemented!("todo")
+    pub fn nest<A>(slot: Slot, write: &bool, inc: &bool, expr: A) -> A {
+        unimplemented!()
     }
 
-    // TODO pub fn folded_eval(&self, expr: => A)
-
-
-    /// todo
-    fn ensure(b: bool, s: String) {
-        unimplemented!("todo")
+    pub fn locally<A>(a: A) -> A {
+        unimplemented!()
     }
 
-    /// Whether the device is contained in the neighbor list
-    ///
-    /// * return true if the device is contained in the neighbor list, false otherwise
-    pub fn only_when_folding_on_self(&self) -> bool {
-        match self.neighbor() {
-            Some(neighbor) => neighbor == self.self_id(),
-            _ => false
-        }
+    pub fn aligned_neighbours(&self) -> Vec<&i32> {
+        unimplemented!()
     }
+
+    pub fn isolate() {}
+
+    pub fn new_export_stack() {}
+
+    pub fn discard_export() {}
+
+    pub fn merge_export() {}
 
     /// Whether the device is contained in the neighbor list
     ///
@@ -122,12 +127,20 @@ impl RoundVM {
             None => true,
         }
     }
+
+    /// Whether the device is contained in the neighbor list
+    ///
+    /// * return true if the device is contained in the neighbor list, false otherwise
+    pub fn only_when_folding_on_self(&self) -> bool {
+        match self.neighbor() {
+            Some(neighbor) => neighbor == self.self_id(),
+            _ => false,
+        }
+    }
 }
 
 #[cfg(test)]
-mod tests{
-    use std::any::Any;
-    use std::collections::{HashMap, LinkedList};
+mod tests {
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::export_factory::export_factory::empty_path;
@@ -136,6 +149,8 @@ mod tests{
     use crate::core::sensor_id::sensor_id::SensorId;
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use crate::core::vm::vm_status::vm_status::VMStatus;
+    use std::any::Any;
+    use std::collections::{HashMap, LinkedList};
 
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(
@@ -156,8 +171,7 @@ mod tests{
 
         let context = Context::new(7, local_sensor, nbr_sensor, export);
         let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
-        let exports_stack = vec![];
-        RoundVM::new(context, status, exports_stack)
+        let export_stack = vec![];
+        RoundVM::new(context, status, export_stack)
     }
 }
-
