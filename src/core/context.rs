@@ -69,17 +69,17 @@ impl Context {
     /// * `path` the path to the value
     /// * `A` the type of the value
     /// * return the value if it exists
-    pub fn read_export_value<A: 'static>(&self, id: i32, path: Path) -> Option<&A> {
-        self.exports.get(&id).and_then(|export| export.get(&path))
+    pub fn read_export_value<A: 'static>(&self, id: &i32, path: &Path) -> Option<&A> {
+        self.exports.get(id).and_then(|export| export.get(path))
     }
 
     /// Get the value of the given sensor.
     /// * `name` the name of the sensor
     /// * `T` the type of the value
     /// * return the value if it exists
-    pub fn local_sense<A: 'static>(&self, local_sensor_id: SensorId) -> Option<&A> {
+    pub fn local_sense<A: 'static>(&self, local_sensor_id: &SensorId) -> Option<&A> {
         self.local_sensor
-            .get(&local_sensor_id)
+            .get(local_sensor_id)
             .and_then(|value| value.downcast_ref::<A>())
     }
 
@@ -88,10 +88,10 @@ impl Context {
     /// * `nbr_id` the neighbor id
     /// * `T` the type of the value
     /// * return the value if it exists
-    pub fn nbr_sense<A: 'static>(&self, sensor_id: SensorId, nbr_id: i32) -> Option<&A> {
+    pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId, nbr_id: &i32) -> Option<&A> {
         self.nbr_sensor
-            .get(&sensor_id)
-            .and_then(|value| value.get(&nbr_id))
+            .get(sensor_id)
+            .and_then(|value| value.get(nbr_id))
             .and_then(|value| value.downcast_ref::<A>())
     }
 }
@@ -152,12 +152,12 @@ mod test {
         let context = context_builder();
         assert_eq!(
             context
-                .read_export_value::<i32>(0, Path::new(vec![Rep(0), Nbr(0)]))
+                .read_export_value::<i32>(&0, &Path::new(vec![Rep(0), Nbr(0)]))
                 .unwrap(),
             &10
         );
-        assert_eq!(context.read_export_value::<i32>(1, empty_path()), None);
-        assert_eq!(context.read_export_value::<i32>(0, empty_path()), None);
+        assert_eq!(context.read_export_value::<i32>(&1, &empty_path()), None);
+        assert_eq!(context.read_export_value::<i32>(&0, &empty_path()), None);
     }
 
     #[test]
@@ -165,7 +165,7 @@ mod test {
         let context = context_builder();
         assert_eq!(
             context
-                .local_sense::<i32>(SensorId::new("test".to_string()))
+                .local_sense::<i32>(&SensorId::new("test".to_string()))
                 .unwrap(),
             &10
         );
@@ -176,7 +176,7 @@ mod test {
         let context = context_builder();
         assert_eq!(
             context
-                .nbr_sense::<i32>(SensorId::new("test".to_string()), 0)
+                .nbr_sense::<i32>(&SensorId::new("test".to_string()), &0)
                 .unwrap(),
             &10
         );
