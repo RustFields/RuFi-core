@@ -17,7 +17,7 @@ impl Path {
         let mut reversed_slots = slots;
         reversed_slots.reverse();
         Self {
-            slots: reversed_slots
+            slots: reversed_slots,
         }
     }
 
@@ -32,9 +32,7 @@ impl Path {
     pub fn pull(&self) -> Self {
         let mut new_slots = self.slots.clone();
         new_slots.drain(..1);
-        Self {
-            slots: new_slots,
-        }
+        Self { slots: new_slots }
     }
 
     /// Check if the Path is empty
