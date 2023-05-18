@@ -1,3 +1,15 @@
+## [3.0.0](https://github.com/RustFields/RuFi-core/compare/2.0.0...3.0.0) (2023-05-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* refactor context API
+
+### Refactoring
+
+* apply rustfmt rules in path ([7fd592b](https://github.com/RustFields/RuFi-core/commit/7fd592b875c08d37311b4ac6b841b3c1c34dc239))
+* refactor context API ([1197dae](https://github.com/RustFields/RuFi-core/commit/1197dae8302b2daaa341e8d2bf189a7c8652f53b))
+
 ## [2.0.0](https://github.com/RustFields/RuFi-core/compare/1.2.0...2.0.0) (2023-05-17)
 
 
