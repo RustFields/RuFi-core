@@ -53,8 +53,8 @@ impl RoundVM {
     }
 
     /// The id of the device.
-    pub fn self_id(&self) -> &i32 {
-        &self.context.self_id
+    pub fn self_id(&self) -> i32 {
+        self.context.self_id
     }
 
     pub fn register_root(&mut self, v: Box<dyn Any>) {
@@ -75,7 +75,7 @@ impl RoundVM {
 
     pub fn previous_round_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
-            .read_export_value::<A>(self.self_id(), &self.status.path)
+            .read_export_value::<A>(&self.self_id(), &self.status.path)
     }
 
     pub fn neighbor_val<A: 'static + Clone>(&self) -> &A {
