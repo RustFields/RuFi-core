@@ -95,7 +95,7 @@ impl RoundVM {
     }
 
     pub fn folded_eval<A>(&mut self, expr: A, id: i32) -> Option<A> {
-        unimplemented!()
+        unimplemented!("TODO : implement folded_eval")
     }
 
     pub fn nest<A>(&mut self, slot: Slot, write: bool, inc: bool, expr: A) -> A
@@ -157,11 +157,18 @@ impl RoundVM {
         a()
     }
 
-    pub fn new_export_stack() {}
+    pub fn new_export_stack(&self) {
+        unimplemented!("TODO : implement new_export_stack")
+    }
 
-    pub fn discard_export() {}
+    pub fn discard_export(&mut self) {
+        //self.export_stack = self.export_stack.last();
+        unimplemented!("TODO : implement discard_export")
+    }
 
-    pub fn merge_export() {}
+    pub fn merge_export(&self) {
+        unimplemented!("TODO : implement merge_export")
+    }
 
     /// Whether the device is contained in the neighbor list
     ///
