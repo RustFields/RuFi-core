@@ -118,8 +118,14 @@ impl RoundVM {
         result
     }
 
-    pub fn locally<A>(a: A) -> A {
-        unimplemented!()
+    pub fn locally<A, F>(&mut self, mut a: F) -> A
+    where
+        F: FnMut() -> A,
+    {
+        let current_neighbour = self.neighbor().unwrap();
+        self.status = self.status.fold_out();
+        self.status = self.status.fold_into(Some(current_neighbour));
+        a()
     }
 
     pub fn aligned_neighbours(&self) -> Vec<&i32> {
