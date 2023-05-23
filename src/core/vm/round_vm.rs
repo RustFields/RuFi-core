@@ -144,7 +144,18 @@ impl RoundVM {
         }
     }
 
-    pub fn isolate() {}
+    pub fn isolate<A, F>(&mut self, a: F)-> A
+    where
+        F: FnMut() -> A,
+    {
+        let was_isolated = self.isolated;
+        let result = {
+            self.isolated = true;
+            a()
+        };
+        self.isolated = was_isolated;
+        a()
+    }
 
     pub fn new_export_stack() {}
 
