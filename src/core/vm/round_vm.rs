@@ -128,8 +128,20 @@ impl RoundVM {
         a()
     }
 
-    pub fn aligned_neighbours(&self) -> Vec<&i32> {
-        unimplemented!()
+    pub fn aligned_neighbours(&self) -> Vec<i32> {
+        if self.isolated {
+            Vec::new()
+        } else {
+            let self_id = self.self_id();
+            self.context.exports
+                .into_iter()
+                .filter(|(id, _)| *id != self_id)
+                .filter(|(_, export)| {
+                    self.status.path.is_root() || export.get::<i32>(&self.status.path).is_some()
+                })
+                .map(|(id, _)| id)
+                .collect()
+        }
     }
 
     pub fn isolate() {}
