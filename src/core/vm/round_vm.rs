@@ -98,8 +98,24 @@ impl RoundVM {
         unimplemented!()
     }
 
-    pub fn nest<A>(slot: Slot, write: &bool, inc: &bool, expr: A) -> A {
-        unimplemented!()
+    pub fn nest<A>(&mut self, slot: Slot, write: bool, inc: bool, expr: A) -> A
+        where A: FnOnce() -> A {
+        let result: A =  {
+            let mut status = self.status.push().nest(slot);
+            if write {
+                // self.export_data().get(&status.path).or_else(self.export_data().put(status.path, expr))
+                // self.export_data().get(&status.path).or_else(self.export_data().put(status.path, expr)).unwrap()
+                unimplemented!("TODO : implement nest")
+            } else {
+                expr()
+            }
+        };
+        let _status = if inc {
+            self.status.pop().inc_index()
+        } else {
+            self.status.pop()
+        };
+        result
     }
 
     pub fn locally<A>(a: A) -> A {
