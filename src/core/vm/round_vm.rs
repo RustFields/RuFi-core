@@ -180,7 +180,7 @@ impl RoundVM {
     /// * return true if the device is contained in the neighbor list, false otherwise
     pub fn unless_folding_on_others(&self) -> bool {
         match self.neighbor() {
-            Some(neighbor) => neighbor == self.self_id(),
+            Some(neighbor) => neighbor == &self.self_id(),
             None => true,
         }
     }
@@ -190,7 +190,7 @@ impl RoundVM {
     /// * return true if the device is contained in the neighbor list, false otherwise
     pub fn only_when_folding_on_self(&self) -> bool {
         match self.neighbor() {
-            Some(neighbor) => neighbor == self.self_id(),
+            Some(neighbor) => neighbor == &self.self_id(),
             _ => false,
         }
     }
