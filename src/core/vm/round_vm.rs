@@ -40,12 +40,13 @@ impl RoundVM {
     /// * `status` The status of the current round.
     ///
     /// * `export_stack` The stack of exports of the current round.
-    pub fn new(context: Context, status: VMStatus, export_stack: Vec<Export>) -> Self {
+    pub fn new(context: Context, status: VMStatus, export_stack: Vec<Export>, factory: Export) -> Self {
         Self {
             context,
             status,
             export_stack,
             isolated: false,
+            factory,
         }
     }
 
@@ -229,6 +230,7 @@ mod tests {
         let context = Context::new(7, local_sensor, nbr_sensor, export);
         let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
         let export_stack = vec![];
-        RoundVM::new(context, status, export_stack)
+        let factory: Export = Export::new(HashMap::new());
+        RoundVM::new(context, status, export_stack, factory)
     }
 }
