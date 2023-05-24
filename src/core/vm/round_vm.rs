@@ -110,7 +110,7 @@ impl RoundVM {
                 expr()
             }
         };
-        let _status = if inc {
+        if inc {
             self.status.pop().inc_index()
         } else {
             self.status.pop()
