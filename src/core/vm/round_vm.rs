@@ -6,6 +6,7 @@ use crate::core::sensor_id::sensor_id::SensorId;
 use crate::core::vm::round_vm::round_vm::RoundVM;
 use crate::core::vm::vm_status::vm_status::VMStatus;
 use std::any::Any;
+use std::collections::HashMap;
 
 pub mod round_vm {
     use crate::core::context::context::Context;
@@ -25,6 +26,7 @@ pub mod round_vm {
         pub(crate) status: VMStatus,
         pub(crate) export_stack: Vec<Export>,
         pub(crate) isolated: bool,
+        pub(crate) factory: Export,
     }
 }
 
@@ -157,17 +159,20 @@ impl RoundVM {
         a()
     }
 
-    pub fn new_export_stack(&self) {
-        unimplemented!("TODO : implement new_export_stack")
+    pub fn new_export_stack(&mut self) {
+        self.export_stack.insert(0, Export :: new(HashMap :: new()));
+
     }
 
     pub fn discard_export(&mut self) {
-        //self.export_stack = self.export_stack.last();
-        unimplemented!("TODO : implement discard_export")
+        self.export_stack.remove(0);
     }
 
-    pub fn merge_export(&self) {
-        unimplemented!("TODO : implement merge_export")
+    pub fn merge_export(&mut self) {
+        let merge = self.export_data().paths();
+        merge.into_iter().for_each(|val| {
+            self.export_data().put(val.0.to_owned(), self.export_data().get::<Box<dyn Any>>(val.0).unwrap())
+        })
     }
 
     /// Whether the device is contained in the neighbor list
