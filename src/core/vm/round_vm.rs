@@ -147,7 +147,7 @@ impl RoundVM {
         tmp
     }
 
-    pub fn isolate<A, F>(&mut self, a: F)-> A
+    pub fn isolate<A, F>(&mut self, mut a: F) -> A
     where
         F: FnMut() -> A,
     {
