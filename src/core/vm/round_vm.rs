@@ -131,20 +131,20 @@ impl RoundVM {
         a()
     }
 
+    // This function return a copy of the aligned neighbours, not their reference, this could create problems in some cases
     pub fn aligned_neighbours(&self) -> Vec<i32> {
-        if self.isolated {
-            Vec::new()
-        } else {
-            let self_id = self.self_id();
-            self.context.exports
-                .into_iter()
-                .filter(|(id, _)| *id != self_id)
-                .filter(|(_, export)| {
-                    self.status.path.is_root() || export.get::<i32>(&self.status.path).is_some()
-                })
-                .map(|(id, _)| id)
-                .collect()
+        let mut tmp: Vec<i32> = Vec::new();
+        if !self.isolated {
+            tmp = self.context
+                .exports
+                .iter()
+                .filter(|(id, _)| id.clone() != &self.self_id())
+                .filter(|(_, export)| self.status.path.is_root() || export.get::<Box<dyn Any>>(&self.status.path).is_some())
+                .map(|(id, context)| id.clone())
+                .collect();
+            tmp.insert(0, self.self_id().clone());
         }
+        tmp
     }
 
     pub fn isolate<A, F>(&mut self, a: F)-> A
