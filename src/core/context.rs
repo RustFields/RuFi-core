@@ -100,7 +100,6 @@ impl Context {
 mod test {
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
-    use crate::core::export_factory::export_factory::empty_path;
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
     use crate::core::sensor_id::sensor_id::SensorId;
@@ -156,8 +155,8 @@ mod test {
                 .unwrap(),
             &10
         );
-        assert_eq!(context.read_export_value::<i32>(&1, &empty_path()), None);
-        assert_eq!(context.read_export_value::<i32>(&0, &empty_path()), None);
+        assert_eq!(context.read_export_value::<i32>(&1, &Path::new(vec![])), None);
+        assert_eq!(context.read_export_value::<i32>(&0, &Path::new(vec![])), None);
     }
 
     #[test]
