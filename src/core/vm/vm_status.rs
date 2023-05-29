@@ -124,22 +124,22 @@ pub mod vm_status {
 
 #[cfg(test)]
 mod test {
-    use crate::core::export_factory::export_factory::{empty_path, path};
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
     use crate::core::vm::vm_status::vm_status::VMStatus;
     use std::collections::LinkedList;
+    use crate::core::path::path::path::Path;
 
     #[test]
     fn test_empty() {
-        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
-        assert_eq!(status.path, empty_path());
+        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
+        assert_eq!(status.path, Path::new(vec![]));
         assert_eq!(status.index, 0);
         assert_eq!(status.neighbour, None)
     }
 
     #[test]
     fn test_fold_unfold() {
-        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
         assert_eq!(status.neighbour, None);
         let s1 = status.fold_into(Some(7));
         let s2 = status.fold_into(Some(8));
@@ -154,7 +154,7 @@ mod test {
     #[test]
     #[should_panic]
     fn test_as_stack_panic() {
-        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
         status
             .push()
             .fold_into(Some(7))
@@ -172,7 +172,7 @@ mod test {
 
     #[test]
     fn test_as_stack() {
-        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
         let s1 = status.push();
         let s2 = s1.fold_into(Some(7)).nest(Nbr(2)).push();
         let s3 = s2.fold_into(Some(8)).nest(Rep(4)).inc_index().push();
@@ -184,15 +184,15 @@ mod test {
         assert_eq!(s4.path.slots, vec![Rep(4), Nbr(2)]);
         assert_eq!(s5.index, 0);
         assert_eq!(s5.neighbour, Some(7));
-        assert_eq!(s5.path, path(vec![Nbr(2)]));
+        assert_eq!(s5.path, Path::new(vec![Nbr(2)]));
         assert_eq!(s6.index, 0);
         assert_eq!(s6.neighbour, None);
-        assert_eq!(s6.path, empty_path());
+        assert_eq!(s6.path, Path::new(vec![]));
     }
 
     #[test]
     fn test_index() {
-        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
         assert_eq!(status.index, 0);
         assert_eq!(status.inc_index().index, 1);
         assert_eq!(status.inc_index().inc_index().inc_index().index, 3);
