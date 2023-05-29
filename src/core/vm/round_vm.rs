@@ -186,7 +186,6 @@ impl RoundVM {
 mod tests {
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
-    use crate::core::export_factory::export_factory::empty_path;
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
     use crate::core::sensor_id::sensor_id::SensorId;
@@ -213,9 +212,8 @@ mod tests {
         )]);
 
         let context = Context::new(7, local_sensor, nbr_sensor, export);
-        let status = VMStatus::new(empty_path(), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
         let export_stack = vec![];
-        let factory: Export = Export::new(HashMap::new());
-        RoundVM::new(context, status, export_stack, factory)
+        RoundVM::new(context, status, export_stack)
     }
 }
