@@ -81,20 +81,16 @@ impl RoundVM {
             .read_export_value::<A>(&self.self_id(), &self.status.path)
     }
 
-    pub fn neighbor_val<A: 'static + Clone>(&self) -> &A {
-        self.context
-            .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
-            .unwrap()
+    pub fn neighbor_val<A: 'static + Clone>(&self) -> Option<&A> {
+        self.context.read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
     }
 
-    pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> &A {
-        self.context.local_sense::<A>(sensor_id).unwrap()
+    pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
+        self.context.local_sense::<A>(sensor_id)
     }
 
-    pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> &A {
-        self.context
-            .nbr_sense(sensor_id, &self.neighbor().unwrap())
-            .unwrap()
+    pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
+        self.context.nbr_sense(sensor_id, &self.neighbor().unwrap())
     }
 
     pub fn folded_eval<A>(&mut self, expr: A, id: i32) -> Option<A> {
