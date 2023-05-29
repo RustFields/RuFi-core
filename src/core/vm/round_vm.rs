@@ -79,7 +79,8 @@ impl RoundVM {
     }
 
     pub fn neighbor_val<A: 'static + Clone>(&self) -> Option<&A> {
-        self.context.read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
+        self.context
+            .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
     }
 
     pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
@@ -99,12 +100,14 @@ impl RoundVM {
         self.status = self.status.pop();
         match result {
             Some(a) => Some(a),
-            None => None //OutOfDomainException::new(self.self_id(), id, self.status.path.clone())
+            None => None, //OutOfDomainException::new(self.self_id(), id, self.status.path.clone())
         }
     }
 
     pub fn nest<A>(&mut self, slot: Slot, write: bool, inc: bool, expr: A) -> A
-        where A: FnOnce() -> A + 'static + Copy {
+    where
+        A: FnOnce() -> A + 'static + Copy,
+    {
         let cloned_path = self.status.path.clone();
         self.status = self.status.push().nest(slot);
         let result = if write {
@@ -139,11 +142,15 @@ impl RoundVM {
     pub fn aligned_neighbours(&self) -> Vec<i32> {
         let mut tmp: Vec<i32> = Vec::new();
         if !self.isolated {
-            tmp = self.context
+            tmp = self
+                .context
                 .exports
                 .iter()
                 .filter(|(id, _)| id.clone() != &self.self_id())
-                .filter(|(_, export)| self.status.path.is_root() || export.get::<Box<dyn Any>>(&self.status.path).is_some())
+                .filter(|(_, export)| {
+                    self.status.path.is_root()
+                        || export.get::<Box<dyn Any>>(&self.status.path).is_some()
+                })
                 .map(|(id, _)| id.clone())
                 .collect();
             tmp.insert(0, self.self_id().clone());
