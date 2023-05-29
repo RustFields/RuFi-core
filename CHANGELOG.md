@@ -1,3 +1,14 @@
+## [4.0.0](https://github.com/RustFields/RuFi-core/compare/3.0.0...4.0.0) (2023-05-29)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove export_factory module
+
+### Refactoring
+
+* remove export_factory module ([98fb6b9](https://github.com/RustFields/RuFi-core/commit/98fb6b9748a891bb4ddb80bfd41afaa482583b8c))
+
 ## [3.0.0](https://github.com/RustFields/RuFi-core/compare/2.0.0...3.0.0) (2023-05-18)
 
 
