@@ -104,23 +104,25 @@ impl RoundVM {
     }
 
     pub fn nest<A>(&mut self, slot: Slot, write: bool, inc: bool, expr: A) -> A
-        where A: FnOnce() -> A {
-        let result: A =  {
-            let mut status = self.status.push().nest(slot);
-            if write {
-                // self.export_data().get(&status.path).or_else(self.export_data().put(status.path, expr))
-                // self.export_data().get(&status.path).or_else(self.export_data().put(status.path, expr)).unwrap()
-                unimplemented!("TODO : implement nest")
+        where A: FnOnce() -> A + 'static + Copy {
+        let cloned_path = self.status.path.clone();
+        self.status = self.status.push().nest(slot);
+        let result = if write {
+            if let Some(&x) = self.export_data().get(&cloned_path) {
+                x
             } else {
-                expr()
+                self.export_data().put(cloned_path, expr.clone());
+                &expr
             }
+        } else {
+            &expr
         };
-        if inc {
+        self.status = if inc {
             self.status.pop().inc_index()
         } else {
             self.status.pop()
         };
-        result
+        result.to_owned()
     }
 
     pub fn locally<A, F>(&mut self, mut a: F) -> A
