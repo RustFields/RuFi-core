@@ -25,7 +25,6 @@ pub mod round_vm {
         pub(crate) status: VMStatus,
         pub(crate) export_stack: Vec<Export>,
         pub(crate) isolated: bool,
-        pub(crate) factory: Export,
     }
 }
 
@@ -39,13 +38,12 @@ impl RoundVM {
     /// * `status` The status of the current round.
     ///
     /// * `export_stack` The stack of exports of the current round.
-    pub fn new(context: Context, status: VMStatus, export_stack: Vec<Export>, factory: Export) -> Self {
+    pub fn new(context: Context, status: VMStatus, export_stack: Vec<Export>) -> Self {
         Self {
             context,
             status,
             export_stack,
             isolated: false,
-            factory,
         }
     }
 
