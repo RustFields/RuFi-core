@@ -160,22 +160,6 @@ impl RoundVM {
         a()
     }
 
-    pub fn new_export_stack(&mut self) {
-        self.export_stack.insert(0, Export :: new(HashMap :: new()));
-
-    }
-
-    pub fn discard_export(&mut self) {
-        self.export_stack.remove(0);
-    }
-
-    pub fn merge_export(&mut self) {
-        let merge = self.export_data().paths();
-        merge.into_iter().for_each(|val| {
-            self.export_data().put(val.0.to_owned(), self.export_data().get::<Box<dyn Any>>(val.0).unwrap())
-        })
-    }
-
     /// Whether the device is contained in the neighbor list
     ///
     /// * return true if the device is contained in the neighbor list, false otherwise
