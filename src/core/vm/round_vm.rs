@@ -151,17 +151,14 @@ impl RoundVM {
         tmp
     }
 
-    pub fn isolate<A, F>(&mut self, mut a: F) -> A
+    pub fn isolate<A, F>(&mut self, mut expr: F) -> A
     where
         F: FnMut() -> A,
     {
         let was_isolated = self.isolated;
-        let result = {
-            self.isolated = true;
-            a()
-        };
+        self.isolated = true;
         self.isolated = was_isolated;
-        a()
+        expr()
     }
 
     /// Whether the device is contained in the neighbor list
