@@ -98,7 +98,16 @@ impl RoundVM {
     }
 
     pub fn folded_eval<A>(&mut self, expr: A, id: i32) -> Option<A> {
-        unimplemented!("TODO : implement folded_eval")
+        let result = {
+            self.status = self.status.push();
+            self.status = self.status.fold_into(Some(id));
+            Some(expr)
+        };
+        self.status = self.status.pop();
+        match result {
+            Some(a) => Some(a),
+            None => None //OutOfDomainException::new(self.self_id(), id, self.status.path.clone())
+        }
     }
 
     pub fn nest<A>(&mut self, slot: Slot, write: bool, inc: bool, expr: A) -> A
