@@ -119,4 +119,46 @@ mod tests {
         let export = Export::new(map);
         assert!(export.map.keys().eq(map2.keys()));
     }
+
+    #[test]
+    fn test_empty_state() {
+        let export: Export = Export::new(HashMap::new());
+        let path = Path::new(vec![Nbr(0), Rep(0)]);
+        assert_eq!(export.get::<i32>(&Path::new(vec![])), None);
+        assert_eq!(export.get::<i32>(&path), None);
+    }
+
+    #[test]
+    fn test_root_path() {
+        let mut export: Export = Export::new(HashMap::new());
+        export.put(Path::new(vec![]), String::from("foo"));
+        assert_eq!(
+            export.get::<String>(&Path::new(vec![])).unwrap(),
+            export.root::<String>()
+        );
+        assert_eq!(
+            export.get::<String>(&Path::new(vec![])),
+            Some(&String::from("foo"))
+        );
+    }
+
+    #[test]
+    fn test_non_root_path() {
+        let mut export: Export = Export::new(HashMap::new());
+        let path = Path::new(vec![Nbr(0), Rep(0)]);
+        export.put(path.clone(), String::from("bar"));
+        assert_eq!(export.get::<String>(&path).unwrap(), &String::from("bar"));
+    }
+
+    #[test]
+    fn test_overwriting_with_different_type() {
+        let mut export: Export = Export::new(HashMap::new());
+        export.put(Path::new(vec![]), String::from("foo"));
+        assert_eq!(
+            export.get::<String>(&Path::new(vec![])),
+            Some(&String::from("foo"))
+        );
+        export.put(Path::new(vec![]), 77);
+        assert_eq!(export.get::<i32>(&Path::new(vec![])).unwrap(), &77);
+    }
 }
