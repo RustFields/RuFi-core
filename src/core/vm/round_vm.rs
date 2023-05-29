@@ -144,7 +144,7 @@ impl RoundVM {
                 .iter()
                 .filter(|(id, _)| id.clone() != &self.self_id())
                 .filter(|(_, export)| self.status.path.is_root() || export.get::<Box<dyn Any>>(&self.status.path).is_some())
-                .map(|(id, context)| id.clone())
+                .map(|(id, _)| id.clone())
                 .collect();
             tmp.insert(0, self.self_id().clone());
         }
