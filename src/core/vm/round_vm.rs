@@ -116,11 +116,10 @@ impl RoundVM {
             if let Some(&x) = self.export_data().get(&cloned_path) {
                 x
             } else {
-                self.export_data().put(cloned_path, expr.clone());
-                &expr
+                self.export_data().put(cloned_path, || expr())
             }
         } else {
-            &expr
+            expr()
         };
         self.status = if inc {
             self.status.pop().inc_index()
