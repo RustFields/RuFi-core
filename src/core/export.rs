@@ -23,8 +23,10 @@ impl Export {
     }
 
     /// Inserts a value in the Export at the given Path.
-    pub fn put<A: 'static>(&mut self, path: Path, value: A) {
-        self.map.insert(path, Box::new(value));
+    pub fn put<A: 'static, F>(&mut self, path: Path, value: F) -> A
+    where F: Fn() -> A {
+        self.map.insert(path, Box::new(value()));
+        value()
     }
 
     /// Returns the value at the given Path.
@@ -69,8 +71,8 @@ mod tests {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
         map.insert(Path::new(vec![Rep(0)]), Box::new(10));
         let mut export = Export::new(map);
-        export.put(Path::new(vec![Rep(0), Nbr(0)]), 20);
-        export.put(Path::new(vec![Nbr(0)]), "foo");
+        export.put(Path::new(vec![Rep(0), Nbr(0)]), || 20);
+        export.put(Path::new(vec![Nbr(0)]), || "foo");
         assert_eq!(export.paths().len(), 3);
     }
 
@@ -131,7 +133,7 @@ mod tests {
     #[test]
     fn test_root_path() {
         let mut export: Export = Export::new(HashMap::new());
-        export.put(Path::new(vec![]), String::from("foo"));
+        export.put(Path::new(vec![]), ||String::from("foo"));
         assert_eq!(
             export.get::<String>(&Path::new(vec![])).unwrap(),
             export.root::<String>()
@@ -146,19 +148,19 @@ mod tests {
     fn test_non_root_path() {
         let mut export: Export = Export::new(HashMap::new());
         let path = Path::new(vec![Nbr(0), Rep(0)]);
-        export.put(path.clone(), String::from("bar"));
+        export.put(path.clone(), || String::from("bar"));
         assert_eq!(export.get::<String>(&path).unwrap(), &String::from("bar"));
     }
 
     #[test]
     fn test_overwriting_with_different_type() {
         let mut export: Export = Export::new(HashMap::new());
-        export.put(Path::new(vec![]), String::from("foo"));
+        export.put(Path::new(vec![]), || String::from("foo"));
         assert_eq!(
             export.get::<String>(&Path::new(vec![])),
             Some(&String::from("foo"))
         );
-        export.put(Path::new(vec![]), 77);
+        export.put(Path::new(vec![]), || 77);
         assert_eq!(export.get::<i32>(&Path::new(vec![])).unwrap(), &77);
     }
 }
