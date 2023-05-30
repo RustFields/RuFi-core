@@ -128,14 +128,14 @@ impl RoundVM {
         result.to_owned()
     }
 
-    pub fn locally<A, F>(&mut self, mut a: F) -> A
+    pub fn locally<A, F>(&mut self, mut expr: F) -> A
     where
         F: FnMut() -> A,
     {
         let current_neighbour = self.neighbor().unwrap();
         self.status = self.status.fold_out();
         self.status = self.status.fold_into(Some(current_neighbour));
-        a()
+        expr()
     }
 
     // This function return a copy of the aligned neighbours, not their reference, this could create problems in some cases
