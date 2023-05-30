@@ -57,8 +57,10 @@ impl RoundVM {
         self.context.self_id
     }
 
-    pub fn register_root(&mut self, v: Box<dyn Any>) {
-        self.export_data().put(Path::new(vec![]), v);
+    pub fn register_root<F>(&mut self, v: F)
+        where F: Fn() -> Box<dyn Any>,
+    {
+        self.export_data().put(Path::new(vec![]), || v());
     }
 
     /// If the computation is folding on a neighbor, get the id of the neighbor
