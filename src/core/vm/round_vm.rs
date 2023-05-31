@@ -208,16 +208,21 @@ mod tests {
             SensorId::new("sensor1".to_string()),
             HashMap::from([(0, Box::new(10) as Box<dyn Any>)]),
         )]);
-        let export = HashMap::from([(
-            7,
-            Export::new(HashMap::from([(
-                Path::new(vec![Rep(0), Nbr(0)]),
-                Box::new(10) as Box<dyn Any>,
-            )])),
-        )]);
+        let export = HashMap::from([
+            (7,
+            Export::new(HashMap::from([
+                (Path::new(vec![Rep(0), Nbr(0)]),
+                Box::new(10) as Box<dyn Any>)
+            ]))),
+            (0,
+             Export::new(HashMap::from([
+                 (Path::new(vec![Rep(0), Nbr(0)]),
+                  Box::new(2) as Box<dyn Any>)
+             ]))),
+        ]);
 
         let context = Context::new(7, local_sensor, nbr_sensor, export);
-        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new_empty(), 0, Some(0), LinkedList::new());
         let export_stack = vec![];
         let mut vm = RoundVM::new(context, status, export_stack);
         vm.export_stack.push(Export::new(HashMap::from([(Path::new_empty(), Box::new(0) as Box<dyn Any>)])));
@@ -276,5 +281,12 @@ mod tests {
         let mut vm = round_vm_builder();
         vm.status.path = Path::new(vec![Rep(0), Nbr(0)]);
         assert_eq!(vm.previous_round_val::<i32>().unwrap(), &10)
+    }
+
+    #[test]
+    fn test_neighbor_val() {
+        let mut vm = round_vm_builder();
+        vm.status.path = Path::new(vec![Rep(0), Nbr(0)]);
+        assert_eq!(vm.neighbor_val::<i32>().unwrap(), &2)
     }
 }
