@@ -58,7 +58,7 @@ impl RoundVM {
     }
 
     pub fn register_root<A: 'static + Copy>(&mut self, v: A) {
-        self.export_data().put(Path::new(vec![]), || { v });
+        self.export_data().put(Path::new(vec![]), || v);
     }
 
     /// If the computation is folding on a neighbor, get the id of the neighbor
@@ -92,8 +92,8 @@ impl RoundVM {
     }
 
     pub fn folded_eval<A, F>(&mut self, expr: F, id: i32) -> Option<A>
-        where
-            F: Fn() -> A
+    where
+        F: Fn() -> A,
     {
         self.status = self.status.push();
         self.status = self.status.fold_into(Some(id));
@@ -103,8 +103,8 @@ impl RoundVM {
     }
 
     pub fn nest<A: Clone + 'static, F>(&mut self, slot: Slot, write: bool, inc: bool, expr: F) -> A
-        where
-            F: Fn() -> A
+    where
+        F: Fn() -> A,
     {
         let result: A;
         let cloned_path = self.status.path.clone();
@@ -209,23 +209,30 @@ mod tests {
             HashMap::from([(0, Box::new(4) as Box<dyn Any>)]),
         )]);
         let export = HashMap::from([
-            (7,
-            Export::new(HashMap::from([
-                (Path::new(vec![Rep(0), Nbr(0)]),
-                Box::new(10) as Box<dyn Any>)
-            ]))),
-            (0,
-             Export::new(HashMap::from([
-                 (Path::new(vec![Rep(0), Nbr(0)]),
-                  Box::new(2) as Box<dyn Any>)
-             ]))),
+            (
+                7,
+                Export::new(HashMap::from([(
+                    Path::new(vec![Rep(0), Nbr(0)]),
+                    Box::new(10) as Box<dyn Any>,
+                )])),
+            ),
+            (
+                0,
+                Export::new(HashMap::from([(
+                    Path::new(vec![Rep(0), Nbr(0)]),
+                    Box::new(2) as Box<dyn Any>,
+                )])),
+            ),
         ]);
 
         let context = Context::new(7, local_sensor, nbr_sensor, export);
         let status = VMStatus::new(Path::new_empty(), 0, Some(0), LinkedList::new());
         let export_stack = vec![];
         let mut vm = RoundVM::new(context, status, export_stack);
-        vm.export_stack.push(Export::new(HashMap::from([(Path::new_empty(), Box::new(0) as Box<dyn Any>)])));
+        vm.export_stack.push(Export::new(HashMap::from([(
+            Path::new_empty(),
+            Box::new(0) as Box<dyn Any>,
+        )])));
         vm
     }
 
@@ -293,13 +300,21 @@ mod tests {
     #[test]
     fn test_local_sense() {
         let vm = round_vm_builder();
-        assert_eq!(vm.local_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &10)
+        assert_eq!(
+            vm.local_sense::<i32>(&SensorId::new("sensor1".to_string()))
+                .unwrap(),
+            &10
+        )
     }
 
     #[test]
     fn test_nbr_sense() {
         let vm = round_vm_builder();
-        assert_eq!(vm.nbr_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &4)
+        assert_eq!(
+            vm.nbr_sense::<i32>(&SensorId::new("sensor1".to_string()))
+                .unwrap(),
+            &4
+        )
     }
 
     #[test]

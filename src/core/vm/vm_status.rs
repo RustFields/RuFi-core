@@ -124,10 +124,10 @@ pub mod vm_status {
 
 #[cfg(test)]
 mod test {
+    use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
     use crate::core::vm::vm_status::vm_status::VMStatus;
     use std::collections::LinkedList;
-    use crate::core::path::path::path::Path;
 
     #[test]
     fn test_empty() {
