@@ -73,24 +73,39 @@ impl RoundVM {
         &self.status.index
     }
 
+    ///  The value of the previous round for the current device and the current path.
     pub fn previous_round_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
             .read_export_value::<A>(&self.self_id(), &self.status.path)
     }
 
+    ///  The value of the current path for the current neighbor.
     pub fn neighbor_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
             .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
     }
 
+    /// The local value of the given sensor.
+    /// ### Arguments
+    ///
+    /// * `sensor_id` The id of the sensor.
     pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
         self.context.local_sense::<A>(sensor_id)
     }
 
+    /// The value of the given sensor for the current neighbor.
+    /// ### Arguments
+    ///
+    /// * `sensor_id` The id of the sensor.
     pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
         self.context.nbr_sense(sensor_id, &self.neighbor().unwrap())
     }
 
+    /// Evaluates the given expression in the given neighbor.
+    /// ### Arguments
+    ///
+    /// * `expr` The expression to fold.
+    /// * `id` The id of the neighbor.
     pub fn folded_eval<A, F>(&mut self, expr: F, id: i32) -> Option<A>
     where
         F: Fn() -> A,
@@ -102,6 +117,13 @@ impl RoundVM {
         result
     }
 
+    /// TODO
+    /// ### Arguments
+    ///
+    /// * `slot` The slot to nest.
+    /// * `write` if write the result in the export.
+    /// * `inc` if increment the index.
+    /// * `expr` The expression to evaluate.
     pub fn nest<A: Clone + 'static, F>(&mut self, slot: Slot, write: bool, inc: bool, expr: F) -> A
     where
         F: Fn() -> A,
@@ -136,7 +158,7 @@ impl RoundVM {
         expr()
     }
 
-    // This function return a copy of the aligned neighbours, not their reference, this could create problems in some cases
+    // Returns the aligned neighbours
     pub fn aligned_neighbours(&self) -> Vec<i32> {
         let mut tmp: Vec<i32> = Vec::new();
         if !self.isolated {
@@ -156,6 +178,10 @@ impl RoundVM {
         tmp
     }
 
+    // Isolates the current device and evaluates the given expression
+    /// ### Arguments
+    ///
+    /// * `expr` The expression to evaluate.
     pub fn isolate<A, F>(&mut self, mut expr: F) -> A
     where
         F: FnMut() -> A,
