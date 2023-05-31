@@ -21,6 +21,13 @@ impl Path {
         }
     }
 
+    /// Factory method to create a new empty Path
+    pub fn new_empty() -> Self {
+        Self {
+            slots: vec![],
+        }
+    }
+
     /// Push a Slot into the Path
     pub fn push(&self, slot: Slot) -> Self {
         Self {
