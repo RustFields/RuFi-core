@@ -91,7 +91,7 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_empty_head() {
-        let path = Path::new(vec![]);
+        let path = Path::new_empty();
         assert_eq!(path.head(), &Rep(0))
     }
 
@@ -110,8 +110,8 @@ mod tests {
     #[test]
     #[should_panic]
     fn test_empty_pull() {
-        let path = Path::new(vec![]);
-        assert_eq!(path.pull(), Path::new(vec![]))
+        let path = Path::new_empty();
+        assert_eq!(path.pull(), Path::new_empty())
     }
 
     #[test]
