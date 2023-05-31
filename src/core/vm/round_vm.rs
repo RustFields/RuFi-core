@@ -117,13 +117,29 @@ impl RoundVM {
         result
     }
 
-    /// TODO
-    /// ### Arguments
+    /// Nest the current status, execute the given expression, and return the result.
     ///
-    /// * `slot` The slot to nest.
-    /// * `write` if write the result in the export.
-    /// * `inc` if increment the index.
-    /// * `expr` The expression to evaluate.
+    /// This function updates the status by pushing a nested slot, and
+    /// evaluates the provided expression. The result of the expression is returned after restoring
+    /// the status to its previous state.
+    ///
+    /// # Arguments
+    ///
+    /// * `slot` - The slot to nest in the current status.
+    /// * `write` - A boolean flag indicating whether to perform a write operation.
+    /// * `inc` - A boolean flag indicating whether to increment the index after nesting.
+    /// * `expr` - The expression to evaluate, which should return a value of type `A`.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value returned by the expression. It must implement the `Clone` trait
+    ///         and have a `'static` lifetime.
+    /// * `F` - The type of the expression, which must be a closure that takes no arguments and
+    ///         returns a value of type `A`.
+    ///
+    /// # Returns
+    ///
+    /// The result of the expression.
     pub fn nest<A: Clone + 'static, F>(&mut self, slot: Slot, write: bool, inc: bool, expr: F) -> A
     where
         F: Fn() -> A,
