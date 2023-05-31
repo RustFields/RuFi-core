@@ -98,7 +98,7 @@ mod tests {
     #[test]
     fn test_root() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![]), Box::new(10));
+        map.insert(Path::new_empty(), Box::new(10));
         let export = Export::new(map);
         assert_eq!(export.root::<i32>(), &10);
     }
@@ -107,7 +107,7 @@ mod tests {
     #[should_panic]
     fn test_root_panic() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![]), Box::new(10));
+        map.insert(Path::new_empty(), Box::new(10));
         let export = Export::new(map);
         assert_eq!(export.root::<String>(), &"foo");
     }
@@ -116,8 +116,8 @@ mod tests {
     fn test_paths() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
         let mut map2: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![]), Box::new(10));
-        map2.insert(Path::new(vec![]), Box::new(10));
+        map.insert(Path::new_empty(), Box::new(10));
+        map2.insert(Path::new_empty(), Box::new(10));
         let export = Export::new(map);
         assert!(export.map.keys().eq(map2.keys()));
     }
@@ -126,20 +126,20 @@ mod tests {
     fn test_empty_state() {
         let export: Export = Export::new(HashMap::new());
         let path = Path::new(vec![Nbr(0), Rep(0)]);
-        assert_eq!(export.get::<i32>(&Path::new(vec![])), None);
+        assert_eq!(export.get::<i32>(&Path::new_empty()), None);
         assert_eq!(export.get::<i32>(&path), None);
     }
 
     #[test]
     fn test_root_path() {
         let mut export: Export = Export::new(HashMap::new());
-        export.put(Path::new(vec![]), ||String::from("foo"));
+        export.put(Path::new_empty(), ||String::from("foo"));
         assert_eq!(
-            export.get::<String>(&Path::new(vec![])).unwrap(),
+            export.get::<String>(&Path::new_empty()).unwrap(),
             export.root::<String>()
         );
         assert_eq!(
-            export.get::<String>(&Path::new(vec![])),
+            export.get::<String>(&Path::new_empty()),
             Some(&String::from("foo"))
         );
     }
@@ -155,12 +155,12 @@ mod tests {
     #[test]
     fn test_overwriting_with_different_type() {
         let mut export: Export = Export::new(HashMap::new());
-        export.put(Path::new(vec![]), || String::from("foo"));
+        export.put(Path::new_empty(), || String::from("foo"));
         assert_eq!(
-            export.get::<String>(&Path::new(vec![])),
+            export.get::<String>(&Path::new_empty()),
             Some(&String::from("foo"))
         );
-        export.put(Path::new(vec![]), || 77);
-        assert_eq!(export.get::<i32>(&Path::new(vec![])).unwrap(), &77);
+        export.put(Path::new_empty(), || 77);
+        assert_eq!(export.get::<i32>(&Path::new_empty()).unwrap(), &77);
     }
 }

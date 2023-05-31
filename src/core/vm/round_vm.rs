@@ -76,7 +76,7 @@ impl RoundVM {
     /// * `A` - The type of value. It must implement the `Copy` trait
     ///         and have a `'static` lifetime.
     pub fn register_root<A: 'static + Copy>(&mut self, v: A) {
-        self.export_data().put(Path::new(vec![]), || v);
+        self.export_data().put(Path::new_empty(), || v);
     }
 
     /// If the computation is folding on a neighbor, return the id of the neighbor

@@ -155,8 +155,8 @@ mod test {
                 .unwrap(),
             &10
         );
-        assert_eq!(context.read_export_value::<i32>(&1, &Path::new(vec![])), None);
-        assert_eq!(context.read_export_value::<i32>(&0, &Path::new(vec![])), None);
+        assert_eq!(context.read_export_value::<i32>(&1, &Path::new_empty()), None);
+        assert_eq!(context.read_export_value::<i32>(&0, &Path::new_empty()), None);
     }
 
     #[test]

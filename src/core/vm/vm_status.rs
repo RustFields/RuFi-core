@@ -131,15 +131,15 @@ mod test {
 
     #[test]
     fn test_empty() {
-        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
-        assert_eq!(status.path, Path::new(vec![]));
+        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
+        assert_eq!(status.path, Path::new_empty());
         assert_eq!(status.index, 0);
         assert_eq!(status.neighbour, None)
     }
 
     #[test]
     fn test_fold_unfold() {
-        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
         assert_eq!(status.neighbour, None);
         let s1 = status.fold_into(Some(7));
         let s2 = status.fold_into(Some(8));
@@ -154,7 +154,7 @@ mod test {
     #[test]
     #[should_panic]
     fn test_as_stack_panic() {
-        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
         status
             .push()
             .fold_into(Some(7))
@@ -172,7 +172,7 @@ mod test {
 
     #[test]
     fn test_as_stack() {
-        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
         let s1 = status.push();
         let s2 = s1.fold_into(Some(7)).nest(Nbr(2)).push();
         let s3 = s2.fold_into(Some(8)).nest(Rep(4)).inc_index().push();
@@ -187,12 +187,12 @@ mod test {
         assert_eq!(s5.path, Path::new(vec![Nbr(2)]));
         assert_eq!(s6.index, 0);
         assert_eq!(s6.neighbour, None);
-        assert_eq!(s6.path, Path::new(vec![]));
+        assert_eq!(s6.path, Path::new_empty());
     }
 
     #[test]
     fn test_index() {
-        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
         assert_eq!(status.index, 0);
         assert_eq!(status.inc_index().index, 1);
         assert_eq!(status.inc_index().inc_index().inc_index().index, 3);
