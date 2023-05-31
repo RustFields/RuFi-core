@@ -91,17 +91,15 @@ impl RoundVM {
         self.context.nbr_sense(sensor_id, &self.neighbor().unwrap())
     }
 
-    pub fn folded_eval<A>(&mut self, expr: A, id: i32) -> Option<A> {
-        let result = {
-            self.status = self.status.push();
-            self.status = self.status.fold_into(Some(id));
-            Some(expr)
-        };
+    pub fn folded_eval<A, F>(&mut self, expr: F, id: i32) -> Option<A>
+        where
+            F: Fn() -> A
+    {
+        self.status = self.status.push();
+        self.status = self.status.fold_into(Some(id));
+        let result = Some(expr());
         self.status = self.status.pop();
-        match result {
-            Some(a) => Some(a),
-            None => None, //OutOfDomainException::new(self.self_id(), id, self.status.path.clone())
-        }
+        result
     }
 
     pub fn nest<A: Clone + 'static, F>(&mut self, slot: Slot, write: bool, inc: bool, expr: F) -> A
