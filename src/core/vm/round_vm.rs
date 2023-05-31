@@ -132,10 +132,9 @@ impl RoundVM {
         let cloned_path = self.status.path.clone();
         self.status = self.status.push().nest(slot);
         if write {
-            if let Some(x) = self.export_data().get::<A>(&cloned_path) {
-                result = x.clone();
-            } else {
-                result = self.export_data().put(cloned_path, || expr());
+            result = match self.export_data().get::<A>(&cloned_path) {
+                Some(x) => x.clone(),
+                _ => self.export_data().put(cloned_path, || expr())
             }
         } else {
             result = expr();
