@@ -297,11 +297,12 @@ impl RoundVM {
         expr()
     }
 
-    /// Whether the device is contained in the neighbor list
+    /// Check if folding is not being performed on neighbor.
     ///
     /// # Returns
     ///
-    /// true if the device is contained in the neighbor list, false otherwise
+    /// - `true` if folding is being performed on self.
+    /// - `false` if folding is being performed on neighbor.
     pub fn unless_folding_on_others(&self) -> bool {
         match self.neighbor() {
             Some(neighbor) => neighbor == &self.self_id(),
@@ -309,11 +310,12 @@ impl RoundVM {
         }
     }
 
-    /// Whether the device is contained in the neighbor list
+    /// Check if folding is being performed on self.
     ///
     /// # Returns
     ///
-    /// true if the device is contained in the neighbor list, false otherwise
+    /// - `true` if folding is being performed on self.
+    /// - `false` otherwise.
     pub fn only_when_folding_on_self(&self) -> bool {
         match self.neighbor() {
             Some(neighbor) => neighbor == &self.self_id(),
