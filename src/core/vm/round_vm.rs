@@ -292,13 +292,13 @@ mod tests {
 
     #[test]
     fn test_local_sense() {
-        let mut vm = round_vm_builder();
+        let vm = round_vm_builder();
         assert_eq!(vm.local_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &10)
     }
 
     #[test]
     fn test_nbr_sense() {
-        let mut vm = round_vm_builder();
+        let vm = round_vm_builder();
         assert_eq!(vm.nbr_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &4)
     }
 
@@ -310,7 +310,7 @@ mod tests {
 
     #[test]
     fn test_aligned_neighbours() {
-        let mut vm = round_vm_builder();
+        let vm = round_vm_builder();
         assert_eq!(vm.aligned_neighbours(), vec![7, 0])
     }
 
