@@ -201,15 +201,15 @@ mod tests {
 
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(
-            SensorId::new("test".to_string()),
+            SensorId::new("sensor1".to_string()),
             Box::new(10) as Box<dyn Any>,
         )]);
         let nbr_sensor = HashMap::from([(
-            SensorId::new("test".to_string()),
+            SensorId::new("sensor1".to_string()),
             HashMap::from([(0, Box::new(10) as Box<dyn Any>)]),
         )]);
         let export = HashMap::from([(
-            0,
+            7,
             Export::new(HashMap::from([(
                 Path::new(vec![Rep(0), Nbr(0)]),
                 Box::new(10) as Box<dyn Any>,
