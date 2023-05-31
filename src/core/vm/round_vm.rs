@@ -103,24 +103,25 @@ impl RoundVM {
     }
 
     pub fn nest<A: Clone + 'static, F>(&mut self, slot: Slot, write: bool, inc: bool, expr: F) -> A
-    where
-        F: Fn() -> A
+        where
+            F: Fn() -> A
     {
+        let result: A;
         let cloned_path = self.status.path.clone();
         self.status = self.status.push().nest(slot);
-        let result: A = if write {
+        if write {
             if let Some(x) = self.export_data().get::<A>(&cloned_path) {
-                x.clone()
+                result = x.clone();
             } else {
-                self.export_data().put(cloned_path, || expr())
+                result = self.export_data().put(cloned_path, || expr());
             }
         } else {
-            expr()
+            result = expr();
         };
-        self.status = if inc {
-            self.status.pop().inc_index()
+        if inc {
+            self.status = self.status.pop().inc_index()
         } else {
-            self.status.pop()
+            self.status = self.status.pop()
         };
         result
     }
