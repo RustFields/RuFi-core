@@ -289,4 +289,10 @@ mod tests {
         vm.status.path = Path::new(vec![Rep(0), Nbr(0)]);
         assert_eq!(vm.neighbor_val::<i32>().unwrap(), &2)
     }
+
+    #[test]
+    fn test_local_sense() {
+        let mut vm = round_vm_builder();
+        assert_eq!(vm.local_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &10)
+    }
 }
