@@ -9,7 +9,7 @@ pub mod vm_status {
     /// * `index` - The index of the current slot.
     /// * `neighbour` - The id of the current neighbour. If the current slot is not a folding slot, this value is None.
     /// * `stack` - Stack that contains the list of the statuses
-    #[derive(Debug)]
+    #[derive(Debug, PartialEq, Clone)]
     pub struct VMStatus {
         pub(crate) path: Path,
         pub(crate) index: i32,
