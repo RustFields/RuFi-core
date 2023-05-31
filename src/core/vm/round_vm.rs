@@ -147,6 +147,10 @@ impl RoundVM {
         result
     }
 
+    // Evaluates the given expression locally
+    /// ### Arguments
+    ///
+    /// * `expr` The expression to evaluate.
     pub fn locally<A, F>(&mut self, mut expr: F) -> A
     where
         F: FnMut() -> A,
