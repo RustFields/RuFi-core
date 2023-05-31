@@ -14,11 +14,11 @@ pub mod round_vm {
 
     /// A Round correspond to a local computation in a device. Create the context, evaluate the aggregate program and share the exports to the neighborhood.
     ///
-    /// * `context` The context of the current round.
+    /// * `context` - The context of the current round.
     ///
-    /// * `status` The status of the current round.
+    /// * `status` - The status of the current round.
     ///
-    /// * `export_stack` The stack of exports of the current round.
+    /// * `export_stack` - The stack of exports of the current round.
     #[derive(Debug)]
     pub struct RoundVM {
         pub(crate) context: Context,
@@ -33,11 +33,15 @@ impl RoundVM {
     ///
     /// ### Arguments
     ///
-    /// * `context` The context of the current round.
+    /// * `context` - The context of the current round.
     ///
-    /// * `status` The status of the current round.
+    /// * `status` - The status of the current round.
     ///
-    /// * `export_stack` The stack of exports of the current round.
+    /// * `export_stack` - The stack of exports of the current round.
+    ///
+    /// # Returns
+    ///
+    /// A `RoundVM` instance.
     pub fn new(context: Context, status: VMStatus, export_stack: Vec<Export>) -> Self {
         Self {
             context,
@@ -47,65 +51,121 @@ impl RoundVM {
         }
     }
 
-    /// The first export of the stack.
+    /// # Returns
+    ///
+    /// The first export of the stack, of type `&mut Export`.
     pub fn export_data(&mut self) -> &mut Export {
         self.export_stack.first_mut().unwrap()
     }
 
-    /// The id of the device.
+    /// # Returns
+    ///
+    /// The id of the device, of type `i32`.
     pub fn self_id(&self) -> i32 {
         self.context.self_id
     }
 
+    /// Register the given value for the root path.
+    ///
+    /// ### Arguments
+    ///
+    /// * `v` - The value to register.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value. It must implement the `Copy` trait
+    ///         and have a `'static` lifetime.
     pub fn register_root<A: 'static + Copy>(&mut self, v: A) {
         self.export_data().put(Path::new(vec![]), || v);
     }
 
-    /// If the computation is folding on a neighbor, get the id of the neighbor
+    /// If the computation is folding on a neighbor, return the id of the neighbor
     ///
-    /// Returns the id.
+    /// # Returns
+    ///
+    /// An `&Option<i32>` containing the id of the neighbor, if present
     pub fn neighbor(&self) -> &Option<i32> {
         &self.status.neighbour
     }
 
+    /// # Returns
+    ///
     ///  The index of the current computation.
     pub fn index(&self) -> &i32 {
         &self.status.index
     }
 
+    /// # Returns
+    ///
     ///  The value of the previous round for the current device and the current path.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value. It must implement the `Clone` trait
+    ///         and have a `'static` lifetime.
     pub fn previous_round_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
             .read_export_value::<A>(&self.self_id(), &self.status.path)
     }
 
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value. It must implement the `Clone` trait
+    ///         and have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
     ///  The value of the current path for the current neighbor.
     pub fn neighbor_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
             .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
     }
 
-    /// The local value of the given sensor.
     /// ### Arguments
     ///
-    /// * `sensor_id` The id of the sensor.
+    /// * - `sensor_id` - The id of the sensor.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value returned by the sensor. It must have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// The local value of the given sensor.
     pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
         self.context.local_sense::<A>(sensor_id)
     }
 
-    /// The value of the given sensor for the current neighbor.
     /// ### Arguments
     ///
-    /// * `sensor_id` The id of the sensor.
+    /// * `sensor_id` - The id of the sensor.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value returned by the sensor. It must have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// The value of the given sensor for the current neighbor.
     pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
         self.context.nbr_sense(sensor_id, &self.neighbor().unwrap())
     }
 
-    /// Evaluates the given expression in the given neighbor.
-    /// ### Arguments
+    /// Perform a folded evaluation of the given expression in the given neighbor and return the result.
     ///
-    /// * `expr` The expression to fold.
-    /// * `id` The id of the neighbor.
+    /// # Arguments
+    ///
+    /// * `expr` - The expression to evaluate, which should return a value of type `A`.
+    /// * `id` - The id of the neighbor.. It is of type `i32`.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value returned by the expression.
+    /// * `F` - The type of the expression, which must be a closure that takes no arguments and returns a value of type `A`.
+    ///
+    /// # Returns
+    ///
+    /// An `Option` containing the result of the expression.
     pub fn folded_eval<A, F>(&mut self, expr: F, id: i32) -> Option<A>
     where
         F: Fn() -> A,
@@ -161,10 +221,24 @@ impl RoundVM {
         result
     }
 
-    // Evaluates the given expression locally
+    /// Evaluates the given expression locally and return the result.
+    ///
     /// ### Arguments
     ///
     /// * `expr` The expression to evaluate.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value returned by the expression.
+    /// * `F` - The type of the closure, which must be a mutable closure that takes no arguments and returns a value of type `A`.
+    ///
+    /// # Returns
+    ///
+    /// The result of the closure `expr`.
+    ///
+    /// # Panics
+    ///
+    /// This function panics if the `neighbor` method returns `None`.
     pub fn locally<A, F>(&mut self, mut expr: F) -> A
     where
         F: FnMut() -> A,
@@ -175,7 +249,11 @@ impl RoundVM {
         expr()
     }
 
-    // Returns the aligned neighbours
+    /// Get a vector of aligned neighbor identifiers.
+    ///
+    /// # Returns
+    ///
+    /// A vector of aligned neighbor identifiers.
     pub fn aligned_neighbours(&self) -> Vec<i32> {
         let mut tmp: Vec<i32> = Vec::new();
         if !self.isolated {
@@ -195,10 +273,20 @@ impl RoundVM {
         tmp
     }
 
-    // Isolates the current device and evaluates the given expression
-    /// ### Arguments
+    /// Isolate the current device and evaluate the given expression
     ///
-    /// * `expr` The expression to evaluate.
+    /// # Arguments
+    ///
+    /// * `expr` - The closure to execute, which takes no arguments and returns a value of type `A`.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of value returned by the closure.
+    /// * `F` - The type of the closure, which must be a mutable closure that takes no arguments and returns a value of type `A`.
+    ///
+    /// # Returns
+    ///
+    /// The result of the closure `expr`.
     pub fn isolate<A, F>(&mut self, mut expr: F) -> A
     where
         F: FnMut() -> A,
@@ -211,7 +299,9 @@ impl RoundVM {
 
     /// Whether the device is contained in the neighbor list
     ///
-    /// * return true if the device is contained in the neighbor list, false otherwise
+    /// # Returns
+    ///
+    /// true if the device is contained in the neighbor list, false otherwise
     pub fn unless_folding_on_others(&self) -> bool {
         match self.neighbor() {
             Some(neighbor) => neighbor == &self.self_id(),
@@ -221,7 +311,9 @@ impl RoundVM {
 
     /// Whether the device is contained in the neighbor list
     ///
-    /// * return true if the device is contained in the neighbor list, false otherwise
+    /// # Returns
+    ///
+    /// true if the device is contained in the neighbor list, false otherwise
     pub fn only_when_folding_on_self(&self) -> bool {
         match self.neighbor() {
             Some(neighbor) => neighbor == &self.self_id(),
