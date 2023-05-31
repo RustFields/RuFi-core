@@ -128,21 +128,19 @@ impl RoundVM {
     where
         F: Fn() -> A,
     {
-        let result: A;
         let cloned_path = self.status.path.clone();
         self.status = self.status.push().nest(slot);
-        if write {
-            result = match self.export_data().get::<A>(&cloned_path) {
+        let result: A = if write {
+            match self.export_data().get::<A>(&cloned_path) {
                 Some(x) => x.clone(),
                 _ => self.export_data().put(cloned_path, || expr())
             }
         } else {
-            result = expr();
+            expr()
         };
-        if inc {
-            self.status = self.status.pop().inc_index()
-        } else {
-            self.status = self.status.pop()
+        self.status = match inc {
+            true => self.status.pop().inc_index(),
+            false => self.status.pop()
         };
         result
     }
