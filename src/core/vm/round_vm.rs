@@ -206,7 +206,7 @@ mod tests {
         )]);
         let nbr_sensor = HashMap::from([(
             SensorId::new("sensor1".to_string()),
-            HashMap::from([(0, Box::new(10) as Box<dyn Any>)]),
+            HashMap::from([(0, Box::new(4) as Box<dyn Any>)]),
         )]);
         let export = HashMap::from([
             (7,
@@ -294,5 +294,32 @@ mod tests {
     fn test_local_sense() {
         let mut vm = round_vm_builder();
         assert_eq!(vm.local_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &10)
+    }
+
+    #[test]
+    fn test_nbr_sense() {
+        let mut vm = round_vm_builder();
+        assert_eq!(vm.nbr_sense::<i32>(&SensorId::new("sensor1".to_string())).unwrap(), &4)
+    }
+
+    #[test]
+    fn test_locally() {
+        let mut vm = round_vm_builder();
+        assert_eq!(vm.locally(|| expr()), expr())
+    }
+
+    #[test]
+    fn test_aligned_neighbours() {
+        let mut vm = round_vm_builder();
+        assert_eq!(vm.aligned_neighbours(), vec![7, 0])
+    }
+
+    #[test]
+    fn test_isolate() {
+        let mut vm = round_vm_builder();
+        let was_isolated = vm.isolated.clone();
+        let result = vm.isolate(|| expr());
+        assert_eq!(vm.isolated, was_isolated);
+        assert_eq!(result, expr())
     }
 }
