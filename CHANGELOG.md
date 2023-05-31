@@ -1,3 +1,102 @@
+## [5.0.0](https://github.com/RustFields/RuFi-core/compare/4.0.0...5.0.0) (2023-05-31)
+
+
+### ⚠ BREAKING CHANGES
+
+* put function in export now takes a closure as value
+
+### Features
+
+* add correct implementation to nest function ([22c9be2](https://github.com/RustFields/RuFi-core/commit/22c9be28c3c8f2c2d8e58868333eceb50a70953a))
+* add new functions to round_vm ([b12c5b6](https://github.com/RustFields/RuFi-core/commit/b12c5b6aaab75d6cf85eb83a1d1283ad16c0018a))
+* add new_empty function in Path ([52af8b7](https://github.com/RustFields/RuFi-core/commit/52af8b70b86f34140e6f66eb1065cbef2d5c8d6e))
+* add PartialEq and Clone to VMStatus ([95d1f89](https://github.com/RustFields/RuFi-core/commit/95d1f89a2f8b6af146e9a8a1e2fca12bcbfba20c))
+* add some missing unimplemented functions ([c85c6bb](https://github.com/RustFields/RuFi-core/commit/c85c6bb5a67f423576907d24de5e2a506bd15e36))
+* add vm_status module ([d9c59d9](https://github.com/RustFields/RuFi-core/commit/d9c59d9bc28ddaa2d0565ffa2625573c0956867e))
+* change return type of neighbor_val, local_sense and nbr_sense ([afb15dc](https://github.com/RustFields/RuFi-core/commit/afb15dcb454848a1daa7e2d70a8ce6987c27836d))
+* change self_id return type ([e6b6338](https://github.com/RustFields/RuFi-core/commit/e6b633872f9c71797e7ce3bb0dc4347e2e53c7ff))
+* implement aligned_neighbours function ([1539f58](https://github.com/RustFields/RuFi-core/commit/1539f58ffcbf55238fe7af56d5d16e56e56142a7))
+* implement folded_eval ([7096188](https://github.com/RustFields/RuFi-core/commit/70961886a889e5840b03c5fe4cdfd58fd3d162f9))
+* implement isolate function ([7dfe095](https://github.com/RustFields/RuFi-core/commit/7dfe0955e1437458c11bce59b332bf2e14a1e38b))
+* implement locally function ([0777ea6](https://github.com/RustFields/RuFi-core/commit/0777ea6a12d1cbbc705d2b5e6bfd2afcbbf96a01))
+* implement new/discard/merge export ([65eb626](https://github.com/RustFields/RuFi-core/commit/65eb62636605738dd1e912fc463bdd82ad0e36e7))
+* implement round_vm module ([1832a9a](https://github.com/RustFields/RuFi-core/commit/1832a9a0cd2b8249dbd360599975cdcf12cd2159))
+* partially implement nest function ([70712fa](https://github.com/RustFields/RuFi-core/commit/70712faede2ae5767e180f0dccf543a87e19ccbe))
+
+
+### Bug Fixes
+
+* add factory to new() ([0e165ec](https://github.com/RustFields/RuFi-core/commit/0e165ec7253f298b8a7a783db82527e584c0983d))
+* error on types in folding functions ([3c2a888](https://github.com/RustFields/RuFi-core/commit/3c2a888678cd29287e6f369ae1d3a983228a271c))
+* fix aligned_neighbours function ([4d907bf](https://github.com/RustFields/RuFi-core/commit/4d907bf866981a652aacf3084a0a96b8cd46bc79))
+* fix compilation error ([5cc1bcb](https://github.com/RustFields/RuFi-core/commit/5cc1bcb67d1be0d015143505292bbd881089a839))
+* fix isolate function ([57760ba](https://github.com/RustFields/RuFi-core/commit/57760ba49b17f36dee8c74f7fb4d313997c31366))
+* fix nest function ([70afefe](https://github.com/RustFields/RuFi-core/commit/70afefe8b2886ad48fe49629e97b4b304c83f2f1))
+* fix only_when_folding_on_self and unless_folding_on_others functions ([9a9309b](https://github.com/RustFields/RuFi-core/commit/9a9309bedffbe1df76289e698b5b94efb3abe3bf))
+
+
+### General maintenance
+
+* add unimplemented macro ([b045952](https://github.com/RustFields/RuFi-core/commit/b045952d863c229d051209eb76ee705c8ccfe758))
+* remove unused import ([1ca0c99](https://github.com/RustFields/RuFi-core/commit/1ca0c99257200f9b0d7f21f1722f45fb17911cf5))
+
+
+### Style improvements
+
+* apply rustfmt rules ([376ea87](https://github.com/RustFields/RuFi-core/commit/376ea87878a37ee2df7e31591cee3ccf18d4403a))
+
+
+### Refactoring
+
+* adapt round_vm to use export ([a65d1dc](https://github.com/RustFields/RuFi-core/commit/a65d1dcfb9044844e1f11c4ea58442a0f8299b61))
+* add correct implementation in isolate function ([59f1fbf](https://github.com/RustFields/RuFi-core/commit/59f1fbfad2fd74b9005341470824d4f64489a0d5))
+* apply rustfmt rules ([a82cc24](https://github.com/RustFields/RuFi-core/commit/a82cc24b03558a6ddf44e87c8769307542d8f49a))
+* apply rustfmt rules in round_vm ([0f5145a](https://github.com/RustFields/RuFi-core/commit/0f5145aada8ecc5e972e1679c44eeb8d2910cf81))
+* apply rustfmt rules in vm_status ([56153e1](https://github.com/RustFields/RuFi-core/commit/56153e1dc5d1c0cd51d2bac73204681a7b7c4c40))
+* change function name in round_vm ([1702207](https://github.com/RustFields/RuFi-core/commit/17022071413d93c3a71aa573b6261e2586a4d261))
+* change parameter name in locally function ([7cf56dc](https://github.com/RustFields/RuFi-core/commit/7cf56dc9e839b26997adc4b8ce60d1c146caba1b))
+* change RoundVM to Self in new ([b7e068f](https://github.com/RustFields/RuFi-core/commit/b7e068fbcf07cd5d72f092a420fa4e93d40ac004))
+* make mutable val immutable ([e1d59f7](https://github.com/RustFields/RuFi-core/commit/e1d59f7c4a03c71a8a99cf71ac34c8190a61d672))
+* now folded_eval takes an higher order as expr ([ec70771](https://github.com/RustFields/RuFi-core/commit/ec707711dcb7e9be2490c9da9e89a5ab25f254eb))
+* put function in export now takes a closure as value ([f3a0872](https://github.com/RustFields/RuFi-core/commit/f3a087261b6cc5654700185e126efc2e59ae14dc))
+* refactor fnunctions pop and new ([86e3a1d](https://github.com/RustFields/RuFi-core/commit/86e3a1d953cbdddf86e50128bce7dbf621d79ea8))
+* register_root no longer take a function as parameter ([c97c4de](https://github.com/RustFields/RuFi-core/commit/c97c4dec367173a083392edcdb45bab758d0af83))
+* register_root now takes an higher order function ([51637b9](https://github.com/RustFields/RuFi-core/commit/51637b91e2865812ef151a0705fe35d5b4bc294f))
+* remove closures inside nest function ([7277cec](https://github.com/RustFields/RuFi-core/commit/7277cece10987a2bdab1fd5d835603a3ab336922))
+* remove export_factory dependency ([920d790](https://github.com/RustFields/RuFi-core/commit/920d790c4d4c7497f9be59d561684c1a21c7c6af))
+* remove unused parameter in closure ([2e8af99](https://github.com/RustFields/RuFi-core/commit/2e8af99fd591dbc26302d894eb113ad4dd26bd0e))
+* remove useless functions ([00e6d3e](https://github.com/RustFields/RuFi-core/commit/00e6d3eb230d94ae8b5f67e83e3b0cbe31248c67))
+* remove useless variable definition ([297897f](https://github.com/RustFields/RuFi-core/commit/297897fb0748c43309100b49dff0046065e2dc56))
+* rewrite nest function in more readable way ([8875c7a](https://github.com/RustFields/RuFi-core/commit/8875c7acb2059cdb643a531f6db2e12ee57a5420))
+* rewritten functions more idiomatically ([f88d596](https://github.com/RustFields/RuFi-core/commit/f88d596a23e10269ec21b3ebb4c663f6aff8eb38))
+* switch if let with math in nest function ([689d038](https://github.com/RustFields/RuFi-core/commit/689d0388b50b6e07f8593929f6f06c243bfd558b))
+
+
+### Documentation
+
+* add documentation for locally function ([e443dbc](https://github.com/RustFields/RuFi-core/commit/e443dbc691be99fabffbae084973aec9ce89ee2b))
+* add documentation for RoundVM functions ([6f31b2e](https://github.com/RustFields/RuFi-core/commit/6f31b2e8841a74688103f2087cc1f108133bbe53))
+* add documentation in vm_status ([8ef5b28](https://github.com/RustFields/RuFi-core/commit/8ef5b281ed7fb392140203ace9debc58e7af7632))
+* improve documentation ([0e0323a](https://github.com/RustFields/RuFi-core/commit/0e0323a1b474f2559ad575b4488005be9ce4f468))
+* improve documentation ([495aadb](https://github.com/RustFields/RuFi-core/commit/495aadb4da2ce24c7f643894de45937253c7304d))
+* improve documentation for nest function ([697ab22](https://github.com/RustFields/RuFi-core/commit/697ab222bcf746ef651059e302fdebfac4fc9e5c))
+
+
+### Tests
+
+* add test for local_sense function ([5ca7eca](https://github.com/RustFields/RuFi-core/commit/5ca7ecaf0343d8d7734681e292e2e52b57f7332e))
+* add test for neighbor_val ([1d9c78f](https://github.com/RustFields/RuFi-core/commit/1d9c78fac6b30936c911edb20003da984ee84b54))
+* add tests for following functions ([6ef5b1f](https://github.com/RustFields/RuFi-core/commit/6ef5b1fe7265a24c0573f5711251cfe91a232687))
+* add tests for following functions ([e5c9d9c](https://github.com/RustFields/RuFi-core/commit/e5c9d9c892d8f80dcdf4cef90e028f8a04b80fe8))
+* add tests for following functions ([043bdad](https://github.com/RustFields/RuFi-core/commit/043bdad7bf34e0afc7889156a6ff072a5faf4a3a))
+* add tests for vm_status ([220d96b](https://github.com/RustFields/RuFi-core/commit/220d96b16422eebe1046c90f01515b410e0cb725))
+* change sensor name in test ([6e035d6](https://github.com/RustFields/RuFi-core/commit/6e035d6e1a5006e5a27af4e4cf09c093c6b81e4f))
+* fix test for RoundVM ([a5d1929](https://github.com/RustFields/RuFi-core/commit/a5d1929305198a37d5ca36ab5ac4865d34e69929))
+* fix test_as_stack in round_vm ([e23465a](https://github.com/RustFields/RuFi-core/commit/e23465a7f15faff8cae3f45b752a5c8842d5e448))
+* fix tests in vm_status, export_factory is no longer used ([82e8556](https://github.com/RustFields/RuFi-core/commit/82e8556d971f6f9661f6b82a43907a23d9adbae9))
+* import tests from export_factory module to export module ([8ebf449](https://github.com/RustFields/RuFi-core/commit/8ebf449b958f86236e8b639e8628e96ddd5df8da))
+* remove mutability were not needed ([f380910](https://github.com/RustFields/RuFi-core/commit/f380910a0ba0eca4a0da41878bd5c2b72df26dea))
+
 ## [4.0.0](https://github.com/RustFields/RuFi-core/compare/3.0.0...4.0.0) (2023-05-29)
 
 
