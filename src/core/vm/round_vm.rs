@@ -217,8 +217,64 @@ mod tests {
         )]);
 
         let context = Context::new(7, local_sensor, nbr_sensor, export);
-        let status = VMStatus::new(Path::new(vec![]), 0, None, LinkedList::new());
+        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
         let export_stack = vec![];
-        RoundVM::new(context, status, export_stack)
+        let mut vm = RoundVM::new(context, status, export_stack);
+        vm.export_stack.push(Export::new(HashMap::from([(Path::new_empty(), Box::new(0) as Box<dyn Any>)])));
+        vm
+    }
+
+    fn expr() -> i32 {
+        5 * 3
+    }
+
+    #[test]
+    fn test_export_data() {
+        let mut vm = round_vm_builder();
+        assert_eq!(vm.export_data().root::<i32>(), &0)
+    }
+
+    #[test]
+    fn test_register_root() {
+        let mut vm = round_vm_builder();
+        vm.register_root(Box::new(expr)());
+        assert_eq!(vm.export_data().root::<i32>(), &expr())
+    }
+
+    #[test]
+    fn test_folded_eval() {
+        let mut vm = round_vm_builder();
+        let result = vm.folded_eval(|| expr, 7);
+        assert_eq!(round_vm_builder().status, vm.status);
+        assert_eq!(result.unwrap()(), expr())
+    }
+
+    #[test]
+    fn test_nest() {
+        let mut vm = round_vm_builder();
+        let result = vm.nest(Rep(vm.index().clone()), false, false, || expr);
+        assert_eq!(round_vm_builder().status, vm.status);
+        assert_eq!(result(), expr())
+    }
+
+    #[test]
+    fn test_nest_inc_index() {
+        let mut vm = round_vm_builder();
+        vm.nest(Rep(vm.index().clone()), false, true, || expr);
+        assert_eq!(round_vm_builder().status.index + 1, vm.status.index);
+    }
+
+    #[test]
+    fn test_nest_write() {
+        let mut vm = round_vm_builder();
+        vm.nest(Rep(vm.index().clone()), true, false, || expr);
+        assert_eq!(vm.export_data().get::<i32>(&Path::new_empty()), None)
+    }
+
+    #[test]
+    fn test_previous_round_val() {
+        let mut vm = round_vm_builder();
+        vm.status.path = Path::new(vec![Rep(0), Nbr(0)]);
+        assert_eq!(vm.previous_round_val::<i32>().unwrap(), &10)
     }
 }
