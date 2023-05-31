@@ -474,4 +474,24 @@ mod tests {
         assert_eq!(vm.isolated, was_isolated);
         assert_eq!(result, expr())
     }
+
+    #[test]
+    fn test_unless_folding_on_others() {
+        let mut vm = round_vm_builder();
+        assert!(!vm.unless_folding_on_others());
+        vm.status.neighbour = None;
+        assert!(vm.unless_folding_on_others());
+        vm.status.neighbour = Some(7);
+        assert!(vm.unless_folding_on_others());
+    }
+
+    #[test]
+    fn test_only_when_folding_on_self() {
+        let mut vm = round_vm_builder();
+        assert!(!vm.only_when_folding_on_self());
+        vm.status.neighbour = None;
+        assert!(!vm.only_when_folding_on_self());
+        vm.status.neighbour = Some(7);
+        assert!(vm.only_when_folding_on_self());
+    }
 }
