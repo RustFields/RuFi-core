@@ -1,3 +1,36 @@
+## [5.1.0](https://github.com/RustFields/RuFi-core/compare/5.0.0...5.1.0) (2023-06-22)
+
+
+### Features
+
+* add empty constructor in Export ([b7ac465](https://github.com/RustFields/RuFi-core/commit/b7ac465039a1a950fad38c8555dbc46edda7e28e))
+* add empty constructor in RoundVM ([f37dd33](https://github.com/RustFields/RuFi-core/commit/f37dd3307015b9a81e3bf2ec1ddc000b2b61f37d))
+* add empty constructor in VMStatus ([379e8eb](https://github.com/RustFields/RuFi-core/commit/379e8ebfbc02e70c40c661acb584ff57e44c0b50))
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.30 ([bbe2332](https://github.com/RustFields/RuFi-core/commit/bbe23329ade7670de35e13ed150168e5124cb127))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.32 ([fcd6dbe](https://github.com/RustFields/RuFi-core/commit/fcd6dbede5f0c35d5f3d4826f0ac2c32b72bd304))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.33 ([1edcf0f](https://github.com/RustFields/RuFi-core/commit/1edcf0fe61f3fe7cb85f4878d30e9f59b709143c))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.35 ([50f2475](https://github.com/RustFields/RuFi-core/commit/50f2475ace5cf0f62339de49bd182b295ee94e81))
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.37 ([d92b98b](https://github.com/RustFields/RuFi-core/commit/d92b98bfb2009108bef8b14894315e9d0237e202))
+
+
+### Tests
+
+* fix test in vm_status ([afa4540](https://github.com/RustFields/RuFi-core/commit/afa45406f2f60c7f7b2ceca46026317b2143f2ee))
+
+
+### Build and continuous integration
+
+* **Mergify:** configuration update ([b5ce6b0](https://github.com/RustFields/RuFi-core/commit/b5ce6b057df6c571a18d277db5a8c8be273a3a22))
+
+
+### Refactoring
+
+* replace Path::new(vec![]) with Path::new_empty() ([7e81d8d](https://github.com/RustFields/RuFi-core/commit/7e81d8d4f9dd95f0240b2878795cb9e3fa8eb5b3))
+
 ## [5.0.0](https://github.com/RustFields/RuFi-core/compare/4.0.0...5.0.0) (2023-05-31)
 
 
