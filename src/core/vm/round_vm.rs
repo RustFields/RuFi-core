@@ -51,6 +51,15 @@ impl RoundVM {
         }
     }
 
+    pub fn new_empty(context: Context) -> Self {
+        Self {
+            context,
+            status: VMStatus::new_empty(),
+            export_stack: vec![Export::new_empty()],
+            isolated: false,
+        }
+    }
+
     /// # Returns
     ///
     /// The first export of the stack, of type `&mut Export`.
