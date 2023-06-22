@@ -40,6 +40,15 @@ pub mod vm_status {
             }
         }
 
+        pub fn new_empty() -> Self {
+            Self {
+                path: Path::new_empty(),
+                index: 0,
+                neighbour: None,
+                stack: LinkedList::new(),
+            }
+        }
+
         /// Whether the VM is folding or not.
         pub fn is_folding(&self) -> bool {
             self.neighbour.is_some()
