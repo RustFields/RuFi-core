@@ -19,7 +19,15 @@ pub mod export {
 impl Export {
     /// Creates an Export with the passed HashMap.
     pub fn new(map: HashMap<Path, Box<dyn Any>>) -> Self {
-        Export { map }
+        Export {
+            map
+        }
+    }
+
+    pub fn new_empty() -> Self {
+        Export {
+            map: HashMap::new()
+        }
     }
 
     /// Inserts a value in the Export at the given Path.
