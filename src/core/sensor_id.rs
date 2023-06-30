@@ -10,8 +10,8 @@ pub mod sensor_id {
 
 impl SensorId {
     /// Given a string, creates a new sensor id
-    pub fn new(name: String) -> SensorId {
-        SensorId { name }
+    pub fn new(name: String) -> Self {
+        Self { name }
     }
 }
 
