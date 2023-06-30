@@ -46,8 +46,8 @@ impl Context {
         local_sensor: HashMap<SensorId, Box<dyn Any>>,
         nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
         exports: HashMap<i32, Export>,
-    ) -> Context {
-        Context {
+    ) -> Self {
+        Self {
             self_id,
             local_sensor,
             nbr_sensor,
