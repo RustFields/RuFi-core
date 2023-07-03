@@ -55,6 +55,14 @@ impl Export {
     }
 }
 
+impl From<HashMap<Path, Box<dyn Any>>> for Export {
+    fn from(map: HashMap<Path, Box<dyn Any>>) -> Self {
+        Self {
+            map
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
