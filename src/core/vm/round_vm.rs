@@ -42,7 +42,7 @@ impl RoundVM {
         Self {
             context,
             status: VMStatus::new(),
-            export_stack: vec![Export::new()],
+            export_stack: vec![],
             isolated: false,
         }
     }
