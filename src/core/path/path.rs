@@ -69,6 +69,16 @@ impl Path {
     }
 }
 
+impl From<Vec<Slot>> for Path {
+    fn from(slots: Vec<Slot>) -> Self {
+        let mut reversed_slots = slots;
+        reversed_slots.reverse();
+        Self {
+            slots: reversed_slots,
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::core::path::path::path::Path;

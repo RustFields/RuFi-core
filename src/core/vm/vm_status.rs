@@ -1,3 +1,7 @@
+use std::collections::LinkedList;
+use crate::core::path::path::path::Path;
+use crate::core::vm::vm_status::vm_status::VMStatus;
+
 pub mod vm_status {
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot;
@@ -127,6 +131,17 @@ pub mod vm_status {
                 neighbour: self.neighbour.clone(),
                 stack: self.stack.clone(),
             }
+        }
+    }
+}
+
+impl From<Path> for VMStatus {
+    fn from(path: Path) -> Self {
+        Self {
+            path,
+            index: 0,
+            neighbour: None,
+            stack: LinkedList::new(),
         }
     }
 }
