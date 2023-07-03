@@ -65,10 +65,6 @@ impl Context {
     ///
     /// * `id`  the ID of the device
     /// * `data` the export of the device
-    ///
-    /// # Returns
-    ///
-    ///
     pub fn put_export(&mut self, id: i32, data: Export) {
         self.exports.insert(id, data);
     }
@@ -115,8 +111,14 @@ impl Context {
     ///
     /// * `sensor_id` the neighbor sensor id
     /// * `nbr_id` the neighbor id
+    ///
+    /// # Generic Parameters
+    ///
     /// * `T` the type of the value
-    /// * return the value if it exists
+    ///
+    /// # Returns
+    ///
+    /// The value if it exists
     pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId, nbr_id: &i32) -> Option<&A> {
         self.nbr_sensor
             .get(sensor_id)
