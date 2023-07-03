@@ -40,7 +40,7 @@ impl Export {
 
     /// Returns the root value.
     pub fn root<A: 'static>(&self) -> &A {
-        self.get(&Path::from(Vec::new())).unwrap()
+        self.get(&Path::new()).unwrap()
     }
 
     /// Returns the HashMap of the Export.

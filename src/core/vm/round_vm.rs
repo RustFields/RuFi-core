@@ -330,6 +330,7 @@ mod tests {
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use std::any::Any;
     use std::collections::HashMap;
+    use crate::core::vm::vm_status::vm_status::VMStatus;
 
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(
@@ -340,7 +341,7 @@ mod tests {
             SensorId::new("sensor1".to_string()),
             HashMap::from([(0, Box::new(4) as Box<dyn Any>)]),
         )]);
-        let export = HashMap::from([
+        let exports = HashMap::from([
             (
                 7,
                 Export::from(HashMap::from([(
@@ -357,12 +358,15 @@ mod tests {
             ),
         ]);
 
-        let context = Context::new(7, local_sensor, nbr_sensor, export);
+        let context = Context::new(7, local_sensor, nbr_sensor, exports);
         let mut vm = RoundVM::new(context);
         vm.export_stack.push(Export::from(HashMap::from([(
             Path::new(),
             Box::new(0) as Box<dyn Any>,
         )])));
+        let mut status = VMStatus::new();
+        status.neighbour = Some(0);
+        vm.status = status;
         vm
     }
 
