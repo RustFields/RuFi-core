@@ -47,6 +47,8 @@ impl RoundVM {
         }
     }
 
+    /// Get the first export of the stack.
+    ///
     /// # Returns
     ///
     /// The first export of the stack, of type `&mut Export`.
@@ -63,7 +65,7 @@ impl RoundVM {
 
     /// Register the given value for the root path.
     ///
-    /// ### Arguments
+    /// # Arguments
     ///
     /// * `v` - The value to register.
     ///
@@ -91,19 +93,24 @@ impl RoundVM {
         &self.status.index
     }
 
-    /// # Returns
-    ///
-    ///  The value of the previous round for the current device and the current path.
+
+    /// Obtain the value of the previous round for the current device and the current path.
     ///
     /// # Generic Parameters
     ///
     /// * `A` - The type of value. It must implement the `Clone` trait
     ///         and have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// An `Option` containing the value of the current path for the current device, if present.
     pub fn previous_round_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
             .read_export_value::<A>(&self.self_id(), &self.status.path)
     }
 
+    /// Obtain the value of the current path for the current neighbor
+    ///
     /// # Generic Parameters
     ///
     /// * `A` - The type of value. It must implement the `Clone` trait
@@ -111,13 +118,15 @@ impl RoundVM {
     ///
     /// # Returns
     ///
-    ///  The value of the current path for the current neighbor.
+    ///  An `Option` containing the value of the current path for the current neighbor, if present.
     pub fn neighbor_val<A: 'static + Clone>(&self) -> Option<&A> {
         self.context
             .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
     }
 
-    /// ### Arguments
+    /// Obtain the local value of a given sensor.
+    ///
+    /// # Arguments
     ///
     /// * - `sensor_id` - The id of the sensor.
     ///
@@ -127,12 +136,14 @@ impl RoundVM {
     ///
     /// # Returns
     ///
-    /// The local value of the given sensor.
+    /// An `Option` containing the local value of the given sensor, if present.
     pub fn local_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
         self.context.local_sense::<A>(sensor_id)
     }
 
-    /// ### Arguments
+    /// Obtain the value of a given sensor for the current neighbor.
+    ///
+    /// # Arguments
     ///
     /// * `sensor_id` - The id of the sensor.
     ///
@@ -142,7 +153,7 @@ impl RoundVM {
     ///
     /// # Returns
     ///
-    /// The value of the given sensor for the current neighbor.
+    /// An `Option` containing the value of the given sensor for the current neighbor, if present.
     pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
         self.context.nbr_sense(sensor_id, &self.neighbor().unwrap())
     }
@@ -219,7 +230,7 @@ impl RoundVM {
 
     /// Evaluates the given expression locally and return the result.
     ///
-    /// ### Arguments
+    /// # Arguments
     ///
     /// * `expr` The expression to evaluate.
     ///
