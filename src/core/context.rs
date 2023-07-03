@@ -11,7 +11,7 @@ pub mod context {
     use std::any::Any;
     use std::collections::HashMap;
 
-    /// Context implementation
+    /// # Context implementation
     ///
     /// * `selfId` The ID of the device that this context is for.
     ///
@@ -30,9 +30,9 @@ pub mod context {
 }
 
 impl Context {
-    /// ## Create new Context of a device from the given parameters.
+    /// Create new Context of a device from the given parameters.
     ///
-    /// ### Arguments
+    /// # Arguments
     ///
     /// * `self_id` - the ID of the device
     ///
@@ -41,6 +41,10 @@ impl Context {
     /// * `nbr_sensor` - The values perceived by the sensors for each neighbor of the device.
     ///
     /// * `exports` - All the export that are available to the device.
+    ///
+    /// # Returns
+    ///
+    /// The new Context.
     pub fn new(
         self_id: i32,
         local_sensor: HashMap<SensorId, Box<dyn Any>>,
@@ -57,26 +61,48 @@ impl Context {
 
     /// Add an export of a device to the context.
     ///
+    /// # Arguments
+    ///
     /// * `id`  the ID of the device
     /// * `data` the export of the device
+    ///
+    /// # Returns
+    ///
+    ///
     pub fn put_export(&mut self, id: i32, data: Export) {
         self.exports.insert(id, data);
     }
 
     /// Read the value corresponding to the given path from the export of a device.
     ///
+    /// # Arguments
+    ///
     /// * `id` the ID of the device
     /// * `path` the path to the value
+    ///
+    /// # Generic Parameters
+    ///
     /// * `A` the type of the value
-    /// * return the value if it exists
+    ///
+    /// # Returns
+    ///
+    /// The value if it exists
     pub fn read_export_value<A: 'static>(&self, id: &i32, path: &Path) -> Option<&A> {
         self.exports.get(id).and_then(|export| export.get(path))
     }
 
     /// Get the value of the given sensor.
+    ///
+    /// # Arguments
+    ///
     /// * `name` the name of the sensor
+    ///
+    /// # Generic Parameters
     /// * `T` the type of the value
-    /// * return the value if it exists
+    ///
+    /// # Returns
+    ///
+    /// The value if it exists
     pub fn local_sense<A: 'static>(&self, local_sensor_id: &SensorId) -> Option<&A> {
         self.local_sensor
             .get(local_sensor_id)
@@ -84,6 +110,9 @@ impl Context {
     }
 
     /// Get the value of the given sensor for the given neighbor.
+    ///
+    /// # Arguments
+    ///
     /// * `sensor_id` the neighbor sensor id
     /// * `nbr_id` the neighbor id
     /// * `T` the type of the value
