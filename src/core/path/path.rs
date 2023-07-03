@@ -13,6 +13,10 @@ use crate::core::path::slot::slot::Slot;
 
 impl Path {
     /// Factory method to create a new Path
+    ///
+    /// # Returns
+    ///
+    /// A new Path
     pub fn new() -> Self {
         Self {
             slots: vec![],
@@ -20,6 +24,14 @@ impl Path {
     }
 
     /// Push a Slot into the Path
+    ///
+    /// # Arguments
+    ///
+    /// * `slot` - The Slot to push
+    ///
+    /// # Returns
+    ///
+    /// A new Path with the Slot pushed
     pub fn push(&self, slot: Slot) -> Self {
         Self {
             slots: [&[slot], &self.slots[..]].concat(),
@@ -27,6 +39,10 @@ impl Path {
     }
 
     /// Remove the first Slot from the Path
+    ///
+    /// # Returns
+    ///
+    /// A new Path without the first Slot
     pub fn pull(&self) -> Self {
         let mut new_slots = self.slots.clone();
         new_slots.drain(..1);
@@ -34,11 +50,20 @@ impl Path {
     }
 
     /// Check if the Path is empty
+    ///
+    /// # Returns
+    ///
+    /// `true` if the Path is empty
+    /// `false` otherwise
     pub fn is_root(&self) -> bool {
         self.slots.is_empty()
     }
 
     /// Return a String representation of the Path
+    ///
+    /// # Returns
+    ///
+    /// A String representation of the Path
     pub fn to_str(&self) -> String {
         let slots = &self.slots;
         let path = String::from("P://");
@@ -50,11 +75,24 @@ impl Path {
     }
 
     /// Check if the Path matches another Path
+    ///
+    /// # Arguments
+    ///
+    /// * `p` - The Path to check
+    ///
+    /// # Returns
+    ///
+    /// `true` if the Path matches
+    /// `false` otherwise
     pub fn matches(&self, p: &Path) -> bool {
         self == p
     }
 
-    /// Return the first Slot of the Path
+    /// Obtain the first Slot of the Path
+    ///
+    /// # Return
+    ///
+    /// The Slot at the head of the Path
     pub fn head(&self) -> &Slot {
         self.slots.first().unwrap()
     }
