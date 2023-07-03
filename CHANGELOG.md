@@ -1,3 +1,31 @@
+## [6.0.0](https://github.com/RustFields/RuFi-core/compare/5.1.0...6.0.0) (2023-07-03)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove deprecated constructors in favor of From
+
+### Features
+
+* implement From trait for Export, Path and VMStatus ([7c78439](https://github.com/RustFields/RuFi-core/commit/7c78439a1712736bf9ffad13bd98c28ada2d8f42))
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.38 ([b7b1146](https://github.com/RustFields/RuFi-core/commit/b7b11464608ce2ea2abdc63ba59e90c67e86224d))
+
+
+### Tests
+
+* change tests to use new construcrors and From ([f86064b](https://github.com/RustFields/RuFi-core/commit/f86064b96b290d06d61539981bbd09170f7a5bc1))
+
+
+### Refactoring
+
+* change default parameter in new ([e5f8f15](https://github.com/RustFields/RuFi-core/commit/e5f8f15f92147c883219c24eeacd4c8be10e5ed2))
+* remove deprecated constructors in favor of From ([aacda07](https://github.com/RustFields/RuFi-core/commit/aacda0788d05af8b55572b0b447a961784cb80ed))
+* switch data structures names to self in creation ([f706179](https://github.com/RustFields/RuFi-core/commit/f706179ee44788352765a0bace8ed10385319116))
+
 ## [5.1.0](https://github.com/RustFields/RuFi-core/compare/5.0.0...5.1.0) (2023-06-22)
 
 
