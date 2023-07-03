@@ -17,7 +17,11 @@ pub mod export {
 }
 
 impl Export {
-    /// ## Create new Export.
+    /// Create new Export.
+    ///
+    /// # Returns
+    ///
+    /// The new Export.
     pub fn new() -> Self {
         Self {
             map: HashMap::new()
@@ -25,6 +29,20 @@ impl Export {
     }
 
     /// Inserts a value in the Export at the given Path.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The Path where to insert the value.
+    /// * `value` - The value to insert.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of the value to insert. It must have a `'static` lifetime.
+    /// * `F` - The type of the function to insert.
+    ///
+    /// # Returns
+    ///
+    /// The inserted value.
     pub fn put<A: 'static, F>(&mut self, path: Path, value: F) -> A
     where F: Fn() -> A {
         self.map.insert(path, Box::new(value()));
@@ -32,18 +50,42 @@ impl Export {
     }
 
     /// Returns the value at the given Path.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The Path where to get the value.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of the value to get  to return. It must have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// The value at the given Path.
     pub fn get<A: 'static>(&self, path: &Path) -> Option<&A> {
         self.map
             .get(path)
             .and_then(|value| value.downcast_ref::<A>())
     }
 
-    /// Returns the root value.
+    /// Obtain the root value.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of the value to return. It must have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// The root value.
     pub fn root<A: 'static>(&self) -> &A {
         self.get(&Path::new()).unwrap()
     }
 
     /// Returns the HashMap of the Export.
+    ///
+    /// # Returns
+    ///
+    /// The HashMap of the Export.
     pub fn paths(&self) -> &HashMap<Path, Box<dyn Any>> {
         &self.map
     }
