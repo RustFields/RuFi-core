@@ -1,3 +1,20 @@
+## [6.0.1](https://github.com/RustFields/RuFi-core/compare/6.0.0...6.0.1) (2023-07-03)
+
+
+### Documentation
+
+* fix doc for SensorId ([f0da921](https://github.com/RustFields/RuFi-core/commit/f0da921afd02cf3f256bca01575e2b81e7aa9810))
+* improve context docs ([749b78e](https://github.com/RustFields/RuFi-core/commit/749b78e7e330ad2bf0abe76ce427dc744af56ca2))
+* improve context docs ([fc98166](https://github.com/RustFields/RuFi-core/commit/fc98166342821d40b7f32cdfbe46eca2be08e0d0))
+* improve context docs ([be46628](https://github.com/RustFields/RuFi-core/commit/be466280c1132f08b9b34b4c5eeddee781864f72))
+* improve docs ([880313d](https://github.com/RustFields/RuFi-core/commit/880313df7af8f23d3ef0b3acd8e562761a7870df))
+* improve export docs ([352e086](https://github.com/RustFields/RuFi-core/commit/352e08696915856522b082a01acb536a8b5860f4))
+* improve path docs ([bf08065](https://github.com/RustFields/RuFi-core/commit/bf0806544f93bf548d7903ca9edc294df3cf9f35))
+* improve round_vm docs ([61b6ded](https://github.com/RustFields/RuFi-core/commit/61b6ded667b865c7f0ab6f9875b96c06248ef9ba))
+* improve sensor_id docs ([8ebae99](https://github.com/RustFields/RuFi-core/commit/8ebae997062351a0556e43854cf0bb3ce53acc68))
+* improve slot docs ([19e9721](https://github.com/RustFields/RuFi-core/commit/19e9721a747fcddc64a1fdd3256619864e70d7b7))
+* improve vm_status docs ([41a864d](https://github.com/RustFields/RuFi-core/commit/41a864d4d6962459a1dd08b969a58a25cd6f608f))
+
 ## [6.0.0](https://github.com/RustFields/RuFi-core/compare/5.1.0...6.0.0) (2023-07-03)
 
 
