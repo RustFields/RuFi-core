@@ -17,14 +17,8 @@ pub mod export {
 }
 
 impl Export {
-    /// Creates an Export with the passed HashMap.
-    pub fn new(map: HashMap<Path, Box<dyn Any>>) -> Self {
-        Self {
-            map
-        }
-    }
-
-    pub fn new_empty() -> Self {
+    /// ## Create new Export.
+    pub fn new() -> Self {
         Self {
             map: HashMap::new()
         }
@@ -46,7 +40,7 @@ impl Export {
 
     /// Returns the root value.
     pub fn root<A: 'static>(&self) -> &A {
-        self.get(&Path::new(Vec::new())).unwrap()
+        self.get(&Path::from(Vec::new())).unwrap()
     }
 
     /// Returns the HashMap of the Export.
@@ -70,35 +64,35 @@ mod tests {
 
     #[test]
     fn test_new_empty() {
-        let export: Export = Export::new(HashMap::new());
+        let export: Export = Export::from(HashMap::new());
         assert!(export.map.is_empty())
     }
 
     #[test]
     fn test_new() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10));
-        let export = Export::new(map);
+        map.insert(Path::from(vec![Rep(0), Nbr(0)]), Box::new(10));
+        let export = Export::from(map);
         assert_eq!(export.map.len(), 1);
     }
 
     #[test]
     fn test_put() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![Rep(0)]), Box::new(10));
-        let mut export = Export::new(map);
-        export.put(Path::new(vec![Rep(0), Nbr(0)]), || 20);
-        export.put(Path::new(vec![Nbr(0)]), || "foo");
+        map.insert(Path::from(vec![Rep(0)]), Box::new(10));
+        let mut export = Export::from(map);
+        export.put(Path::from(vec![Rep(0), Nbr(0)]), || 20);
+        export.put(Path::from(vec![Nbr(0)]), || "foo");
         assert_eq!(export.paths().len(), 3);
     }
 
     #[test]
     fn test_get() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10));
-        let export = Export::new(map);
+        map.insert(Path::from(vec![Rep(0), Nbr(0)]), Box::new(10));
+        let export = Export::from(map);
         assert_eq!(
-            export.get::<i32>(&Path::new(vec![Rep(0), Nbr(0)])).unwrap(),
+            export.get::<i32>(&Path::from(vec![Rep(0), Nbr(0)])).unwrap(),
             &10
         );
     }
@@ -106,16 +100,16 @@ mod tests {
     #[test]
     fn test_get_none() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new(vec![Rep(0), Nbr(0)]), Box::new(10));
-        let export = Export::new(map);
-        assert_eq!(export.get::<String>(&Path::new(vec![Rep(0), Nbr(0)])), None);
+        map.insert(Path::from(vec![Rep(0), Nbr(0)]), Box::new(10));
+        let export = Export::from(map);
+        assert_eq!(export.get::<String>(&Path::from(vec![Rep(0), Nbr(0)])), None);
     }
 
     #[test]
     fn test_root() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new_empty(), Box::new(10));
-        let export = Export::new(map);
+        map.insert(Path::new(), Box::new(10));
+        let export = Export::from(map);
         assert_eq!(export.root::<i32>(), &10);
     }
 
@@ -123,8 +117,8 @@ mod tests {
     #[should_panic]
     fn test_root_panic() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new_empty(), Box::new(10));
-        let export = Export::new(map);
+        map.insert(Path::new(), Box::new(10));
+        let export = Export::from(map);
         assert_eq!(export.root::<String>(), &"foo");
     }
 
@@ -132,51 +126,51 @@ mod tests {
     fn test_paths() {
         let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
         let mut map2: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::new_empty(), Box::new(10));
-        map2.insert(Path::new_empty(), Box::new(10));
-        let export = Export::new(map);
+        map.insert(Path::new(), Box::new(10));
+        map2.insert(Path::new(), Box::new(10));
+        let export = Export::from(map);
         assert!(export.map.keys().eq(map2.keys()));
     }
 
     #[test]
     fn test_empty_state() {
-        let export: Export = Export::new(HashMap::new());
-        let path = Path::new(vec![Nbr(0), Rep(0)]);
-        assert_eq!(export.get::<i32>(&Path::new_empty()), None);
+        let export: Export = Export::from(HashMap::new());
+        let path = Path::from(vec![Nbr(0), Rep(0)]);
+        assert_eq!(export.get::<i32>(&Path::new()), None);
         assert_eq!(export.get::<i32>(&path), None);
     }
 
     #[test]
     fn test_root_path() {
-        let mut export: Export = Export::new(HashMap::new());
-        export.put(Path::new_empty(), ||String::from("foo"));
+        let mut export: Export = Export::from(HashMap::new());
+        export.put(Path::new(), ||String::from("foo"));
         assert_eq!(
-            export.get::<String>(&Path::new_empty()).unwrap(),
+            export.get::<String>(&Path::new()).unwrap(),
             export.root::<String>()
         );
         assert_eq!(
-            export.get::<String>(&Path::new_empty()),
+            export.get::<String>(&Path::new()),
             Some(&String::from("foo"))
         );
     }
 
     #[test]
     fn test_non_root_path() {
-        let mut export: Export = Export::new(HashMap::new());
-        let path = Path::new(vec![Nbr(0), Rep(0)]);
+        let mut export: Export = Export::from(HashMap::new());
+        let path = Path::from(vec![Nbr(0), Rep(0)]);
         export.put(path.clone(), || String::from("bar"));
         assert_eq!(export.get::<String>(&path).unwrap(), &String::from("bar"));
     }
 
     #[test]
     fn test_overwriting_with_different_type() {
-        let mut export: Export = Export::new(HashMap::new());
-        export.put(Path::new_empty(), || String::from("foo"));
+        let mut export: Export = Export::from(HashMap::new());
+        export.put(Path::new(), || String::from("foo"));
         assert_eq!(
-            export.get::<String>(&Path::new_empty()),
+            export.get::<String>(&Path::new()),
             Some(&String::from("foo"))
         );
-        export.put(Path::new_empty(), || 77);
-        assert_eq!(export.get::<i32>(&Path::new_empty()).unwrap(), &77);
+        export.put(Path::new(), || 77);
+        assert_eq!(export.get::<i32>(&Path::new()).unwrap(), &77);
     }
 }

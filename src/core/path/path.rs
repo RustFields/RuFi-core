@@ -13,16 +13,7 @@ use crate::core::path::slot::slot::Slot;
 
 impl Path {
     /// Factory method to create a new Path
-    pub fn new(slots: Vec<Slot>) -> Self {
-        let mut reversed_slots = slots;
-        reversed_slots.reverse();
-        Self {
-            slots: reversed_slots,
-        }
-    }
-
-    /// Factory method to create a new empty Path
-    pub fn new_empty() -> Self {
+    pub fn new() -> Self {
         Self {
             slots: vec![],
         }
@@ -86,54 +77,54 @@ mod tests {
 
     #[test]
     fn test_is_root() {
-        let empty_path = Path::new(Vec::new());
-        let not_empty_path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        let empty_path = Path::from(Vec::new());
+        let not_empty_path = Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
         assert!(empty_path.is_root());
         assert!(!not_empty_path.is_root())
     }
 
     #[test]
     fn test_not_empty_head() {
-        let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        let path = Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
         assert_eq!(path.head(), &Branch(0))
     }
 
     #[test]
     #[should_panic]
     fn test_empty_head() {
-        let path = Path::new_empty();
+        let path = Path::new();
         assert_eq!(path.head(), &Rep(0))
     }
 
     #[test]
     fn test_push() {
-        let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1)]).push(Branch(0));
+        let path = Path::from(vec![Rep(0), Nbr(0), Nbr(1)]).push(Branch(0));
         assert_eq!(path.slots, vec![Branch(0), Nbr(1), Nbr(0), Rep(0)])
     }
 
     #[test]
     fn test_not_empty_pull() {
-        let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        let path = Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
         assert_eq!(path.pull().slots, vec![Nbr(1), Nbr(0), Rep(0)])
     }
 
     #[test]
     #[should_panic]
     fn test_empty_pull() {
-        let path = Path::new_empty();
-        assert_eq!(path.pull(), Path::new_empty())
+        let path = Path::new();
+        assert_eq!(path.pull(), Path::new())
     }
 
     #[test]
     fn test_to_str() {
-        let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        let path = Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
         assert_eq!(path.to_str(), "P://Branch(0)/Nbr(1)/Nbr(0)/Rep(0)")
     }
 
     #[test]
     fn test_matches() {
-        let path = Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
-        assert!(path.matches(&Path::new(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)])));
-        assert!(!path.matches(&Path::new(vec![Nbr(0), Nbr(1), Branch(0)])))
+        let path = Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
+        assert!(path.matches(&Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)])));
+        assert!(!path.matches(&Path::from(vec![Nbr(0), Nbr(1), Branch(0)])))
     }
 }

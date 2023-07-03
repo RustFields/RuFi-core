@@ -22,31 +22,10 @@ pub mod vm_status {
     }
 
     impl VMStatus {
-        /// ## Create new VMStatus from the given parameters.
-        ///
-        /// ### Arguments
-        ///
-        /// * `path` The path of the computation.
-        /// * `index` The index of the current slot.
-        /// * `neighbour` The id of the current neighbour. If the current slot is not a folding slot, this value is None.
-        /// * `stack` Stack that contains the list of the statuses
-        pub fn new(
-            path: Path,
-            index: i32,
-            neighbour: Option<i32>,
-            stack: LinkedList<(Path, i32, Option<i32>)>,
-        ) -> Self {
+        /// ## Create new VMStatus.
+        pub fn new() -> Self {
             Self {
-                path,
-                index,
-                neighbour,
-                stack,
-            }
-        }
-
-        pub fn new_empty() -> Self {
-            Self {
-                path: Path::new_empty(),
+                path: Path::new(),
                 index: 0,
                 neighbour: None,
                 stack: LinkedList::new(),
@@ -151,19 +130,18 @@ mod test {
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
     use crate::core::vm::vm_status::vm_status::VMStatus;
-    use std::collections::LinkedList;
 
     #[test]
     fn test_empty() {
-        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
-        assert_eq!(status.path, Path::new_empty());
+        let status = VMStatus::new();
+        assert_eq!(status.path, Path::new());
         assert_eq!(status.index, 0);
         assert_eq!(status.neighbour, None)
     }
 
     #[test]
     fn test_fold_unfold() {
-        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
+        let status = VMStatus::new();
         assert_eq!(status.neighbour, None);
         let s1 = status.fold_into(Some(7));
         let s2 = status.fold_into(Some(8));
@@ -178,7 +156,7 @@ mod test {
     #[test]
     #[should_panic]
     fn test_as_stack_panic() {
-        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
+        let status = VMStatus::new();
         status
             .push()
             .fold_into(Some(7))
@@ -196,7 +174,7 @@ mod test {
 
     #[test]
     fn test_as_stack() {
-        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
+        let status = VMStatus::new();
         let s1 = status.push();
         let s2 = s1.fold_into(Some(7)).nest(Nbr(2)).push();
         let s3 = s2.fold_into(Some(8)).nest(Rep(4)).inc_index().push();
@@ -205,18 +183,18 @@ mod test {
         let s6 = s5.pop();
         assert_eq!(s4.index, 1);
         assert_eq!(s4.neighbour, Some(8));
-        assert_eq!(s4.path, Path::new(vec![Nbr(2), Rep(4)]));
+        assert_eq!(s4.path, Path::from(vec![Nbr(2), Rep(4)]));
         assert_eq!(s5.index, 0);
         assert_eq!(s5.neighbour, Some(7));
-        assert_eq!(s5.path, Path::new(vec![Nbr(2)]));
+        assert_eq!(s5.path, Path::from(vec![Nbr(2)]));
         assert_eq!(s6.index, 0);
         assert_eq!(s6.neighbour, None);
-        assert_eq!(s6.path, Path::new_empty());
+        assert_eq!(s6.path, Path::new());
     }
 
     #[test]
     fn test_index() {
-        let status = VMStatus::new(Path::new_empty(), 0, None, LinkedList::new());
+        let status = VMStatus::new();
         assert_eq!(status.index, 0);
         assert_eq!(status.inc_index().index, 1);
         assert_eq!(status.inc_index().inc_index().inc_index().index, 3);
