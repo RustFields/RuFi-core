@@ -117,8 +117,8 @@ mod test {
         )]);
         let export = HashMap::from([(
             0,
-            Export::new(HashMap::from([(
-                Path::new(vec![Rep(0), Nbr(0)]),
+            Export::from(HashMap::from([(
+                Path::from(vec![Rep(0), Nbr(0)]),
                 Box::new(10) as Box<dyn Any>,
             )])),
         )]);
@@ -138,8 +138,8 @@ mod test {
     fn test_put_export() {
         let mut context = context_builder();
         assert_eq!(context.exports.len(), 1);
-        let add_export = Export::new(HashMap::from([(
-            Path::new(vec![Branch(0), Nbr(0)]),
+        let add_export = Export::from(HashMap::from([(
+            Path::from(vec![Branch(0), Nbr(0)]),
             Box::new(5) as Box<dyn Any>,
         )]));
         context.put_export(1, add_export);
@@ -151,12 +151,12 @@ mod test {
         let context = context_builder();
         assert_eq!(
             context
-                .read_export_value::<i32>(&0, &Path::new(vec![Rep(0), Nbr(0)]))
+                .read_export_value::<i32>(&0, &Path::from(vec![Rep(0), Nbr(0)]))
                 .unwrap(),
             &10
         );
-        assert_eq!(context.read_export_value::<i32>(&1, &Path::new_empty()), None);
-        assert_eq!(context.read_export_value::<i32>(&0, &Path::new_empty()), None);
+        assert_eq!(context.read_export_value::<i32>(&1, &Path::new()), None);
+        assert_eq!(context.read_export_value::<i32>(&0, &Path::new()), None);
     }
 
     #[test]
