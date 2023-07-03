@@ -1,7 +1,7 @@
 use crate::core::sensor_id::sensor_id::SensorId;
 
 pub mod sensor_id {
-    /// # The sensor is piece of hardware that allow the device to interact with the environment.
+    /// # A virtual representation of a sensor.
     ///
     /// `name` is the name of the sensor
     #[derive(PartialEq, Debug, Clone, Eq, Hash)]
