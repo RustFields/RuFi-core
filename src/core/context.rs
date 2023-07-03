@@ -78,7 +78,7 @@ impl Context {
     ///
     /// # Generic Parameters
     ///
-    /// * `A` the type of the value
+    /// * `A` the type of the value to return. It must have a `'static` lifetime.
     ///
     /// # Returns
     ///
@@ -94,7 +94,7 @@ impl Context {
     /// * `name` the name of the sensor
     ///
     /// # Generic Parameters
-    /// * `T` the type of the value
+    /// * `A` the type of the value to return. It must have a `'static` lifetime.
     ///
     /// # Returns
     ///
@@ -114,7 +114,7 @@ impl Context {
     ///
     /// # Generic Parameters
     ///
-    /// * `T` the type of the value
+    /// * `A` the type of the value to return. It must have a `'static` lifetime.
     ///
     /// # Returns
     ///
