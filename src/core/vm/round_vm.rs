@@ -252,8 +252,9 @@ impl RoundVM {
     {
         let current_neighbour = self.neighbor().unwrap();
         self.status = self.status.fold_out();
+        let result = expr();
         self.status = self.status.fold_into(Some(current_neighbour));
-        expr()
+        result
     }
 
     /// Get a vector of aligned neighbor identifiers.
