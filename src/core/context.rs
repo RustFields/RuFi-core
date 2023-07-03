@@ -82,7 +82,7 @@ impl Context {
     ///
     /// # Returns
     ///
-    /// The value if it exists
+    /// An `Option` of the value if it exists
     pub fn read_export_value<A: 'static>(&self, id: &i32, path: &Path) -> Option<&A> {
         self.exports.get(id).and_then(|export| export.get(path))
     }
@@ -98,7 +98,7 @@ impl Context {
     ///
     /// # Returns
     ///
-    /// The value if it exists
+    /// An `Option` of the value if it exists
     pub fn local_sense<A: 'static>(&self, local_sensor_id: &SensorId) -> Option<&A> {
         self.local_sensor
             .get(local_sensor_id)
@@ -118,7 +118,7 @@ impl Context {
     ///
     /// # Returns
     ///
-    /// The value if it exists
+    /// An `Option` of the value if it exists
     pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId, nbr_id: &i32) -> Option<&A> {
         self.nbr_sensor
             .get(sensor_id)
