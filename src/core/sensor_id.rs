@@ -1,7 +1,9 @@
 use crate::core::sensor_id::sensor_id::SensorId;
 
-///Sensor is piece of hardware that allow the device to interact with the environment.
 pub mod sensor_id {
+    /// # The sensor is piece of hardware that allow the device to interact with the environment.
+    ///
+    /// `name` is the name of the sensor
     #[derive(PartialEq, Debug, Clone, Eq, Hash)]
     pub struct SensorId {
         pub(crate) name: String,
@@ -9,7 +11,15 @@ pub mod sensor_id {
 }
 
 impl SensorId {
-    /// Given a string, creates a new sensor id
+    /// Given a string, creates a new sensor id.
+    ///
+    /// # Arguments
+    ///
+    /// * `name` - A string representing the name of the sensor.
+    ///
+    /// # Returns
+    ///
+    /// A new sensor id.
     pub fn new(name: String) -> Self {
         Self { name }
     }
