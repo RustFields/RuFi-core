@@ -26,8 +26,7 @@ mod test {
             let (avm, res) = nbr(vm2, || a);
             (avm, res + 1)
         });
-        let vm_ = round(vm, program);
-        let mut vm__ = round(vm_, program);
-        println!("{:?}", vm__.export_data().root::<i32>());
+        let mut vm_ = round(vm, program);
+        assert_eq!(&1, vm_.export_data().root::<i32>());
     }
 }
