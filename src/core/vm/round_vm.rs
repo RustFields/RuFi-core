@@ -39,10 +39,11 @@ impl RoundVM {
     ///
     /// A `RoundVM` instance.
     pub fn new(context: Context) -> Self {
+        let export = Export::new();
         Self {
             context,
             status: VMStatus::new(),
-            export_stack: vec![],
+            export_stack: vec![export],
             isolated: false,
         }
     }
