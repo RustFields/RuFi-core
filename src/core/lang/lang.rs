@@ -34,8 +34,7 @@ mod test {
     #[test]
     fn test_nbr() {
         let vm = init_vm();
-        let (vm1, result) = nbr(vm, || 1);
-        println!("{:?}", vm1);
+        let (_vm1, result) = nbr(vm, || 1);
         assert_eq!(result, 1);
     }
 
@@ -43,14 +42,13 @@ mod test {
     fn test_combine() {
         let vm = init_vm();
 
-        let (vm1, result) =
+        let (_vm1, result) =
             rep(vm, || 0, |vm1, a| {
                 let (avm, res) = nbr(vm1, || a);
                 (avm, res + 1)
             });
 
-        println!("{:?}", vm1);
-        println!("{:?}", result);
+        assert_eq!(1, result)
     }
 }
 
