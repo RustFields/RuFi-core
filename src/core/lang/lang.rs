@@ -1,4 +1,3 @@
-use std::os::unix::raw::time_t;
 use crate::core::path::slot::slot::Slot::{Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
@@ -15,10 +14,10 @@ pub fn nbr<A: Copy + 'static>(vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A)
 }
 
 pub fn rep<A: Copy + 'static>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
-    let mut vm_ = RoundVM::new(vm.context);
+    let vm_ = RoundVM::new(vm.context);
     let prev = vm_.previous_round_val().unwrap_or(&init()).clone();
     let (mut vm__, val) = fun(vm_, prev);
-    let res = vm__.nest(Rep(vm__.index().clone()), vm__.only_when_folding_on_self(), true, || val);
+    let res = vm__.nest(Rep(vm__.index().clone()), vm__.unless_folding_on_others(), true, || val);
     (vm__, res)
 }
 
