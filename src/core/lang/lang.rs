@@ -1,12 +1,25 @@
 use std::os::unix::raw::time_t;
+use crate::core::path::slot::slot::Slot::{Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
-fn nbr<A>(vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
-    todo!("Implement nbr")
+pub fn nbr<A: Copy + 'static>(vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
+    let mut vm_ = RoundVM::new(vm.context);
+    let val = match vm_.neighbor() {
+        Some(nbr) if nbr.clone() != vm_.self_id() => {
+            vm_.neighbor_val().unwrap_or(&expr()).clone()
+        }
+        _ => expr()
+    };
+    let res = vm_.nest(Nbr(vm_.index().clone()), vm_.only_when_folding_on_self(), true, || val);
+    (vm_, res)
 }
 
-fn rep<A>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
-    todo!("Implement rep")
+pub fn rep<A: Copy + 'static>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
+    let mut vm_ = RoundVM::new(vm.context);
+    let prev = vm_.previous_round_val().unwrap_or(&init()).clone();
+    let (mut vm__, val) = fun(vm_, prev);
+    let res = vm__.nest(Rep(vm__.index().clone()), vm__.only_when_folding_on_self(), true, || val);
+    (vm__, res)
 }
 
 mod test {
@@ -22,14 +35,23 @@ mod test {
     #[test]
     fn test_nbr() {
         let vm = init_vm();
-        let (vm, result) = nbr(vm, || 1);
+        let (vm1, result) = nbr(vm, || 1);
+        println!("{:?}", vm1);
         assert_eq!(result, 1);
     }
 
     #[test]
     fn test_combine() {
         let vm = init_vm();
-        let (vm, result) = rep(vm, || 1, |vm1, x| nbr(vm1, ||x + 1));
+
+        let (vm1, result) =
+            rep(vm, || 0, |vm1, a| {
+                let (avm, res) = nbr(vm1, || a);
+                (avm, res + 1)
+            });
+
+        println!("{:?}", vm1);
+        println!("{:?}", result);
     }
 }
 
