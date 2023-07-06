@@ -1,46 +1,44 @@
 use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
-pub fn nbr<A: Copy + 'static>(vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
-    let mut vm_ = RoundVM::new(vm.context);
-    let val = match vm_.neighbor() {
-        Some(nbr) if nbr.clone() != vm_.self_id() => {
-            vm_.neighbor_val::<A>().unwrap().clone()
+pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
+    let val = match vm.neighbor() {
+        Some(nbr) if nbr.clone() != vm.self_id() => {
+            vm.neighbor_val::<A>().unwrap().clone()
         }
         _ => expr()
     };
-    let res = vm_.nest(Nbr(vm_.index().clone()), vm_.only_when_folding_on_self(), true, || val);
-    (vm_, res)
+    let res = vm.nest(Nbr(vm.index().clone()), vm.only_when_folding_on_self(), true, || val);
+    (vm, res)
 }
 
 pub fn rep<A: Copy + 'static>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
-    let vm_ = RoundVM::new(vm.context);
-    let prev = vm_.previous_round_val().unwrap_or(&init()).clone();
+    let prev = vm.previous_round_val().unwrap_or(&init()).clone();
     //cannot use vm_.locally
-    let (mut vm__, val) = fun(vm_, prev);
-    let res = vm__.nest(Rep(vm__.index().clone()), vm__.unless_folding_on_others(), true, || val);
-    (vm__, res)
+    let (mut vm_, val) = fun(vm, prev);
+    let res = vm_.nest(Rep(vm_.index().clone()), vm_.unless_folding_on_others(), true, || val);
+    (vm_, res)
 }
 
 
 pub fn branch<A: Copy + 'static>(vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
-    let mut vm_ = RoundVM::new(vm.context);
-    let tag = vm_.locally(cond);
-    let (mut vm__, val): (RoundVM, A) = match vm_.neighbor() {
-        Some(nbr) if nbr.clone() != vm_.self_id() => {
-            let val_clone = vm_.neighbor_val::<A>().unwrap().clone();
-            (vm_, val_clone)
+    //let vm_ = RoundVM::duplicate(vm);
+    let tag = cond();
+    let (mut vm_, val): (RoundVM, A) = match vm.neighbor() {
+        Some(nbr) if nbr.clone() != vm.self_id() => {
+            let val_clone = vm.neighbor_val::<A>().unwrap().clone();
+            (vm, val_clone)
         }
         _ => if tag {
             //cannot use vm_.locally
-            thn(vm_)
+            thn(vm)
         } else {
             //cannot use vm_.locally
-            els(vm_)
+            els(vm)
         }
     };
-    let res = vm__.nest(Branch(vm__.index().clone()), vm__.unless_folding_on_others(), tag, || val);
-    (vm__, res)
+    let res = vm_.nest(Branch(vm_.index().clone()), vm_.unless_folding_on_others(), tag, || val);
+    (vm_, res)
 }
 
 fn locally() {}
