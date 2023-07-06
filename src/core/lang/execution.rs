@@ -18,7 +18,15 @@ mod test {
 
     fn init_vm() -> RoundVM {
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
-        RoundVM::new(context)
+        let mut vm = RoundVM::new(context);
+        vm.export_stack.push(Export::new());
+        vm
+    }
+
+    fn init_with_ctx(ctx: Context) -> RoundVM {
+        let mut vm = RoundVM::new(ctx);
+        vm.export_stack.push(Export::new());
+        vm
     }
 
     fn push_root_export_to_ctx<A: Copy + 'static>(mut ctx: Context, val: A) -> Context {
