@@ -120,8 +120,10 @@ impl RoundVM {
     ///
     ///  An `Option` containing the value of the current path for the current neighbor, if present.
     pub fn neighbor_val<A: 'static + Clone>(&self) -> Option<&A> {
-        self.context
-            .read_export_value::<A>(&self.neighbor().unwrap(), &self.status.path)
+        self.neighbor().map(|id| {
+            self.context
+                .read_export_value::<A>(&id, &self.status.path)
+        }).flatten()
     }
 
     /// Obtain the local value of a given sensor.
@@ -155,7 +157,9 @@ impl RoundVM {
     ///
     /// An `Option` containing the value of the given sensor for the current neighbor, if present.
     pub fn nbr_sense<A: 'static>(&self, sensor_id: &SensorId) -> Option<&A> {
-        self.context.nbr_sense(sensor_id, &self.neighbor().unwrap())
+        self.neighbor().map(|id| {
+            self.context.nbr_sense::<A>(sensor_id, &id)
+        }).flatten()
     }
 
     /// Perform a folded evaluation of the given expression in the given neighbor and return the result.
@@ -250,11 +254,11 @@ impl RoundVM {
     where
         F: FnMut() -> A,
     {
-        let current_neighbour = self.neighbor().unwrap();
+        let current_neighbour =
+            self.neighbor().map(|id| id.clone());
         self.status = self.status.fold_out();
-        let result = expr();
-        self.status = self.status.fold_into(Some(current_neighbour));
-        result
+        self.status = self.status.fold_into(current_neighbour);
+        expr()
     }
 
     /// Get a vector of aligned neighbor identifiers.
