@@ -1,4 +1,4 @@
-use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
+use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
 pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
@@ -20,9 +20,20 @@ pub fn rep<A: Copy + 'static>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(Ro
     (vm_, res)
 }
 
+pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn() -> A) -> (RoundVM, A) {
+    let nbrs = vm.aligned_neighbours().clone();
+    let preval = expr();
+    let nbrfield =
+        nbrs.iter()
+            .map(|id| {
+                vm.folded_eval(|| preval, id.clone()).unwrap_or(init())
+            });
+    let val = nbrfield.fold(init(), |x, y| aggr(x, y));
+    let res = vm.nest(FoldHood(vm.index().clone()), true, true, ||val);
+    (vm, res)
+}
 
 pub fn branch<A: Copy + 'static>(vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
-    //let vm_ = RoundVM::duplicate(vm);
     let tag = cond();
     let (mut vm_, val): (RoundVM, A) = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
@@ -41,12 +52,13 @@ pub fn branch<A: Copy + 'static>(vm: RoundVM, cond: impl Fn() -> bool, thn: impl
     (vm_, res)
 }
 
-fn locally() {}
-
 mod test {
+    use std::any::Any;
+    use std::collections::HashMap;
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
-    use crate::core::lang::lang::{nbr, rep, branch};
+    use crate::core::lang::lang::{nbr, rep, branch, foldhood};
+    use crate::core::path::path::path::Path;
 
     use crate::core::vm::round_vm::round_vm::RoundVM;
 
@@ -65,7 +77,7 @@ mod test {
     }
 
     #[test]
-    fn test_combine() {
+    fn test_rep() {
         let vm = init_vm();
 
         let (_vm1, result) =
@@ -75,6 +87,37 @@ mod test {
             });
 
         assert_eq!(1, result)
+    }
+
+    #[test]
+    fn test_foldhood() {
+        let mut vm = init_vm();
+        let exports = HashMap::from([
+            (
+                1,
+                Export::from(HashMap::from([(
+                    Path::new(),
+                    Box::new(1) as Box<dyn Any>
+                    )])),
+            ),
+            (
+                2,
+                Export::from(HashMap::from([(
+                    Path::new(),
+                    Box::new(2) as Box<dyn Any>
+                )])),
+            ),
+        ]);
+        vm.context = Context::new(0, Default::default(), Default::default(), exports);
+        let (_vm_, res) =
+            foldhood(vm,
+                     || 1,
+                     |s1, s2| {
+                         s1 + s2
+                     },
+                     ||2
+            );
+        assert_eq!(res, 7)
     }
 
     #[test]
