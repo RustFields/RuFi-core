@@ -1,3 +1,15 @@
+## [6.1.0](https://github.com/RustFields/RuFi-core/compare/6.0.1...6.1.0) (2023-07-06)
+
+
+### Features
+
+* add foldhood slot ([ec4d2b3](https://github.com/RustFields/RuFi-core/commit/ec4d2b381642e033a4762de11bd555768fc4c581))
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.39 ([bf6379e](https://github.com/RustFields/RuFi-core/commit/bf6379e67a4bb1baae4a18ca46c98b510850240b))
+
 ## [6.0.1](https://github.com/RustFields/RuFi-core/compare/6.0.0...6.0.1) (2023-07-03)
 
 
