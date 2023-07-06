@@ -47,12 +47,16 @@ fn locally() {}
 
 mod test {
     use crate::core::context::context::Context;
+    use crate::core::export::export::Export;
     use crate::core::lang::lang::{nbr, rep, branch};
+
     use crate::core::vm::round_vm::round_vm::RoundVM;
 
     fn init_vm() -> RoundVM {
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
-        RoundVM::new(context)
+        let mut vm = RoundVM::new(context);
+        vm.export_stack.push(Export::new());
+        vm
     }
 
     #[test]
