@@ -38,13 +38,12 @@ mod test {
             (avm, res + 1)
         });
         //first round
-        let mut vm_ = round(vm, program);
-        let res = vm_.export_data().root::<i32>().clone();
+        let (vm_, res) = round(vm, program);
         assert_eq!(1, res);
         //add to the context the result of the previous round
-        let ctx_ = push_root_export_to_ctx(vm_.context, res.clone());
+        let ctx_ = push_root_export_to_ctx(vm_.context, res);
         //second round
-        let mut vm__ = round(RoundVM::new(ctx_), program);
-        assert_eq!(2, vm__.export_data().root::<i32>().clone());
+        let (_vm__, res_) = round(init_with_ctx(ctx_), program);
+        assert_eq!(2, res_);
     }
 }
