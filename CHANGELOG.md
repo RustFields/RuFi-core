@@ -1,3 +1,14 @@
+## [8.0.0](https://github.com/RustFields/RuFi-core/compare/7.0.0...8.0.0) (2023-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* use option in a more idiomatic way
+
+### Bug Fixes
+
+* use option in a more idiomatic way ([08dafc2](https://github.com/RustFields/RuFi-core/commit/08dafc2435c0df2f4592ceaee53971f91d5eb68d))
+
 ## [7.0.0](https://github.com/RustFields/RuFi-core/compare/6.1.0...7.0.0) (2023-07-07)
 
 
