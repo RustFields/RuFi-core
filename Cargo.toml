@@ -1,6 +1,6 @@
 [package]
 name = "rufi_core"
-version = "6.1.0"
+version = "7.0.0"
 edition = "2021"
 license = "Apache-2.0"
 description = "The core module of RuFi library"
