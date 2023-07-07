@@ -1,3 +1,14 @@
+## [9.0.0](https://github.com/RustFields/RuFi-core/compare/8.0.0...9.0.0) (2023-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* moved locally out of round_vm
+
+### Refactoring
+
+* moved locally out of round_vm ([97889da](https://github.com/RustFields/RuFi-core/commit/97889da1880368839d1648362ffc3b103ddc707f))
+
 ## [8.0.0](https://github.com/RustFields/RuFi-core/compare/7.0.0...8.0.0) (2023-07-07)
 
 
