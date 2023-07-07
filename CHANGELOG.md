@@ -1,3 +1,42 @@
+## [7.0.0](https://github.com/RustFields/RuFi-core/compare/6.1.0...7.0.0) (2023-07-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* add round
+
+### Features
+
+* add core constructs to implement ([7adad4b](https://github.com/RustFields/RuFi-core/commit/7adad4b3b9a58e222946198bfaa9308b57849ed3))
+* add round ([e8f1837](https://github.com/RustFields/RuFi-core/commit/e8f18376103b4d961eacf06851aa6212227e97a5))
+* implement branch ([662e17d](https://github.com/RustFields/RuFi-core/commit/662e17d9fa4ea57bb182d55d5c4937caf7b61a63))
+* implement foldhood construct ([dfa2e58](https://github.com/RustFields/RuFi-core/commit/dfa2e58dc3837cfe1de9e6808f5fbdd076d0be61))
+* implement nbr and rep ([c26db41](https://github.com/RustFields/RuFi-core/commit/c26db41635824300e0a1428cb856b5948af2be3a))
+
+
+### Bug Fixes
+
+* new now add an empty export to the stack ([2b00de2](https://github.com/RustFields/RuFi-core/commit/2b00de2d080cbc00151603492e3d7db1e67d8067))
+* now the expression is computed correctly locally ([e004ce1](https://github.com/RustFields/RuFi-core/commit/e004ce1e0d73c5f7ae2285e6e89ea7e28883dda7))
+* remove useless imports ([d372375](https://github.com/RustFields/RuFi-core/commit/d372375c8e3addf0b7e878441fd1edd776a95af2))
+* revert problematic change made previously ([db036c6](https://github.com/RustFields/RuFi-core/commit/db036c6f954f75dec596e86dd6422fb95e1e1265))
+* **test:** fix round vm creation for testing ([0960b74](https://github.com/RustFields/RuFi-core/commit/0960b749f130a5ff759c11bc33fb219f52bfe010))
+
+
+### Tests
+
+* improve test for multiple rounds ([28da239](https://github.com/RustFields/RuFi-core/commit/28da239a7884bb337848a0344a2a96223a2f1deb))
+* improve tests ([e50a916](https://github.com/RustFields/RuFi-core/commit/e50a9160ce6c593f1cfc5b12477756e943c6c0d3))
+
+
+### Refactoring
+
+* remove useless vm duplication ([ac27413](https://github.com/RustFields/RuFi-core/commit/ac27413f195434d09e878707cfd11daac66b1484))
+* remove useless vm duplication ([c113ece](https://github.com/RustFields/RuFi-core/commit/c113ece8b45cb0d5a372e1d62cb9c5f0233b789c))
+* round now returns also the result of the computation ([4723099](https://github.com/RustFields/RuFi-core/commit/4723099f138d5daf947bc588ab2f87b792d0b5ae))
+* **test:** add empty export to stack on vm creation ([b250d8e](https://github.com/RustFields/RuFi-core/commit/b250d8e6ccf81092f48cc3ea4c2234b0c14ca947))
+* **test:** round now returns also the result of the computation ([e88ee08](https://github.com/RustFields/RuFi-core/commit/e88ee08379e9b7b60282551fc7763df84ad26ced))
+
 ## [6.1.0](https://github.com/RustFields/RuFi-core/compare/6.0.1...6.1.0) (2023-07-06)
 
 
