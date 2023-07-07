@@ -232,35 +232,6 @@ impl RoundVM {
         result
     }
 
-    /// Evaluates the given expression locally and return the result.
-    ///
-    /// # Arguments
-    ///
-    /// * `expr` The expression to evaluate.
-    ///
-    /// # Generic Parameters
-    ///
-    /// * `A` - The type of value returned by the expression.
-    /// * `F` - The type of the closure, which must be a mutable closure that takes no arguments and returns a value of type `A`.
-    ///
-    /// # Returns
-    ///
-    /// The result of the closure `expr`.
-    ///
-    /// # Panics
-    ///
-    /// This function panics if the `neighbor` method returns `None`.
-    pub fn locally<A, F>(&mut self, mut expr: F) -> A
-    where
-        F: FnMut() -> A,
-    {
-        let current_neighbour =
-            self.neighbor().map(|id| id.clone());
-        self.status = self.status.fold_out();
-        self.status = self.status.fold_into(current_neighbour);
-        expr()
-    }
-
     /// Get a vector of aligned neighbor identifiers.
     ///
     /// # Returns
@@ -465,12 +436,6 @@ mod tests {
                 .unwrap(),
             &4
         )
-    }
-
-    #[test]
-    fn test_locally() {
-        let mut vm = round_vm_builder();
-        assert_eq!(vm.locally(|| expr()), expr())
     }
 
     #[test]

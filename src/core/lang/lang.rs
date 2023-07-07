@@ -14,8 +14,7 @@ pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM
 
 pub fn rep<A: Copy + 'static>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
     let prev = vm.previous_round_val().unwrap_or(&init()).clone();
-    //cannot use vm_.locally
-    let (mut vm_, val) = fun(vm, prev);
+    let (mut vm_, val) = locally(vm, |vm1| fun(vm1, prev));
     let res = vm_.nest(Rep(vm_.index().clone()), vm_.unless_folding_on_others(), true, || val);
     (vm_, res)
 }
@@ -34,22 +33,42 @@ pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: 
 }
 
 pub fn branch<A: Copy + 'static>(vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
-    let tag = cond();
+    let (vm, tag) = locally(vm, |_vm1| (_vm1, cond()));
     let (mut vm_, val): (RoundVM, A) = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
             let val_clone = vm.neighbor_val::<A>().unwrap().clone();
             (vm, val_clone)
         }
         _ => if tag {
-            //cannot use vm_.locally
-            thn(vm)
+            locally(vm, |vm1| thn(vm1))
         } else {
-            //cannot use vm_.locally
-            els(vm)
+            locally(vm, |vm1| els(vm1))
         }
     };
     let res = vm_.nest(Branch(vm_.index().clone()), vm_.unless_folding_on_others(), tag, || val);
     (vm_, res)
+}
+
+/// Evaluates the given expression locally and return the result.
+///
+/// # Arguments
+///
+/// * `expr` The expression to evaluate.
+///
+/// # Generic Parameters
+///
+/// * `A` - The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a mutable closure that takes no arguments and returns a value of type `A`.
+///
+/// # Returns
+///
+/// The result of the closure `expr`.
+fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundVM,A)) -> (RoundVM, A) {
+    let current_neighbour =
+        vm.neighbor().map(|id| id.clone());
+    vm.status = vm.status.fold_out();
+    vm.status = vm.status.fold_into(current_neighbour);
+    expr(vm)
 }
 
 mod test {
