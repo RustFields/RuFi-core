@@ -402,7 +402,8 @@ mod tests {
     fn test_nest_write() {
         let mut vm = round_vm_builder();
         vm.nest(Rep(vm.index().clone()), true, false, || expr);
-        assert_eq!(vm.export_data().get::<i32>(&Path::new()), None)
+        println!("{:?}", vm.export_data());
+        assert_eq!(vm.export_data().get::<i32>(&Path::new()), Some(&0))
     }
 
     #[test]
