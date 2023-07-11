@@ -1,3 +1,11 @@
+## [9.0.1](https://github.com/RustFields/RuFi-core/compare/9.0.0...9.0.1) (2023-07-11)
+
+
+### Bug Fixes
+
+* fixed nest not writing the status correctly ([2bf473d](https://github.com/RustFields/RuFi-core/commit/2bf473d0c4c8a9b6f2dd5ee35aeb80c478835dcb))
+* **test:** fixed nest test not expecting correct value ([f379c6c](https://github.com/RustFields/RuFi-core/commit/f379c6cec84d5b433446a4abf2a3a7ef19de2c3c))
+
 ## [9.0.0](https://github.com/RustFields/RuFi-core/compare/8.0.0...9.0.0) (2023-07-07)
 
 
