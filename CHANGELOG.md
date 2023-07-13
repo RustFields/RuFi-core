@@ -1,3 +1,15 @@
+## [9.1.0](https://github.com/RustFields/RuFi-core/compare/9.0.1...9.1.0) (2023-07-13)
+
+
+### Features
+
+* implement mid() construct ([61a018e](https://github.com/RustFields/RuFi-core/commit/61a018ee41866444d4e0792d3bf8b9a1a904b3ef))
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.41 ([42336b8](https://github.com/RustFields/RuFi-core/commit/42336b831f1cc636020029d41a8a4d59e5789751))
+
 ## [9.0.1](https://github.com/RustFields/RuFi-core/compare/9.0.0...9.0.1) (2023-07-11)
 
 
