@@ -233,6 +233,27 @@ impl RoundVM {
         result
     }
 
+    pub fn nest_in(&mut self, slot: Slot) {
+        self.status = self.status.push().nest(slot)
+    }
+
+    pub fn nest_write<A>(&mut self, write: bool, value: A) {
+        if write {
+            let cloned_path = self.status.path.clone();
+            match self.export_data().get::<A>(&cloned_path) {
+                Some(x) => x.clone(),
+                _ => &self.export_data().put(cloned_path, || value)
+            };
+        }
+    }
+
+    pub fn nest_out(&mut self, inc: bool) {
+        self.status = match inc {
+            true => self.status.pop().inc_index(),
+            false => self.status.pop()
+        }
+    }
+
     /// Get a vector of aligned neighbor identifiers.
     ///
     /// # Returns
