@@ -2,25 +2,31 @@ use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
 pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
+    vm.nest_in(Nbr(vm.index().clone()));
     let val = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
             vm.neighbor_val::<A>().unwrap().clone()
         }
         _ => expr()
     };
-    let res = vm.nest(Nbr(vm.index().clone()), vm.only_when_folding_on_self(), true, || val);
+    let res = vm.nest_write(vm.only_when_folding_on_self(), val);
+    vm.nest_out(true);
     (vm, res)
 }
 
-pub fn rep<A: Copy + 'static>(vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
+pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
+    vm.nest_in(Rep(vm.index().clone()));
     let prev = vm.previous_round_val().unwrap_or(&init()).clone();
     let (mut vm_, val) = locally(vm, |vm1| fun(vm1, prev));
-    let res = vm_.nest(Rep(vm_.index().clone()), vm_.unless_folding_on_others(), true, || val);
+    let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
+    vm_.nest_out(true);
     (vm_, res)
 }
 
 pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn() -> A) -> (RoundVM, A) {
+    // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
     let nbrs = vm.aligned_neighbours().clone();
+    vm.nest_in(FoldHood(vm.index().clone()));
     let preval = expr();
     let nbrfield =
         nbrs.iter()
@@ -28,11 +34,13 @@ pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: 
                 vm.folded_eval(|| preval, id.clone()).unwrap_or(init())
             });
     let val = nbrfield.fold(init(), |x, y| aggr(x, y));
-    let res = vm.nest(FoldHood(vm.index().clone()), true, true, ||val);
+    let res = vm.nest_write(true, val);
+    vm.nest_out(true);
     (vm, res)
 }
 
-pub fn branch<A: Copy + 'static>(vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
+pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
+    vm.nest_in(Branch(vm.index().clone()));
     let (vm, tag) = locally(vm, |_vm1| (_vm1, cond()));
     let (mut vm_, val): (RoundVM, A) = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
@@ -45,7 +53,8 @@ pub fn branch<A: Copy + 'static>(vm: RoundVM, cond: impl Fn() -> bool, thn: impl
             locally(vm, |vm1| els(vm1))
         }
     };
-    let res = vm_.nest(Branch(vm_.index().clone()), vm_.unless_folding_on_others(), tag, || val);
+    let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
+    vm_.nest_out(tag);
     (vm_, res)
 }
 
@@ -82,6 +91,7 @@ mod test {
     use crate::core::export::export::Export;
     use crate::core::lang::lang::{nbr, rep, branch, foldhood};
     use crate::core::path::path::path::Path;
+    use crate::core::path::slot::slot::Slot::FoldHood;
 
     use crate::core::vm::round_vm::round_vm::RoundVM;
 
@@ -119,19 +129,21 @@ mod test {
             (
                 1,
                 Export::from(HashMap::from([(
-                    Path::new(),
+                    Path::from(vec![FoldHood(0)]),
                     Box::new(1) as Box<dyn Any>
                     )])),
             ),
             (
                 2,
                 Export::from(HashMap::from([(
-                    Path::new(),
+                    Path::from(vec![FoldHood(0)]),
                     Box::new(2) as Box<dyn Any>
                 )])),
             ),
         ]);
+        println!("{:?}", vm.context);
         vm.context = Context::new(0, Default::default(), Default::default(), exports);
+        println!("{:?}", vm.context);
         let (_vm_, res) =
             foldhood(vm,
                      || 1,

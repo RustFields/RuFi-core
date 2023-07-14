@@ -188,49 +188,27 @@ impl RoundVM {
         result
     }
 
-    /// Nest the current status, execute the given expression, and return the result.
-    ///
-    /// This function updates the status by pushing a nested slot, and
-    /// evaluates the provided expression. The result of the expression is returned after restoring
-    /// the status to its previous state.
-    ///
-    /// # Arguments
-    ///
-    /// * `slot` - The slot to nest in the current status.
-    /// * `write` - A boolean flag indicating whether to perform a write operation.
-    /// * `inc` - A boolean flag indicating whether to increment the index after nesting.
-    /// * `expr` - The expression to evaluate, which should return a value of type `A`.
-    ///
-    /// # Generic Parameters
-    ///
-    /// * `A` - The type of value returned by the expression. It must implement the `Clone` trait
-    ///         and have a `'static` lifetime.
-    /// * `F` - The type of the expression, which must be a closure that takes no arguments and
-    ///         returns a value of type `A`.
-    ///
-    /// # Returns
-    ///
-    /// The result of the expression.
-    pub fn nest<A: Clone + 'static, F>(&mut self, slot: Slot, write: bool, inc: bool, expr: F) -> A
-    where
-        F: Fn() -> A,
-    {
+    pub fn nest_in(&mut self, slot: Slot) {
+        self.status = self.status.push().nest(slot)
+    }
 
-        self.status = self.status.push().nest(slot);
-        let result: A = if write {
+    pub fn nest_write<A: Copy + 'static>(&mut self, write: bool, value: A) -> A {
+        if write {
             let cloned_path = self.status.path.clone();
             match self.export_data().get::<A>(&cloned_path) {
                 Some(x) => x.clone(),
-                _ => self.export_data().put(cloned_path, expr)
+                _ => self.export_data().put(cloned_path, || value)
             }
         } else {
-            expr()
-        };
+            value
+        }
+    }
+
+    pub fn nest_out(&mut self, inc: bool) {
         self.status = match inc {
             true => self.status.pop().inc_index(),
             false => self.status.pop()
-        };
-        result
+        }
     }
 
     /// Get a vector of aligned neighbor identifiers.
@@ -381,29 +359,6 @@ mod tests {
         let result = vm.folded_eval(|| expr, 7);
         assert_eq!(round_vm_builder().status, vm.status);
         assert_eq!(result.unwrap()(), expr())
-    }
-
-    #[test]
-    fn test_nest() {
-        let mut vm = round_vm_builder();
-        let result = vm.nest(Rep(vm.index().clone()), false, false, || expr);
-        assert_eq!(round_vm_builder().status, vm.status);
-        assert_eq!(result(), expr())
-    }
-
-    #[test]
-    fn test_nest_inc_index() {
-        let mut vm = round_vm_builder();
-        vm.nest(Rep(vm.index().clone()), false, true, || expr);
-        assert_eq!(round_vm_builder().status.index + 1, vm.status.index);
-    }
-
-    #[test]
-    fn test_nest_write() {
-        let mut vm = round_vm_builder();
-        vm.nest(Rep(vm.index().clone()), true, false, || expr);
-        println!("{:?}", vm.export_data());
-        assert_eq!(vm.export_data().get::<i32>(&Path::new()), Some(&0))
     }
 
     #[test]
