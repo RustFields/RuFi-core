@@ -24,8 +24,9 @@ pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl F
 }
 
 pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn() -> A) -> (RoundVM, A) {
-    vm.nest_in(FoldHood(vm.index().clone()));
+    // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
     let nbrs = vm.aligned_neighbours().clone();
+    vm.nest_in(FoldHood(vm.index().clone()));
     let preval = expr();
     let nbrfield =
         nbrs.iter()
@@ -90,6 +91,7 @@ mod test {
     use crate::core::export::export::Export;
     use crate::core::lang::lang::{nbr, rep, branch, foldhood};
     use crate::core::path::path::path::Path;
+    use crate::core::path::slot::slot::Slot::FoldHood;
 
     use crate::core::vm::round_vm::round_vm::RoundVM;
 
@@ -127,19 +129,21 @@ mod test {
             (
                 1,
                 Export::from(HashMap::from([(
-                    Path::new(),
+                    Path::from(vec![FoldHood(0)]),
                     Box::new(1) as Box<dyn Any>
                     )])),
             ),
             (
                 2,
                 Export::from(HashMap::from([(
-                    Path::new(),
+                    Path::from(vec![FoldHood(0)]),
                     Box::new(2) as Box<dyn Any>
                 )])),
             ),
         ]);
+        println!("{:?}", vm.context);
         vm.context = Context::new(0, Default::default(), Default::default(), exports);
+        println!("{:?}", vm.context);
         let (_vm_, res) =
             foldhood(vm,
                      || 1,
