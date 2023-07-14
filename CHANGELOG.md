@@ -1,3 +1,27 @@
+## [10.0.0](https://github.com/RustFields/RuFi-core/compare/9.1.0...10.0.0) (2023-07-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* remove unused function
+
+### Features
+
+* add nest in out and write ([53dec31](https://github.com/RustFields/RuFi-core/commit/53dec31b676c70feb9c5ec6b77debc2e55148c2f))
+
+
+### Bug Fixes
+
+* fix foldhood disalignment ([a47a294](https://github.com/RustFields/RuFi-core/commit/a47a29493f15f8f56111b0dc328facf04de0ac2d))
+* **test:** fix rep test ([56432ca](https://github.com/RustFields/RuFi-core/commit/56432ca4a951810258fbb98bcf771a5d5da11b36))
+
+
+### Refactoring
+
+* make nest_write return the input value ([49ef3a0](https://github.com/RustFields/RuFi-core/commit/49ef3a034d52e1975b8c0899bdf5d26c2e1be434))
+* refactor language constructs to use nest in write and out ([3e2be40](https://github.com/RustFields/RuFi-core/commit/3e2be40d9837f766583b533613abeec6cfa1b1ea))
+* remove unused function ([fea140b](https://github.com/RustFields/RuFi-core/commit/fea140b306684b7dd1e032972602b070c52b436a))
+
 ## [9.1.0](https://github.com/RustFields/RuFi-core/compare/9.0.1...9.1.0) (2023-07-13)
 
 
