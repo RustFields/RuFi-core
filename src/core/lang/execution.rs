@@ -14,6 +14,7 @@ mod test {
     use crate::core::lang::execution::round;
     use crate::core::lang::lang::{nbr, rep};
     use crate::core::path::path::path::Path;
+    use crate::core::path::slot::slot::Slot::Rep;
     use crate::core::vm::round_vm::round_vm::RoundVM;
 
     fn init_vm() -> RoundVM {
@@ -29,9 +30,9 @@ mod test {
         vm
     }
 
-    fn push_root_export_to_ctx<A: Copy + 'static>(mut ctx: Context, val: A) -> Context {
+    fn push_to_ctx<A: Copy + 'static>(mut ctx: Context, path: Path, val: A) -> Context {
         let mut export = Export::new();
-        export.put(Path::new(), || val);
+        export.put(path, || val);
         ctx.put_export(ctx.self_id, export);
         ctx
     }
@@ -49,7 +50,7 @@ mod test {
         let (vm_, res) = round(vm, program);
         assert_eq!(1, res);
         //add to the context the result of the previous round
-        let ctx_ = push_root_export_to_ctx(vm_.context, res);
+        let ctx_ = push_to_ctx(vm_.context, Path::from(vec![Rep(0)]), res);
         //second round
         let (_vm__, res_) = round(init_with_ctx(ctx_), program);
         assert_eq!(2, res_);
