@@ -237,13 +237,15 @@ impl RoundVM {
         self.status = self.status.push().nest(slot)
     }
 
-    pub fn nest_write<A>(&mut self, write: bool, value: A) {
+    pub fn nest_write<A: Copy + 'static>(&mut self, write: bool, value: A) -> A {
         if write {
             let cloned_path = self.status.path.clone();
             match self.export_data().get::<A>(&cloned_path) {
                 Some(x) => x.clone(),
-                _ => &self.export_data().put(cloned_path, || value)
-            };
+                _ => self.export_data().put(cloned_path, || value)
+            }
+        } else {
+            value
         }
     }
 
