@@ -65,7 +65,7 @@ mod test {
         let vm = init_vm();
         //write the aggregate program
         let program = |vm1| rep(vm1, || 0, |vm2, a| {
-            let (avm, res) = nbr(vm2, || a);
+            let (avm, res) = nbr(vm2, |_vm| (_vm,a));
             (avm, res + 1)
         });
         //first round
