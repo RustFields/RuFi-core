@@ -59,10 +59,6 @@ pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: 
     (vm_, res)
 }
 
-pub fn mid(vm: RoundVM) -> i32 {
-    vm.self_id()
-}
-
 /// Evaluates the given expression locally and return the result.
 ///
 /// # Arguments
