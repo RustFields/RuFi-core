@@ -1,17 +1,18 @@
 use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
-pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn() -> A) -> (RoundVM, A) {
+pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundVM,A)) -> (RoundVM, A) {
     vm.nest_in(Nbr(vm.index().clone()));
-    let val = match vm.neighbor() {
+    let (mut vm_ ,val) = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
-            vm.neighbor_val::<A>().unwrap().clone()
+            let cloned_val = vm.neighbor_val::<A>().unwrap().clone();
+            (vm, cloned_val)
         }
-        _ => expr()
+        _ => expr(vm)
     };
-    let res = vm.nest_write(vm.only_when_folding_on_self(), val);
-    vm.nest_out(true);
-    (vm, res)
+    let res = vm_.nest_write(vm_.only_when_folding_on_self(), val);
+    vm_.nest_out(true);
+    (vm_, res)
 }
 
 pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
@@ -105,7 +106,7 @@ mod test {
     #[test]
     fn test_nbr() {
         let vm = init_vm();
-        let (_vm1, result) = nbr(vm, || 1);
+        let (_vm1, result) = nbr(vm, |_vm| (_vm, 1));
         assert_eq!(result, 1);
     }
 
@@ -115,7 +116,7 @@ mod test {
 
         let (_vm1, result) =
             rep(vm, || 0, |vm1, a| {
-                let (avm, res) = nbr(vm1, || a);
+                let (avm, res) = nbr(vm1, |_vm| (_vm,a));
                 (avm, res + 1)
             });
 
@@ -158,7 +159,7 @@ mod test {
     #[test]
     fn test_branch() {
         let vm = init_vm();
-        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, ||1), |vm2|  rep(vm2, ||0, |vm2, a| (vm2, a+2)));
+        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, |_vm|(_vm,1)), |vm2|  rep(vm2, ||0, |vm2, a| (vm2, a+2)));
         assert_eq!(2, result)
     }
 }
