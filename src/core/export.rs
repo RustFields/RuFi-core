@@ -14,6 +14,17 @@ pub mod export {
     pub struct Export {
         pub(crate) map: HashMap<Path, Box<dyn Any>>,
     }
+
+    #[macro_export]
+    macro_rules! export {
+        ($($x:expr),*) => {{
+            let mut temp_map = HashMap::new();
+            $(
+                temp_map.insert($x.0, Box::new($x.1) as Box<dyn Any>);
+            )*
+            Export { map: temp_map }
+        }};
+    }
 }
 
 impl Export {
