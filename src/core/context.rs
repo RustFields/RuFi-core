@@ -136,6 +136,7 @@ mod test {
     use crate::core::sensor_id::sensor_id::SensorId;
     use std::any::Any;
     use std::collections::HashMap;
+    use crate::{export, path};
 
     fn context_builder() -> Context {
         let local_sensor = HashMap::from([(
@@ -148,10 +149,7 @@ mod test {
         )]);
         let export = HashMap::from([(
             0,
-            Export::from(HashMap::from([(
-                Path::from(vec![Rep(0), Nbr(0)]),
-                Box::new(10) as Box<dyn Any>,
-            )])),
+            export!((path!(Rep(0), Nbr(0)), 10)),
         )]);
         Context::new(7, local_sensor, nbr_sensor, export)
     }
@@ -169,10 +167,7 @@ mod test {
     fn test_put_export() {
         let mut context = context_builder();
         assert_eq!(context.exports.len(), 1);
-        let add_export = Export::from(HashMap::from([(
-            Path::from(vec![Branch(0), Nbr(0)]),
-            Box::new(5) as Box<dyn Any>,
-        )]));
+        let add_export = export!((path!(Branch(0), Nbr(0)),5));
         context.put_export(1, add_export);
         assert_eq!(context.exports.len(), 2)
     }
@@ -182,7 +177,7 @@ mod test {
         let context = context_builder();
         assert_eq!(
             context
-                .read_export_value::<i32>(&0, &Path::from(vec![Rep(0), Nbr(0)]))
+                .read_export_value::<i32>(&0, &path!(Rep(0), Nbr(0)))
                 .unwrap(),
             &10
         );
