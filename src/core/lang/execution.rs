@@ -39,7 +39,6 @@ mod test {
     use crate::core::lang::lang::{branch, foldhood, mid, nbr, rep};
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::SensorId;
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use crate::export;
     use crate::path;
@@ -131,6 +130,8 @@ mod test {
 
         let context = Context::new(0, Default::default(), Default::default(), create_export_foldhood_test());
         // Program: foldhood(-5)(_ + _)(if (nbr(false)) {0} else {1})
+        let mut vm = init_with_ctx(context);
+        print!("{:?}", vm.aligned_neighbours());
         let program = |vm| foldhood(vm,
                                     || -5,
                                     | a, b| (a + b),
@@ -138,16 +139,16 @@ mod test {
                                         let (vm2, res) = nbr(vm1, || false);
                                         if res { (vm2, 0) } else { (vm2, 1) }
                                     });
-        let result = round(init_with_ctx(context), program);
+        let result = round(vm, program);
         assert_eq!(-14, result.1);
     }
 
     fn create_export_foldhood_test() -> HashMap<i32, Export> {
         // Export of device 2: Export(/ -> "1", FoldHood(0) -> "1")
-        let export_dev_2 = export!((path!(), 1), (path!(FoldHood(0)), 1));
+        let export_dev_2 = export!((path!(), String::from("1")), (path!(FoldHood(0)), String::from("1")));
         // Export of device 4: Export(/ -> "3", FoldHood(0) -> "3")
         let export_dev_4 = export!((path!(), 3), (path!(FoldHood(0)), 3));
-        // Exports of the context: Map(2 -> Export(/ -> "a", FoldHood(0) -> "a"), 4 -> Export(/ -> "b", FoldHood(0) -> "b"))
+        // Exports of the context: Map(2 -> Export(/ -> 1, FoldHood(0) -> 1), 4 -> Export(/ -> 3, FoldHood(0) -> 3))
         let mut exports: HashMap<i32, Export> = HashMap::new();
         exports.insert(2, export_dev_2);
         exports.insert(4, export_dev_4);
