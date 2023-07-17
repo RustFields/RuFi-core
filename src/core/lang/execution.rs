@@ -36,11 +36,13 @@ mod test {
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::lang::execution::round;
-    use crate::core::lang::lang::{branch, foldhood, nbr, rep};
+    use crate::core::lang::lang::{branch, foldhood, mid, nbr, rep};
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
     use crate::core::sensor_id::sensor_id::SensorId;
     use crate::core::vm::round_vm::round_vm::RoundVM;
+    use crate::export;
+    use crate::path;
 
     fn init_vm() -> RoundVM {
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
@@ -83,10 +85,7 @@ mod test {
 
     #[test]
     fn test_local_value() {
-        let context = Context::new(0,
-                                   Default::default(),
-                                   Default::default(),
-                                   Default::default());
+        let context = Context::new(0, Default::default(), Default::default(), Default::default());
         let result = round(init_with_ctx(context), |vm| (vm, 10));
         assert_eq!(10, result.1);
     }
@@ -94,71 +93,65 @@ mod test {
     #[test]
     fn test_alignment() {
         // No neighbor is aligned
-        let context = Context::new(0, Default::default(),
-                                   Default::default(), Default::default());
-        let result = round(init_with_ctx(context),
-                           |vm1| rep(vm1, || 0, |vm2, _| {
-                               foldhood(vm2, || 0,
-                                        | a, b | (a + b), || 1 )}));
+        let context = Context::new(0, Default::default(), Default::default(), Default::default());
+        // Program: rep(0, foldhood(0)(_ + _)(1))
+        let program = |vm1| rep(vm1,
+                                || 0,
+                                |vm2, _| { foldhood(vm2,
+                                                    || 0,
+                                                    | a, b | (a + b),
+                                                    |vm3| (vm3, 1))});
+        let result = round(init_with_ctx(context), program);
         assert_eq!(1, result.1);
 
         // One neighbor is aligned
-        let mut exports: HashMap<i32, Export> = HashMap::new();
-        exports.insert(1, create_export());
-
-        let context = Context::new(0, Default::default(),
-                                   Default::default(), exports);
-
-        let result = round(init_with_ctx(context),
-                           |vm1| rep(vm1, || 0, |vm2, _| {
-                               foldhood(vm2, || 0,
-                                        | a, b| (a + b), || 1 )}));
+        // Export: Map(1 -> Export(Rep(0) -> 1, Rep(0) / FoldHood(0) -> 1))
+        let context = Context::new(0, Default::default(), Default::default(), create_export_alignment_test());
+        let result = round(init_with_ctx(context), program);
         assert_eq!(2, result.1);
     }
 
-    fn create_export() -> Export {
-        let mut map: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        map.insert(Path::from(vec![Rep(0)]), Box::new(1));
-        map.insert(Path::from(vec![Rep(0),FoldHood(0)]), Box::new(1));
-        Export::from(map)
-    }
-
-    fn create_context_foldhood_test() -> Context {
-        // Export of device 2: Export(/ -> "1", FoldHood(0) -> "1")
-        let mut exports_device_2: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        exports_device_2.insert(Path::from(vec![FoldHood(0)]), Box::new(1));
-        exports_device_2.insert(Path::from(vec![]), Box::new(1));
-        // Export of device 4: Export(/ -> "3", FoldHood(0) -> "3")
-        let mut exports_device_4: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        exports_device_4.insert(Path::from(vec![FoldHood(0)]), Box::new(3));
-        exports_device_4.insert(Path::from(vec![]), Box::new(3));
-        // Exports of the context: Map(2 -> Export(/ -> "a", FoldHood(0) -> "a"), 4 -> Export(/ -> "b", FoldHood(0) -> "b"))
+    fn create_export_alignment_test() -> HashMap<i32, Export> {
+        let export_dev_1 = export!((path!(Rep(0)), 1), (path!(Rep(0), FoldHood(0)), 1));
         let mut exports: HashMap<i32, Export> = HashMap::new();
-        exports.insert(2, Export::from(exports_device_2));
-        exports.insert(4, Export::from(exports_device_4));
-        // Context of the device
-        let context = Context::new(0, Default::default(), Default::default(), exports);
-        return context;
+        exports.insert(1, export_dev_1);
+        exports
     }
 
     #[test]
     fn test_foldhood() {
-        // Context of the device
-        let context = create_context_foldhood_test();
-        // Aggregate program in Scala: foldhood("1")(_ + _)("2")
-        let result = round(init_with_ctx(context),
-                           |vm| foldhood(vm, || 1,
-                                        | a, b| (a + b), || 2 ));
+        let context = Context::new(0, Default::default(), Default::default(), create_export_foldhood_test());
+        // Program: foldhood(1)(_ + _)(2)
+        let program = |vm| foldhood(vm,
+                                    || 1,
+                                    | a, b| (a + b),
+                                    |vm1| (vm1, 2));
+        let result = round(init_with_ctx(context), program);
         assert_eq!(7, result.1);
 
-        // TODO
-        //let context = create_context_foldhood_test();
-        // Aggregate program in Scala: foldhood("-5")(_ + _)(if (nbr(false)) {0} else {1})
-        //let result = round(init_with_ctx(context),
-                           //|vm| foldhood(vm, || -5,
-                                       // | a, b| (a + b),
-                                         //|vm1| if nbr(vm1, || false).1 {0} else {1} ));
-        //assert_eq!(-14, result.1);
+        let context = Context::new(0, Default::default(), Default::default(), create_export_foldhood_test());
+        // Program: foldhood(-5)(_ + _)(if (nbr(false)) {0} else {1})
+        let program = |vm| foldhood(vm,
+                                    || -5,
+                                    | a, b| (a + b),
+                                    |vm1| {
+                                        let (vm2, res) = nbr(vm1, || false);
+                                        if res { (vm2, 0) } else { (vm2, 1) }
+                                    });
+        let result = round(init_with_ctx(context), program);
+        assert_eq!(-14, result.1);
+    }
+
+    fn create_export_foldhood_test() -> HashMap<i32, Export> {
+        // Export of device 2: Export(/ -> "1", FoldHood(0) -> "1")
+        let export_dev_2 = export!((path!(), 1), (path!(FoldHood(0)), 1));
+        // Export of device 4: Export(/ -> "3", FoldHood(0) -> "3")
+        let export_dev_4 = export!((path!(), 3), (path!(FoldHood(0)), 3));
+        // Exports of the context: Map(2 -> Export(/ -> "a", FoldHood(0) -> "a"), 4 -> Export(/ -> "b", FoldHood(0) -> "b"))
+        let mut exports: HashMap<i32, Export> = HashMap::new();
+        exports.insert(2, export_dev_2);
+        exports.insert(4, export_dev_4);
+        exports
     }
 
     #[test]
@@ -169,36 +162,30 @@ mod test {
         assert_eq!(7, result.1);
 
         // 2 - NBR should support interaction between aligned devices
-        // let context = create_context_nbr_test2();
-        // The following program is run: foldhood(0)(_ + _)(if (nbr(mid()) == mid()) 0 else 1)
-        // TODO
-        //let program = |vm| foldhood(vm,
-                               //     || 0,
-                                //    | a, b| (a + b),
-                                //    |vm1| if nbr(vm1, mid()) == mid() {0} else {1} );
+        let context = Context::new(0, Default::default(), Default::default(), create_exports_nbr_test());
+        // Program: foldhood(0)(_ + _)(if (nbr(mid()) == mid()) 0 else 1)
+        /*let program = |vm| foldhood(vm,
+                                    || 0,
+                                    | a, b| (a + b),
+                                    |vm1| {
+                                        let (vm2, res) = nbr(vm1, || mid(vm3));
+                                        if res.1 == mid(vm2).1 { (res.0, 0) } else { (res.0, 1) }
+                                    }); */
         //let result = round(init_with_ctx(context), program);
-        // assert_eq!(2, result.1);
+        //assert_eq!(2, result.1);
     }
 
-    fn create_context_nbr_test2() -> Context {
+    fn create_exports_nbr_test() -> HashMap<i32, Export> {
         // Create this export: Map(
         //       1 -> Export(/ -> "any", FoldHood(0) -> 1, FoldHood(0) / Nbr(0) -> 1),
         //       2 -> Export(/ -> "any", FoldHood(0) -> 2, FoldHood(0) / Nbr(0) -> 2)
         //     )
-        let mut export_dev_1: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        export_dev_1.insert(Path::from(vec![]), Box::new("any"));
-        export_dev_1.insert(Path::from(vec![FoldHood(0)]), Box::new(1));
-        export_dev_1.insert(Path::from(vec![FoldHood(0), Nbr(0)]), Box::new(1));
-        let mut export_dev_2: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        export_dev_2.insert(Path::from(vec![]), Box::new("any"));
-        export_dev_2.insert(Path::from(vec![FoldHood(0)]), Box::new(2));
-        export_dev_2.insert(Path::from(vec![FoldHood(0), Nbr(0)]), Box::new(2));
+        let export_dev_1 = export!((path!(), "any"), (path!(FoldHood(0)), 1), (path!(FoldHood(0), Nbr(0)), 1));
+        let export_dev_2 = export!((path!(), "any"), (path!(FoldHood(0)), 2), (path!(FoldHood(0), Nbr(0)), 2));
         let mut exports: HashMap<i32, Export> = HashMap::new();
-        exports.insert(1, Export::from(export_dev_1));
-        exports.insert(2, Export::from(export_dev_2));
-        // Context of the device
-        let context = Context::new(0, Default::default(), Default::default(), exports);
-        context
+        exports.insert(1, export_dev_1);
+        exports.insert(2, export_dev_2);
+        exports
     }
 
     #[test]
@@ -219,11 +206,9 @@ mod test {
     }
 
     fn create_exports_rep_test() -> HashMap<i32, Export> {
-        let mut export_dev_0: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        export_dev_0.insert(Path::from(vec![Rep(0)]), Box::new(7));
+        let export_dev_0= export!((path!(Rep(0)), 7));
         let mut exports: HashMap<i32, Export> = HashMap::new();
-        exports.insert(0, Export::from(export_dev_0));
-        // print!("{:?}", exports.get(&0).unwrap().get::<i32>(&Path::from(vec![Rep(0)])));
+        exports.insert(0, export_dev_0);
         exports
     }
 
@@ -253,32 +238,9 @@ mod test {
     }
 
     fn create_exports_branch_test() -> HashMap<i32, Export> {
-        let mut export_dev_0: HashMap<Path, Box<dyn Any>> = HashMap::new();
-        export_dev_0.insert(Path::from(vec![Rep(0)]), Box::new(1));
+        let export_dev_0= export!((path!(Rep(0)), 1));
         let mut exports: HashMap<i32, Export> = HashMap::new();
-        exports.insert(0, Export::from(export_dev_0));
+        exports.insert(0, export_dev_0);
         exports
     }
-
-    #[test]
-    fn test_sense() {
-        let context = Context::new(0, create_local_sensors(), Default::default(), Default::default());
-        // let result = round(init_with_ctx(context), |vm| sense(vm, |vm1, a| (vm1, a)));
-    }
-
-    fn create_local_sensors() -> HashMap<SensorId, Box<dyn Any>> {
-        // Sensors: Map("a" -> 7, "b" -> "high")
-        let mut sensors: HashMap<SensorId, Box<dyn Any>> = HashMap::new();
-        sensors.insert(SensorId::new("a".to_string()), Box::new(7));
-        sensors.insert(SensorId::new("b".to_string()), Box::new("high"));
-        sensors
-    }
-
-
-
-    // Export: Map(
-    //       1 -> Export(FoldHood(0) -> 1)
-    //       2 -> Export(FoldHood(0) -> 2)
-    //     )
-    // Program: foldhood(1)(_+_)(sense("a"))
 }
