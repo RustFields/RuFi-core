@@ -1,3 +1,14 @@
+## [11.0.0](https://github.com/RustFields/RuFi-core/compare/10.1.0...11.0.0) (2023-07-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* changed expr to take and return a vm to allow combination with other operators
+
+### Refactoring
+
+* changed expr to take and return a vm to allow combination with other operators ([2258e31](https://github.com/RustFields/RuFi-core/commit/2258e313367bb26ade92d229f44c422a3c71da7f))
+
 ## [10.1.0](https://github.com/RustFields/RuFi-core/compare/10.0.0...10.1.0) (2023-07-17)
 
 
