@@ -36,9 +36,10 @@ mod test {
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::lang::execution::round;
-    use crate::core::lang::lang::{foldhood, nbr, rep};
+    use crate::core::lang::lang::{branch, foldhood, nbr, rep};
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
+    use crate::core::sensor_id::sensor_id::SensorId;
     use crate::core::vm::round_vm::round_vm::RoundVM;
 
     fn init_vm() -> RoundVM {
@@ -168,14 +169,15 @@ mod test {
         assert_eq!(7, result.1);
 
         // 2 - NBR should support interaction between aligned devices
-        let context = create_context_nbr_test2();
+        // let context = create_context_nbr_test2();
         // The following program is run: foldhood(0)(_ + _)(if (nbr(mid()) == mid()) 0 else 1)
         // TODO
         //let program = |vm| foldhood(vm,
                                //     || 0,
                                 //    | a, b| (a + b),
-                                //    |vm1| if nbr(vm1, |vm1| vm1.self_id(vm1)) == mid() {0} else {1} );
-
+                                //    |vm1| if nbr(vm1, mid()) == mid() {0} else {1} );
+        //let result = round(init_with_ctx(context), program);
+        // assert_eq!(2, result.1);
     }
 
     fn create_context_nbr_test2() -> Context {
@@ -198,4 +200,85 @@ mod test {
         let context = Context::new(0, Default::default(), Default::default(), exports);
         context
     }
+
+    #[test]
+    // Rep should support dynamic evolution of fields
+    fn test_rep() {
+        let context = Context::new(0, Default::default(), Default::default(), Default::default());
+        // Program: rep(9)(_ * 2)
+        let program = |vm| rep(vm, || 9, |vm1, a| (vm1, a * 2));
+        // Check if rep use the initial value
+        let result = round(init_with_ctx(context), program);
+        assert_eq!(18, result.1);
+
+        // Export: Map(0 -> Export(Rep(0) -> 7))
+        let context = Context::new(0, Default::default(), Default::default(), create_exports_rep_test());
+        // Rep should build upon previous state.
+        let result = round(init_with_ctx(context), program);
+        assert_eq!(14, result.1);
+    }
+
+    fn create_exports_rep_test() -> HashMap<i32, Export> {
+        let mut export_dev_0: HashMap<Path, Box<dyn Any>> = HashMap::new();
+        export_dev_0.insert(Path::from(vec![Rep(0)]), Box::new(7));
+        let mut exports: HashMap<i32, Export> = HashMap::new();
+        exports.insert(0, Export::from(export_dev_0));
+        // print!("{:?}", exports.get(&0).unwrap().get::<i32>(&Path::from(vec![Rep(0)])));
+        exports
+    }
+
+    #[test]
+    // Branch should support domain restriction, thus affecting the structure of exports
+    fn test_branch() {
+        // Program: rep(0) { x => branch(x % 2 == 0)(7)(rep(4)(_ => 4)); x + 1 }
+        let program =
+            |vm| rep(vm,
+                     || 0,
+                     |vm1, x| { let res = branch(vm1,
+                                                  || x % 2 == 0,
+                                                  |vm3| (vm3, 7),
+                                                  |vm4| (rep(vm4,
+                                                             || 4,
+                                                             |vm5, _| (vm5, 4))));
+                         return (res.0, x + 1)
+        });
+        let context = Context::new(0, Default::default(), Default::default(), Default::default());
+        let result = round(init_with_ctx(context), program);
+        assert_eq!(1, result.1);
+
+        // Export: Map(0 -> Export(Rep(0) -> 1))
+        let context = Context::new(0, Default::default(), Default::default(), create_exports_branch_test());
+        let result = round(init_with_ctx(context), program);
+        assert_eq!(2, result.1);
+    }
+
+    fn create_exports_branch_test() -> HashMap<i32, Export> {
+        let mut export_dev_0: HashMap<Path, Box<dyn Any>> = HashMap::new();
+        export_dev_0.insert(Path::from(vec![Rep(0)]), Box::new(1));
+        let mut exports: HashMap<i32, Export> = HashMap::new();
+        exports.insert(0, Export::from(export_dev_0));
+        exports
+    }
+
+    #[test]
+    fn test_sense() {
+        let context = Context::new(0, create_local_sensors(), Default::default(), Default::default());
+        // let result = round(init_with_ctx(context), |vm| sense(vm, |vm1, a| (vm1, a)));
+    }
+
+    fn create_local_sensors() -> HashMap<SensorId, Box<dyn Any>> {
+        // Sensors: Map("a" -> 7, "b" -> "high")
+        let mut sensors: HashMap<SensorId, Box<dyn Any>> = HashMap::new();
+        sensors.insert(SensorId::new("a".to_string()), Box::new(7));
+        sensors.insert(SensorId::new("b".to_string()), Box::new("high"));
+        sensors
+    }
+
+
+
+    // Export: Map(
+    //       1 -> Export(FoldHood(0) -> 1)
+    //       2 -> Export(FoldHood(0) -> 2)
+    //     )
+    // Program: foldhood(1)(_+_)(sense("a"))
 }
