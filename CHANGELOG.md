@@ -1,3 +1,16 @@
+## [11.1.0](https://github.com/RustFields/RuFi-core/compare/11.0.0...11.1.0) (2023-07-17)
+
+
+### Features
+
+* add macro for export creation ([c1a02d4](https://github.com/RustFields/RuFi-core/commit/c1a02d417b31a90c3c9fb6661c753bf507930ad7))
+* add macro for path ([5f44ef8](https://github.com/RustFields/RuFi-core/commit/5f44ef83d4c50b06fca897de663a859e02fa3200))
+
+
+### Refactoring
+
+* **test:** refactor tests to use macros ([11188bc](https://github.com/RustFields/RuFi-core/commit/11188bc6f24a05f1ef18f6e94befbf5e34496db9))
+
 ## [11.0.0](https://github.com/RustFields/RuFi-core/compare/10.1.0...11.0.0) (2023-07-17)
 
 
