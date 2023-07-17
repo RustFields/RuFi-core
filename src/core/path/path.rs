@@ -1,3 +1,4 @@
+
 pub mod path {
     use crate::core::path::slot::slot::Slot;
 
@@ -5,6 +6,17 @@ pub mod path {
     #[derive(PartialEq, Debug, Clone, Eq, Hash)]
     pub struct Path {
         pub(crate) slots: Vec<Slot>,
+    }
+
+    #[macro_export]
+    macro_rules! path {
+        ($($x:expr),*) => {{
+            let mut temp_vec = Vec::new();
+            $(
+                temp_vec.push($x);
+            )*
+            Path { slots: temp_vec }
+        }};
     }
 }
 
