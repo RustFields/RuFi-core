@@ -1,3 +1,14 @@
+## [12.0.0](https://github.com/RustFields/RuFi-core/compare/11.1.0...12.0.0) (2023-07-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* refactor nbr signature
+
+### Refactoring
+
+* refactor nbr signature ([b0ff292](https://github.com/RustFields/RuFi-core/commit/b0ff292992555d3e2ad4afe15ff4e40c732b9bb9))
+
 ## [11.1.0](https://github.com/RustFields/RuFi-core/compare/11.0.0...11.1.0) (2023-07-17)
 
 
