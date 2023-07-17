@@ -23,20 +23,20 @@ pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl F
     (vm_, res)
 }
 
-pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn() -> A) -> (RoundVM, A) {
+pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
     // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
     let nbrs = vm.aligned_neighbours().clone();
     vm.nest_in(FoldHood(vm.index().clone()));
-    let preval = expr();
+    let (mut vm_, preval) = expr(vm);
     let nbrfield =
         nbrs.iter()
             .map(|id| {
-                vm.folded_eval(|| preval, id.clone()).unwrap_or(init())
+                vm_.folded_eval(|| preval, id.clone()).unwrap_or(init())
             });
     let val = nbrfield.fold(init(), |x, y| aggr(x, y));
-    let res = vm.nest_write(true, val);
-    vm.nest_out(true);
-    (vm, res)
+    let res = vm_.nest_write(true, val);
+    vm_.nest_out(true);
+    (vm_, res)
 }
 
 pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
@@ -131,7 +131,7 @@ mod test {
                 Export::from(HashMap::from([(
                     Path::from(vec![FoldHood(0)]),
                     Box::new(1) as Box<dyn Any>
-                    )])),
+                )])),
             ),
             (
                 2,
@@ -150,7 +150,7 @@ mod test {
                      |s1, s2| {
                          s1 + s2
                      },
-                     ||2
+                     |_vm| (_vm,2)
             );
         assert_eq!(res, 7)
     }
