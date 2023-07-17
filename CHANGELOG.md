@@ -1,3 +1,10 @@
+## [10.1.0](https://github.com/RustFields/RuFi-core/compare/10.0.0...10.1.0) (2023-07-17)
+
+
+### Features
+
+* implemented functions to manipulate multiple aggregate programs ([655698f](https://github.com/RustFields/RuFi-core/commit/655698ffc1f813104ba84dc462850192d2f6f4c6))
+
 ## [10.0.0](https://github.com/RustFields/RuFi-core/compare/9.1.0...10.0.0) (2023-07-14)
 
 
