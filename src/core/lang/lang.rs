@@ -17,32 +17,32 @@ pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
 }
 
 pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
-    println!("rep: Init nbrs: {:?}", vm.aligned_neighbours());
     vm.nest_in(Rep(vm.index().clone()));
-    let prev = vm.previous_round_val().unwrap_or(&init()).clone();
-    let (mut vm_, val) = locally(vm, |vm1| fun(vm1, prev));
+    let (mut vm_, val) = locally(vm, |vm1| {
+        let prev = vm1.previous_round_val().unwrap_or(&init()).clone();
+        fun(vm1, prev)
+    });
     let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
     vm_.nest_out(true);
-    println!("rep: End nbrs: {:?}", vm_.aligned_neighbours());
     (vm_, res)
 }
 
 pub fn foldhood<A: Copy + 'static + Debug>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
     // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
     let nbrs = vm.aligned_neighbours().clone();
-    println!("foldhood: nbrs: {:?}", nbrs);
     vm.nest_in(FoldHood(vm.index().clone()));
-    let (mut vm_, preval) = expr(vm);
+    let (vm_, preval) = expr(vm);
+    let (mut vm__, local_init) = locally(vm_, |vm_| (vm_, init()));
     let nbrfield =
         nbrs.iter()
             .map(|id| {
-                let res= vm_.folded_eval(|| preval, id.clone()).unwrap_or(init());
+                let res= vm__.folded_eval(|| preval, id.clone()).unwrap_or(local_init);
                 res
             });
-    let val = nbrfield.fold(init(), |x, y| aggr(x, y));
-    let res = vm_.nest_write(true, val);
-    vm_.nest_out(true);
-    (vm_, res)
+    let val = nbrfield.fold(local_init, |x, y| aggr(x, y));
+    let res = vm__.nest_write(true, val);
+    vm__.nest_out(true);
+    (vm__, res)
 }
 
 pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
