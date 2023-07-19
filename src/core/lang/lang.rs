@@ -1,3 +1,4 @@
+use std::fmt::Debug;
 use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
@@ -16,23 +17,27 @@ pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
 }
 
 pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
+    println!("rep: Init nbrs: {:?}", vm.aligned_neighbours());
     vm.nest_in(Rep(vm.index().clone()));
     let prev = vm.previous_round_val().unwrap_or(&init()).clone();
     let (mut vm_, val) = locally(vm, |vm1| fun(vm1, prev));
     let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
     vm_.nest_out(true);
+    println!("rep: End nbrs: {:?}", vm_.aligned_neighbours());
     (vm_, res)
 }
 
-pub fn foldhood<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
+pub fn foldhood<A: Copy + 'static + Debug>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
     // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
     let nbrs = vm.aligned_neighbours().clone();
+    println!("foldhood: nbrs: {:?}", nbrs);
     vm.nest_in(FoldHood(vm.index().clone()));
     let (mut vm_, preval) = expr(vm);
     let nbrfield =
         nbrs.iter()
             .map(|id| {
-                vm_.folded_eval(|| preval, id.clone()).unwrap_or(init())
+                let res= vm_.folded_eval(|| preval, id.clone()).unwrap_or(init());
+                res
             });
     let val = nbrfield.fold(init(), |x, y| aggr(x, y));
     let res = vm_.nest_write(true, val);
@@ -59,6 +64,11 @@ pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: 
     (vm_, res)
 }
 
+pub fn mid(vm: RoundVM) -> (RoundVM, i32) {
+    let mid = vm.self_id().clone();
+    (vm, mid)
+}
+
 /// Evaluates the given expression locally and return the result.
 ///
 /// # Arguments
@@ -77,8 +87,9 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     let current_neighbour =
         vm.neighbor().map(|id| id.clone());
     vm.status = vm.status.fold_out();
-    vm.status = vm.status.fold_into(current_neighbour);
-    expr(vm)
+    let (mut vm_, result) = expr(vm);
+    vm_.status = vm_.status.fold_into(current_neighbour);
+    (vm_, result)
 }
 
 mod test {
