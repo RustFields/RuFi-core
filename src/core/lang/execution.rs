@@ -102,11 +102,22 @@ mod test {
                                                     |vm3| (vm3, 1))});
         let result = round(init_with_ctx(context), program);
         assert_eq!(1, result.1);
+    }
 
+    #[test]
+    fn test_alignment_working() {
         // One neighbor is aligned
         // Export: Map(1 -> Export(Rep(0) -> 1, Rep(0) / FoldHood(0) -> 1))
         let context = Context::new(0, Default::default(), Default::default(), create_export_alignment_test());
-        let result = round(init_with_ctx(context), program);
+        let vm = init_with_ctx(context);
+        // Program: rep(0, foldhood(0)(_ + _)(1))
+        let program = |vm1| rep(vm1,
+                                || 0,
+                                |vm2, _| { foldhood(vm2,
+                                                    || 0,
+                                                    | a, b | (a + b),
+                                                    |vm3| (vm3, 1))});
+        let result = round(vm, program);
         assert_eq!(2, result.1);
     }
 
@@ -130,16 +141,14 @@ mod test {
 
         let context = Context::new(0, Default::default(), Default::default(), create_export_foldhood_test());
         // Program: foldhood(-5)(_ + _)(if (nbr(false)) {0} else {1})
-        let mut vm = init_with_ctx(context);
-        print!("{:?}", vm.aligned_neighbours());
         let program = |vm| foldhood(vm,
                                     || -5,
                                     | a, b| (a + b),
                                     |vm1| {
-                                        let (vm2, res) = nbr(vm1, || false);
+                                        let (vm2, res) = nbr(vm1, |vm3| (vm3, false));
                                         if res { (vm2, 0) } else { (vm2, 1) }
                                     });
-        let result = round(vm, program);
+        let result = round(init_with_ctx(context), program);
         assert_eq!(-14, result.1);
     }
 
@@ -159,21 +168,21 @@ mod test {
     fn test_nbr() {
         // 1 - NBR needs not to be nested into fold
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
-        let result = round(init_with_ctx(context), |vm| nbr(vm, || 7));
+        let result = round(init_with_ctx(context), |vm| nbr(vm, |vm1| (vm1, 7)));
         assert_eq!(7, result.1);
 
         // 2 - NBR should support interaction between aligned devices
         let context = Context::new(0, Default::default(), Default::default(), create_exports_nbr_test());
         // Program: foldhood(0)(_ + _)(if (nbr(mid()) == mid()) 0 else 1)
-        /*let program = |vm| foldhood(vm,
+        let program = |vm| foldhood(vm,
                                     || 0,
                                     | a, b| (a + b),
                                     |vm1| {
-                                        let (vm2, res) = nbr(vm1, || mid(vm3));
-                                        if res.1 == mid(vm2).1 { (res.0, 0) } else { (res.0, 1) }
-                                    }); */
-        //let result = round(init_with_ctx(context), program);
-        //assert_eq!(2, result.1);
+                                        let (vm2, res) = nbr(vm1, |vm3| mid(vm3));
+                                        if res == vm2.self_id() { (vm2, 0) } else { (vm2, 1) }
+                                    });
+        let result = round(init_with_ctx(context), program);
+        assert_eq!(2, result.1);
     }
 
     fn create_exports_nbr_test() -> HashMap<i32, Export> {
