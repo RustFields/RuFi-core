@@ -216,7 +216,7 @@ impl RoundVM {
     /// # Returns
     ///
     /// A vector of aligned neighbor identifiers.
-    pub fn aligned_neighbours(&self) -> Vec<i32> {
+    pub fn aligned_neighbours<A: 'static>(&self) -> Vec<i32> {
         let mut tmp: Vec<i32> = Vec::new();
         if !self.isolated {
             tmp = self
@@ -226,7 +226,7 @@ impl RoundVM {
                 .filter(|(id, _)| id.clone() != &self.self_id())
                 .filter(|(_, export)| {
                     self.status.path.is_root()
-                        || export.get::<Box<dyn Any>>(&self.status.path).is_some()
+                        || export.get::<A>(&self.status.path).is_some()
                 })
                 .map(|(id, _)| id.clone())
                 .collect();
@@ -398,7 +398,7 @@ mod tests {
     #[test]
     fn test_aligned_neighbours() {
         let vm = round_vm_builder();
-        assert_eq!(vm.aligned_neighbours(), vec![7, 0])
+        assert_eq!(vm.aligned_neighbours::<i32>(), vec![7, 0])
     }
 
     #[test]

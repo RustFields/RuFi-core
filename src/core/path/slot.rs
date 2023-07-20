@@ -29,7 +29,7 @@ impl Slot {
         match self {
             Slot::Nbr(index) => "Nbr(".to_owned() + &index.to_string() + ")",
             Slot::Rep(index) => "Rep(".to_owned() + &index.to_string() + ")",
-            Slot::FoldHood(index) => "FoldHood".to_owned() + &index.to_string() + ")",
+            Slot::FoldHood(index) => "FoldHood(".to_owned() + &index.to_string() + ")",
             Slot::Branch(index) => "Branch(".to_owned() + &index.to_string() + ")",
             Slot::Exchange(index) => "Exchange(".to_owned() + &index.to_string() + ")",
         }

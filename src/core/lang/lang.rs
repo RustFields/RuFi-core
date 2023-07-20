@@ -29,7 +29,7 @@ pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl F
 
 pub fn foldhood<A: Copy + 'static + Debug>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
     // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
-    let nbrs = vm.aligned_neighbours().clone();
+    let nbrs = vm.aligned_neighbours::<A>().clone();
     vm.nest_in(FoldHood(vm.index().clone()));
     let (vm_, preval) = expr(vm);
     let (mut vm__, local_init) = locally(vm_, |vm_| (vm_, init()));
