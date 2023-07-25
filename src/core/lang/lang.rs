@@ -29,20 +29,28 @@ pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl F
 
 pub fn foldhood<A: Copy + 'static + Debug>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
     // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
-    let nbrs = vm.aligned_neighbours::<A>().clone();
+
     vm.nest_in(FoldHood(vm.index().clone()));
-    let (vm_, preval) = expr(vm);
-    let (mut vm__, local_init) = locally(vm_, |vm_| (vm_, init()));
-    let nbrfield =
-        nbrs.iter()
-            .map(|id| {
-                let res= vm__.folded_eval(|| preval, id.clone()).unwrap_or(local_init);
-                res
-            });
-    let val = nbrfield.fold(local_init, |x, y| aggr(x, y));
+    let nbrs = vm.aligned_neighbours::<A>().clone();
+    let (mut vm_, local_init) = locally(vm, |vm_| (vm_, init()));
+    // Create a vector of A
+    let temp_vec: Vec<A> = Vec::new();
+    let (mut vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
+    let val = nbrs_vec.iter().fold(local_init, |x, y| aggr(x, y.clone()));
     let res = vm__.nest_write(true, val);
     vm__.nest_out(true);
     (vm__, res)
+}
+
+fn nbrs_computation<A: Copy + 'static>(vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundVM, A), mut tmp: Vec<A>, mut ids: Vec<i32>, init: A) -> (RoundVM, Vec<A>) {
+    if ids.len() == 0 {
+        return (vm, tmp);
+    } else {
+        let current_id = ids.pop();
+        let (vm_, res, expr_) = folded_eval(vm, expr, current_id);
+        tmp.push(res.unwrap_or(init).clone());
+        nbrs_computation(vm_, expr_, tmp, ids, init)
+    }
 }
 
 pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
@@ -90,6 +98,23 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     let (mut vm_, result) = expr(vm);
     vm_.status = vm_.status.fold_into(current_neighbour);
     (vm_, result)
+}
+
+fn folded_eval<A: Copy + 'static, F>(mut vm: RoundVM, expr: F, id: Option<i32>) -> (RoundVM, Option<A>, F)
+    where
+        F: Fn(RoundVM) -> (RoundVM, A),
+{
+    vm.status = vm.status.push();
+    vm.status = vm.status.fold_into(id);
+
+    let (mut vm_, result) = if vm.neighbor_val::<A>().is_some() {
+        let (vm__, res) = expr(vm);
+        (vm__, Some(res))
+    } else {
+        (vm, None)
+    };
+    vm_.status = vm_.status.pop();
+    (vm_, result, expr)
 }
 
 mod test {
