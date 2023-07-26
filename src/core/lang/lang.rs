@@ -32,7 +32,7 @@ pub fn foldhood<A: Copy + 'static + Debug>(mut vm: RoundVM, init: impl Fn() -> A
 
     vm.nest_in(FoldHood(vm.index().clone()));
     let nbrs = vm.aligned_neighbours::<A>().clone();
-    let (mut vm_, local_init) = locally(vm, |vm_| (vm_, init()));
+    let (vm_, local_init) = locally(vm, |vm_| (vm_, init()));
     // Create a vector of A
     let temp_vec: Vec<A> = Vec::new();
     let (mut vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
@@ -106,15 +106,9 @@ fn folded_eval<A: Copy + 'static, F>(mut vm: RoundVM, expr: F, id: Option<i32>) 
 {
     vm.status = vm.status.push();
     vm.status = vm.status.fold_into(id);
-
-    let (mut vm_, result) = if vm.neighbor_val::<A>().is_some() {
-        let (vm__, res) = expr(vm);
-        (vm__, Some(res))
-    } else {
-        (vm, None)
-    };
+    let (mut vm_, res) = expr(vm);
     vm_.status = vm_.status.pop();
-    (vm_, result, expr)
+    (vm_, Some(res), expr)
 }
 
 mod test {
