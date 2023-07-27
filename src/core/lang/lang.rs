@@ -186,8 +186,24 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     (vm_, result)
 }
 
-/// Another version of the folded_eval function of the `RoundVM` struct.
+/// Perform a folded evaluation of the given expression in the given neighbor and return the result.
 /// Used by the `foldhood` function.
+/// Same behavior as the folded_eval function in src/core/lang/round_vm.rs.
+///
+/// # Arguments
+///
+/// * `vm` - The current VM.
+/// * `expr` - The expression to evaluate, which should return a value of type `A`.
+/// * `id` - The id of the neighbor.. It is of type `i32`.
+///
+/// # Generic Parameters
+///
+/// * `A` - The type of value returned by the expression.
+/// * `F` - The type of the expr, which must be a closure that takes o `RoundVM` as an argument and returns a tuple of type `(RoundVM, A)`.
+///
+/// # Returns
+///
+/// A tuple of type `(RoundVM, Option<A>, F)`.
 fn folded_eval<A: Copy + 'static, F>(mut vm: RoundVM, expr: F, id: Option<i32>) -> (RoundVM, Option<A>, F)
     where
         F: Fn(RoundVM) -> (RoundVM, A),
