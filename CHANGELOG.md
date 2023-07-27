@@ -1,3 +1,41 @@
+## [12.0.1](https://github.com/RustFields/RuFi-core/compare/12.0.0...12.0.1) (2023-07-27)
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.43 ([b811758](https://github.com/RustFields/RuFi-core/commit/b81175875dca7b159a03e45e8d72d2ca60794b17))
+* **deps:** update node.js to 18.17 ([82e68ef](https://github.com/RustFields/RuFi-core/commit/82e68ef301d2e8b701a53f22cec7671a926fe6ce))
+
+
+### Bug Fixes
+
+* change locally to match the original scafi implementation ([38083a8](https://github.com/RustFields/RuFi-core/commit/38083a86f8599ce98f2392b728e8d687fcff15a6))
+* change rep and foldhood internal behaviour ([fba8c89](https://github.com/RustFields/RuFi-core/commit/fba8c89d0b630875b8ded98ff0a6274909a856a5))
+* now aligned neighbors are correctly returned ([e9f906f](https://github.com/RustFields/RuFi-core/commit/e9f906f3633c8a7d0850caed516ace657e986cbc))
+
+
+### Tests
+
+* add foldhood failure test ([57ec80d](https://github.com/RustFields/RuFi-core/commit/57ec80daae977a4ec3aef4e502c8c35a434b2b7a))
+* add rep test ([5b524a7](https://github.com/RustFields/RuFi-core/commit/5b524a7fc74cc8d0f560cc4d63cd2df12542e5ba))
+* alignment and foldhood are now tested ([63fafa2](https://github.com/RustFields/RuFi-core/commit/63fafa2f614e6d98ed115415b1bdf2269dd3999e))
+* fix test exports ([5e39e77](https://github.com/RustFields/RuFi-core/commit/5e39e77b272983b55a19cfc1e77d0cf0e5eb185e))
+* reduce the number of external functions used ([b72ae7b](https://github.com/RustFields/RuFi-core/commit/b72ae7bcf519c4eb59b2b20b94dcd2dc0e0d79d5))
+* refactor export creation and fix rep tests ([0f00a93](https://github.com/RustFields/RuFi-core/commit/0f00a936e7f6683ed89efcdea8f66d988b47caf1))
+* refactor test (code quality, comments etc..) ([caf978d](https://github.com/RustFields/RuFi-core/commit/caf978dd8070da45307591655d00ef6758847a6b))
+* remove comments ([4f292e3](https://github.com/RustFields/RuFi-core/commit/4f292e3b6fc175803d56519168185e252c48cf59))
+
+
+### General maintenance
+
+* add example of folded eval issue ([bc4d569](https://github.com/RustFields/RuFi-core/commit/bc4d569cd3b6badb302a3ac19a3d543cce09abd5))
+
+
+### Refactoring
+
+* change folded_eval code to be more clear ([bdee508](https://github.com/RustFields/RuFi-core/commit/bdee508d9f89b7602f1ea28feac167ed8cd2837c))
+* remove mid function ([53e9835](https://github.com/RustFields/RuFi-core/commit/53e9835fdc7aa021cb63461022f743a7c58b987b))
+
 ## [12.0.0](https://github.com/RustFields/RuFi-core/compare/11.1.0...12.0.0) (2023-07-17)
 
 
