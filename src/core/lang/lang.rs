@@ -2,7 +2,10 @@ use std::fmt::Debug;
 use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
-pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundVM,A)) -> (RoundVM, A) {
+pub fn nbr<A: Copy + 'static, F>(mut vm: RoundVM, expr: F) -> (RoundVM, A)
+where
+    F: Fn(RoundVM) -> (RoundVM, A)
+{
     vm.nest_in(Nbr(vm.index().clone()));
     let (mut vm_ ,val) = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
@@ -16,7 +19,11 @@ pub fn nbr<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     (vm_, res)
 }
 
-pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl Fn(RoundVM, A) -> (RoundVM, A)) -> (RoundVM, A) {
+pub fn rep<A: Copy + 'static, F, G>(mut vm: RoundVM, init: F, fun: G) -> (RoundVM, A)
+where
+    F: Fn() -> A,
+    G: Fn(RoundVM, A) -> (RoundVM, A),
+{
     vm.nest_in(Rep(vm.index().clone()));
     let (mut vm_, val) = locally(vm, |vm1| {
         let prev = vm1.previous_round_val().unwrap_or(&init()).clone();
@@ -27,7 +34,12 @@ pub fn rep<A: Copy + 'static>(mut vm: RoundVM, init: impl Fn() -> A, fun: impl F
     (vm_, res)
 }
 
-pub fn foldhood<A: Copy + 'static + Debug>(mut vm: RoundVM, init: impl Fn() -> A, aggr: impl Fn(A, A) -> A, expr: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
+pub fn foldhood<A: Copy + 'static, F, G, H>(mut vm: RoundVM, init: F, aggr: G, expr: H) -> (RoundVM, A)
+where
+    F: Fn() -> A,
+    G: Fn(A, A) -> A,
+    H: Fn(RoundVM) -> (RoundVM, A),
+{
     // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
 
     vm.nest_in(FoldHood(vm.index().clone()));
