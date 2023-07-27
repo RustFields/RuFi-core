@@ -2,6 +2,21 @@ use std::fmt::Debug;
 use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
+/// Observes the value of an expression across neighbors, producing a “field of fields”.
+///
+/// # Arguments
+///
+/// * `vm` the current VM
+/// * `expr` the expression to evaluate
+///
+/// # Generic Parameters
+///
+/// * `A` The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a closure that takes a `RoundVM` as argument and returns a tuple `(RoundVM, A)`.
+///
+/// # Returns
+///
+/// the value of the expression
 pub fn nbr<A: Copy + 'static, F>(mut vm: RoundVM, expr: F) -> (RoundVM, A)
 where
     F: Fn(RoundVM) -> (RoundVM, A)
@@ -19,6 +34,23 @@ where
     (vm_, res)
 }
 
+/// Iteratively updates the value of the input expression at each device using the last computed value.
+///
+/// # Arguments
+///
+/// * `vm` the current VM
+/// * `init` the initial value
+/// * `fun` the function to apply to the value
+///
+/// # Generic Parameters
+///
+/// * `A` The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a closure that takes no arguments and returns a value of type `A`.
+/// * `G` - The type of the closure, which must be a closure that takes a tuple `(RoundVM, A)` and returns a tuple `(RoundVM, A)`.
+///
+/// # Returns
+///
+/// the updated value
 pub fn rep<A: Copy + 'static, F, G>(mut vm: RoundVM, init: F, fun: G) -> (RoundVM, A)
 where
     F: Fn() -> A,
@@ -34,18 +66,34 @@ where
     (vm_, res)
 }
 
+/// Aggregates the results of the neighbor computation.
+///
+/// # Arguments
+///
+/// * `vm` the current VM
+/// * `init` the initial value
+/// * `aggr` the function to apply to the value
+/// * `expr` the expression to evaluate
+///
+/// # Generic Parameters
+///
+/// * `A` The type of value returned by the expression.
+/// * `F` - The type of inti, which must be a closure that takes no arguments and returns a value of type `A`.
+/// * `G` - The type of aggr, which must be a closure that takes a tuple `(A, A)` and returns a value of type `A`.
+/// * `H` - The type of expr, which must be a closure that takes a `RoundVM` as argument and returns a tuple `(RoundVM, A)`.
+///
+/// # Returns
+///
+/// the aggregated value
 pub fn foldhood<A: Copy + 'static, F, G, H>(mut vm: RoundVM, init: F, aggr: G, expr: H) -> (RoundVM, A)
 where
     F: Fn() -> A,
     G: Fn(A, A) -> A,
     H: Fn(RoundVM) -> (RoundVM, A),
 {
-    // here we do nest_in after retrieving the neighbours because otherwise it would disalign the device
-
     vm.nest_in(FoldHood(vm.index().clone()));
     let nbrs = vm.aligned_neighbours::<A>().clone();
     let (vm_, local_init) = locally(vm, |vm_| (vm_, init()));
-    // Create a vector of A
     let temp_vec: Vec<A> = Vec::new();
     let (mut vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
     let val = nbrs_vec.iter().fold(local_init, |x, y| aggr(x, y.clone()));
@@ -54,6 +102,7 @@ where
     (vm__, res)
 }
 
+/// A utility function used by the `foldhood` function.
 fn nbrs_computation<A: Copy + 'static>(vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundVM, A), mut tmp: Vec<A>, mut ids: Vec<i32>, init: A) -> (RoundVM, Vec<A>) {
     if ids.len() == 0 {
         return (vm, tmp);
@@ -65,6 +114,22 @@ fn nbrs_computation<A: Copy + 'static>(vm: RoundVM, expr: impl Fn(RoundVM) -> (R
     }
 }
 
+/// Partitions the domain into two subspaces that do not interact with each other.
+///
+/// # Arguments
+///
+/// * `vm` the current VM
+/// * `cond` the condition to evaluate
+/// * `thn` the expression to evaluate if the condition is true
+/// * `els` the expression to evaluate if the condition is false
+///
+/// # Generic Parameters
+///
+/// * `A` The type of value returned by the expression.
+///
+/// # Returns
+///
+/// the value of the expression
 pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
     vm.nest_in(Branch(vm.index().clone()));
     let (vm, tag) = locally(vm, |_vm1| (_vm1, cond()));
@@ -84,6 +149,15 @@ pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: 
     (vm_, res)
 }
 
+/// Returns the id of the current device.
+///
+/// # Arguments
+///
+/// * `vm` the current VM
+///
+/// # Returns
+///
+/// the id of the current device
 pub fn mid(vm: RoundVM) -> (RoundVM, i32) {
     let mid = vm.self_id().clone();
     (vm, mid)
@@ -112,6 +186,8 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     (vm_, result)
 }
 
+/// Another version of the folded_eval function of the `RoundVM` struct.
+/// Used by the `foldhood` function.
 fn folded_eval<A: Copy + 'static, F>(mut vm: RoundVM, expr: F, id: Option<i32>) -> (RoundVM, Option<A>, F)
     where
         F: Fn(RoundVM) -> (RoundVM, A),
