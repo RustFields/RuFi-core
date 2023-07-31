@@ -1,7 +1,18 @@
-use std::fmt::Debug;
 use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
+///Observes the value of an expression across neighbors, producing a “field of fields”.
+///
+/// # Arguments
+/// * `vm` The current RoundVM
+/// * `expr` The expression to evaluate.
+///
+/// # Generic Parameters
+/// * `A` - The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a closure that takes no arguments and returns a value of type `A`.
+///
+/// # Returns
+/// A tuple containing the updated RoundVM and the result of the expression.
 pub fn nbr<A: Copy + 'static, F>(mut vm: RoundVM, expr: F) -> (RoundVM, A)
 where
     F: Fn(RoundVM) -> (RoundVM, A)
@@ -19,6 +30,21 @@ where
     (vm_, res)
 }
 
+/// Iteratively updates the value of the input expression at each device using the last computed value.
+/// If there isn't a previous value, it uses the initial value.
+///
+/// # Arguments
+/// * `vm` The current RoundVM
+/// * `init` The initial value of the expression.
+/// * `fun` The expression to evaluate.
+///
+/// # Generic Parameters
+/// * `A` - The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a closure that takes no arguments and returns a value of type `A`.
+/// * `G` - The type of the closure, which must be a closure that takes a RoundVM and a value of type `A` and returns a tuple containing the updated RoundVM and a value of type `A`.
+///
+/// # Returns
+/// A tuple containing the updated RoundVM and the result of the expression.
 pub fn rep<A: Copy + 'static, F, G>(mut vm: RoundVM, init: F, fun: G) -> (RoundVM, A)
 where
     F: Fn() -> A,
@@ -34,6 +60,26 @@ where
     (vm_, res)
 }
 
+/// Aggregates the results of the neighbor computation.
+/// The aggregation is performed by folding the list of results of every neighbour computation with an initial value of init,
+/// then for each aligned neighbour the expression is evaluated and the result is added to the list.
+/// If a neighbour is aligned but there isn't a value for it, it is assigned the value init.
+/// This function considers the device itself as an aligned neighbour.
+///
+/// # Arguments
+/// * `vm` The current RoundVM
+/// * `init` The initial value of the expression.
+/// * `aggr` The aggregation function.
+/// * `expr` The expression to evaluate.
+///
+/// # Generic Parameters
+/// * `A` - The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a closure that takes no arguments and returns a value of type `A`.
+/// * `G` - The type of the aggregation function, which must be a closure that takes two values of type `A` and returns a value of type `A`.
+/// * `H` - The type of the expression, which must be a closure that takes a RoundVM and returns a tuple containing the updated RoundVM and a value of type `A`.
+///
+/// # Returns
+/// A tuple containing the updated RoundVM and the result of the expression.
 pub fn foldhood<A: Copy + 'static, F, G, H>(mut vm: RoundVM, init: F, aggr: G, expr: H) -> (RoundVM, A)
 where
     F: Fn() -> A,
@@ -65,7 +111,26 @@ fn nbrs_computation<A: Copy + 'static>(vm: RoundVM, expr: impl Fn(RoundVM) -> (R
     }
 }
 
-pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
+/// Partition the domain into two subspaces that do not interact with each others.
+///
+/// # Arguments
+/// * `vm` The current RoundVM
+/// * `cond` The condition to evaluate.
+/// * `thn` The expression to evaluate if the condition is true.
+/// * `els` The expression to evaluate if the condition is false.
+///
+/// # Generic Parameters
+/// * `A` - The type of value returned by the expression.
+/// * `B` - The type of the condition, which must be a closure that takes no arguments and returns a boolean.
+/// * `F` - The type of the expression, which must be a closure that takes a RoundVM and returns a tuple containing the updated RoundVM and a value of type `A`.
+///
+/// # Returns
+/// A tuple containing the updated RoundVM and the result of the expression.
+pub fn branch<A: Copy + 'static, B, F>(mut vm: RoundVM, cond: B, thn: F, els: F) -> (RoundVM, A)
+where
+    B: Fn() -> bool,
+    F: Fn(RoundVM) -> (RoundVM, A),
+{
     vm.nest_in(Branch(vm.index().clone()));
     let (vm, tag) = locally(vm, |_vm1| (_vm1, cond()));
     let (mut vm_, val): (RoundVM, A) = match vm.neighbor() {
@@ -84,6 +149,13 @@ pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: 
     (vm_, res)
 }
 
+/// Returns the local id of the device.
+///
+/// # Arguments
+/// * `vm` The current RoundVM
+///
+/// # Returns
+/// A tuple containing the RoundVM and the local id of the device.
 pub fn mid(vm: RoundVM) -> (RoundVM, i32) {
     let mid = vm.self_id().clone();
     (vm, mid)
@@ -112,6 +184,19 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     (vm_, result)
 }
 
+/// Performs an evaluation of the given expression while folding into a specific neighbour.
+///
+/// # Arguments
+/// * `vm` The current RoundVM
+/// * `expr` The expression to evaluate.
+/// * `id` The id of the neighbour to fold into.
+///
+/// # Generic Parameters
+/// * `A` - The type of value returned by the expression.
+/// * `F` - The type of the closure, which must be a closure that takes no arguments and returns a value of type `A`.
+///
+/// # Returns
+/// A tuple containing the updated RoundVM, the result of the expression and the expression itself.
 fn folded_eval<A: Copy + 'static, F>(mut vm: RoundVM, expr: F, id: Option<i32>) -> (RoundVM, Option<A>, F)
     where
         F: Fn(RoundVM) -> (RoundVM, A),
