@@ -131,11 +131,17 @@ fn nbrs_computation<A: Copy + 'static>(vm: RoundVM, expr: impl Fn(RoundVM) -> (R
 /// # Generic Parameters
 ///
 /// * `A` The type of value returned by the expression.
+/// * `B` - The type of cond, which must be a closure that takes no arguments and returns a value of type `bool`.
+/// * `F` - The type of thn and els, which must be a closure that takes a `RoundVM` as argument and returns a tuple `(RoundVM, A)`.
 ///
 /// # Returns
 ///
 /// the value of the expression
-pub fn branch<A: Copy + 'static>(mut vm: RoundVM, cond: impl Fn() -> bool, thn: impl Fn(RoundVM) -> (RoundVM, A), els: impl Fn(RoundVM) -> (RoundVM, A)) -> (RoundVM, A) {
+pub fn branch<A: Copy + 'static, B, F>(mut vm: RoundVM, cond: B, thn: F, els: F) -> (RoundVM, A)
+where
+    B: Fn() -> bool,
+    F: Fn(RoundVM) -> (RoundVM, A),
+{
     vm.nest_in(Branch(vm.index().clone()));
     let (vm, tag) = locally(vm, |_vm1| (_vm1, cond()));
     let (mut vm_, val): (RoundVM, A) = match vm.neighbor() {
