@@ -1,3 +1,16 @@
+## [12.0.2](https://github.com/RustFields/RuFi-core/compare/12.0.1...12.0.2) (2023-07-31)
+
+
+### Documentation
+
+* add folded_eval documentation ([bff42e7](https://github.com/RustFields/RuFi-core/commit/bff42e74cca063cfcbd905c713e6dddb667773a7))
+* add language documentation ([1efe1ee](https://github.com/RustFields/RuFi-core/commit/1efe1ee85d49609f1e2abb983e5e0f24a781b9a4))
+
+
+### Refactoring
+
+* refactor lang functions signatures ([d82b6a3](https://github.com/RustFields/RuFi-core/commit/d82b6a3983e3955425f6864ef9708653cae8da2c))
+
 ## [12.0.1](https://github.com/RustFields/RuFi-core/compare/12.0.0...12.0.1) (2023-07-27)
 
 
