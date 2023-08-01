@@ -132,10 +132,11 @@ fn nbrs_computation<A: Copy + 'static>(vm: RoundVM, expr: impl Fn(RoundVM) -> (R
 /// # Returns
 ///
 /// the value of the expression
-pub fn branch<A: Copy + 'static, B, F>(mut vm: RoundVM, cond: B, thn: F, els: F) -> (RoundVM, A)
+pub fn branch<A: Copy + 'static, B, TH, EL>(mut vm: RoundVM, cond: B, thn: TH, els: EL) -> (RoundVM, A)
 where
     B: Fn() -> bool,
-    F: Fn(RoundVM) -> (RoundVM, A),
+    TH: Fn(RoundVM) -> (RoundVM, A),
+    EL: Fn(RoundVM) -> (RoundVM, A),
 {
     vm.nest_in(Branch(vm.index().clone()));
     let (vm, tag) = locally(vm, |_vm1| (_vm1, cond()));
