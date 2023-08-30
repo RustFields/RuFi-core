@@ -194,7 +194,7 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
 ///
 /// * `vm` - The current VM.
 /// * `expr` - The expression to evaluate, which should return a value of type `A`.
-/// * `id` - The id of the neighbor.. It is of type `i32`.
+/// * `id` - The id of the neighbor. It is of type `i32`.
 ///
 /// # Generic Parameters
 ///
@@ -259,29 +259,32 @@ mod test {
         let exports = HashMap::from([
             (
                 1,
-                Export::from(HashMap::from([(
-                    Path::from(vec![FoldHood(0)]),
-                    Box::new(1) as Box<dyn Any>
-                )])),
+                Export::from(
+                    HashMap::from([(
+                        Path::from(vec![FoldHood(0)]),
+                        Box::new(1) as Box<dyn Any>,
+                    )])
+                ),
             ),
             (
                 2,
-                Export::from(HashMap::from([(
-                    Path::from(vec![FoldHood(0)]),
-                    Box::new(2) as Box<dyn Any>
-                )])),
+                Export::from(
+                    HashMap::from([(
+                        Path::from(vec![FoldHood(0)]),
+                        Box::new(2) as Box<dyn Any>,
+                    )])
+                ),
             ),
         ]);
         println!("{:?}", vm.context);
         vm.context = Context::new(0, Default::default(), Default::default(), exports);
         println!("{:?}", vm.context);
         let (_vm_, res) =
-            foldhood(vm,
-                     || 1,
-                     |s1, s2| {
-                         s1 + s2
-                     },
-                     |_vm| (_vm,2)
+            foldhood(
+                vm,
+                || 1,
+                |s1, s2| { s1 + s2 },
+                |_vm| (_vm,2),
             );
         assert_eq!(res, 7)
     }
