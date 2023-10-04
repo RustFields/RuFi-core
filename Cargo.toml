@@ -11,3 +11,4 @@ readme = "README.md"
 authors = ["Filippo Vissani <filippo.vissani@studio.unibo.it>", "Leonardo Micelli <leonardo.micelli@studio.unibo.it>", "Paolo Penazzi <paolo.penazzi@studio.unibo.it>", "Angela Cortecchia <angela.cortecchia@studio.unibo.it>"]
 
 [dependencies]
+rand = "0.8.5"
