@@ -92,13 +92,13 @@ where
 /// the aggregated value
 pub fn foldhood<A: Copy + 'static, F, G, H>(mut vm: RoundVM, init: F, aggr: G, expr: H) -> (RoundVM, A)
 where
-    F: Fn() -> A,
+    F: Fn(RoundVM) -> (RoundVM, A),
     G: Fn(A, A) -> A,
     H: Fn(RoundVM) -> (RoundVM, A),
 {
     vm.nest_in(FoldHood(vm.index().clone()));
     let nbrs = vm.aligned_neighbours::<A>().clone();
-    let (vm_, local_init) = locally(vm, |vm_| (vm_, init()));
+    let (vm_, local_init) = locally(vm, |vm_| init(vm_));
     let temp_vec: Vec<A> = Vec::new();
     let (mut vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
     let val = nbrs_vec.iter().fold(local_init, |x, y| aggr(x, y.clone()));
@@ -287,7 +287,7 @@ mod test {
         let (_vm_, res) =
             foldhood(
                 vm,
-                || 1,
+                |vm| (vm, 1),
                 |s1, s2| { s1 + s2 },
                 |_vm| (_vm,2),
             );
