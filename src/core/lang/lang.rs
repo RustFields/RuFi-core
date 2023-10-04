@@ -53,13 +53,18 @@ where
 /// the updated value
 pub fn rep<A: Copy + 'static, F, G>(mut vm: RoundVM, init: F, fun: G) -> (RoundVM, A)
 where
-    F: Fn() -> A,
+    F: Fn(RoundVM) -> (RoundVM, A),
     G: Fn(RoundVM, A) -> (RoundVM, A),
 {
     vm.nest_in(Rep(vm.index().clone()));
     let (mut vm_, val) = locally(vm, |vm1| {
-        let prev = vm1.previous_round_val().unwrap_or(&init()).clone();
-        fun(vm1, prev)
+        if vm1.previous_round_val::<A>().is_some() {
+            let prev = vm1.previous_round_val::<A>().unwrap().clone();
+            fun(vm1, prev)
+        } else {
+            let init_args = init(vm1);
+            fun(init_args.0, init_args.1)
+        }
     });
     let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
     vm_.nest_out(true);
@@ -245,7 +250,7 @@ mod test {
         let vm = init_vm();
 
         let (_vm1, result) =
-            rep(vm, || 0, |vm1, a| {
+            rep(vm, |vm| (vm, 0), |vm1, a| {
                 let (avm, res) = nbr(vm1, |_vm| (_vm,a));
                 (avm, res + 1)
             });
@@ -292,7 +297,7 @@ mod test {
     #[test]
     fn test_branch() {
         let vm = init_vm();
-        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, |_vm|(_vm,1)), |vm2|  rep(vm2, ||0, |vm2, a| (vm2, a+2)));
+        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, |_vm|(_vm,1)), |vm2|  rep(vm2, |vm|(vm, 0), |vm2, a| (vm2, a+2)));
         assert_eq!(2, result)
     }
 }
