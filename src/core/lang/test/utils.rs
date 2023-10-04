@@ -75,3 +75,8 @@ fn assert_equivalence_rec<A, F, G>(mut exec_order: Vec<i32>, states: HashMap<i32
     }).collect();
     assert_equivalence_rec(exec_order, new_states, program_1, program_2)
 }
+
+pub fn fully_connected_topology_map(elems: Vec<i32>) -> HashMap<i32, Vec<i32>> {
+    let new_elems = elems.clone();
+    elems.into_iter().map(|elem| (elem, new_elems.clone())).collect()
+}
