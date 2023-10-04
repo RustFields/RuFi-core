@@ -47,7 +47,7 @@ mod by_round {
         let program = |vm1| rep(vm1,
                                 |vm| (vm, 0),
                                 |vm2, _| { foldhood(vm2,
-                                                    || 0,
+                                                    |vm| (vm, 0),
                                                     | a, b | (a + b),
                                                     |vm3| (vm3, 1))});
         let result = round(init_with_ctx(context), program);
@@ -77,7 +77,7 @@ mod by_round {
         let context = Context::new(0, Default::default(), Default::default(), exports);
         // Program: foldhood(1)(_ + _)(2)
         let program = |vm| foldhood(vm,
-                                    || 1,
+                                    |vm| (vm, 1),
                                     | a, b| (a + b),
                                     |vm1| (vm1, 2));
         let result = round(init_with_ctx(context), program);
@@ -96,7 +96,7 @@ mod by_round {
         let context = Context::new(0, Default::default(), Default::default(), exports);
         // Program: foldhood(-5)(_ + _)(nbr(2))
         let program = |vm| foldhood(vm,
-                                    || -5,
+                                    |vm| (vm, -5),
                                     | a, b| (a + b),
                                     |vm1| nbr(vm1, |vm2| (vm2, 2)));
         let result = round(init_with_ctx(context), program);
@@ -114,7 +114,7 @@ mod by_round {
         let context = Context::new(0, Default::default(), Default::default(), create_exports_nbr_test());
         // Program: foldhood(0)(_ + _)(if (nbr(mid()) == mid()) 0 else 1)
         let program = |vm| foldhood(vm,
-                                    || 0,
+                                    |vm| (vm, 0),
                                     | a, b| (a + b),
                                     |vm1| {
                                         let (vm2, res) = nbr(vm1, |vm3| mid(vm3));

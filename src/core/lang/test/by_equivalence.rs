@@ -27,7 +27,7 @@ mod by_equivalence {
         let fixture = Fixture::new();
         let program_1 = |vm: RoundVM|{
             foldhood(vm,
-                     || 0,
+                     |vm| (vm, 0),
                      |a, b| a + b,
                      |vm| {
                          let (vm_, nbr_1) = nbr(vm, |vm| (vm, 1));
@@ -39,7 +39,7 @@ mod by_equivalence {
 
         let program_2 = |vm: RoundVM|{
             foldhood(vm,
-                     || 0,
+                     |vm| (vm, 0),
                      |a, b| a + b,
                      |vm| {
                          nbr(vm, |vm| {
@@ -58,7 +58,7 @@ mod by_equivalence {
         let fixture = Fixture::new();
         let program_1 = |vm: RoundVM|{
             foldhood(vm,
-                     || 0,
+                     |vm| (vm, 0),
                      |a, b| a + b,
                      |vm| {
                          nbr(vm, |vm| {
@@ -72,7 +72,7 @@ mod by_equivalence {
         let program_2 = |vm: RoundVM|{
             let (vm_, res) =
                 foldhood(vm,
-                     || 0,
+                     |vm| (vm, 0),
                      |a, b| a + b,
                      |vm| {
                          nbr(vm, |vm| mid(vm))
@@ -83,4 +83,126 @@ mod by_equivalence {
         assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
     }
 
+    #[test]
+    fn rep_nbr_ignored_first_argument() {
+        let fixture = Fixture::new();
+        let program_1 = |vm: RoundVM|{
+            foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| {
+                         rep(vm,
+                             |vm| nbr(vm, |vm_| mid(vm_)),
+                             |vm, a|(vm, a))
+                     })
+        };
+
+        let program_2 = |vm: RoundVM|{
+            foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| {
+                         rep(vm,
+                             |vm| mid(vm),
+                             |vm, a|(vm, a))
+                     })
+        };
+
+        assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
+    }
+
+    #[test]
+    fn rep_nbr_ignored_overall() {
+        let fixture = Fixture::new();
+        let program_1 = |vm: RoundVM|{
+            foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| {
+                         rep(vm,
+                             |vm| nbr(vm, |vm_| mid(vm_)),
+                             |vm, a| {
+                                 let (vm_1, nbr_1) = nbr(vm, |vm| (vm, a.clone()));
+                                 let (vm_2, nbr_2) = nbr(vm_1, |vm| mid(vm));
+                                 (vm_2, a + nbr_1 + nbr_2)
+                             })
+                     })
+        };
+
+        let program_2 = |vm: RoundVM|{
+            foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| {
+                         rep(vm,
+                             |vm| mid(vm),
+                             |vm, a| {
+                                 let (vm_1, nbr_1) = nbr(vm, |vm| mid(vm));
+                                 (vm_1, a * 2 + nbr_1)
+                             })
+                     })
+        };
+
+        assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
+    }
+
+    #[test]
+    fn fold_init_nbr_ignored(){
+        let fixture = Fixture::new();
+        let program_1 = |vm: RoundVM|{
+            foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| {
+                         foldhood(vm,
+                         |vm| nbr(vm, |vm| mid(vm)),
+                            |a, b| a + b,
+                            |vm| (vm, 1))
+                     })
+        };
+
+        let program_2 = |vm: RoundVM|{
+            let (vm_, res_1) =
+                foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| (vm, 1));
+            let (vm__, res_2) =
+                foldhood(vm_,
+                     |vm| mid(vm),
+                     |a, b| a + b,
+                     |vm| (vm, 1));
+            (vm__, res_1 * res_2)
+        };
+
+        assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
+    }
+
+    #[test]
+    fn fold_fold_work() {
+        let fixture = Fixture::new();
+        let program_1 = |vm: RoundVM|{
+            foldhood(vm,
+                     |vm| (vm, 0),
+                     |a, b| a + b,
+                     |vm| {
+                         foldhood(vm,
+                                  |vm| (vm, 0),
+                                  |a, b| a + b,
+                                  |vm| (vm, 1))
+                     })
+        };
+
+        let program_2 = |vm: RoundVM| {
+            let (vm_, res) =
+                foldhood(vm,
+                         |vm| (vm, 0),
+                         |a, b| a + b,
+                         //for some reason rust compiler infers the 1 to be i8 here
+                         |vm| (vm, 1i32));
+            (vm_, res.pow(2))
+        };
+
+        assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
+    }
 }
