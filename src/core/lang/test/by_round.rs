@@ -6,27 +6,12 @@ mod by_round {
     use crate::core::export::export::Export;
     use crate::core::lang::execution::round;
     use crate::core::lang::lang::{branch, foldhood, mid, nbr, rep};
-    use crate::core::lang::test::utils::init_vm;
+    use crate::core::lang::test::utils::{init_vm, init_with_ctx, push_to_ctx};
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use crate::export;
     use crate::path;
-
-
-
-    fn init_with_ctx(ctx: Context) -> RoundVM {
-        let mut vm = RoundVM::new(ctx);
-        vm.export_stack.push(Export::new());
-        vm
-    }
-
-    fn push_to_ctx<A: Copy + 'static>(mut ctx: Context, path: Path, val: A) -> Context {
-        let mut export = Export::new();
-        export.put(path, || val);
-        ctx.put_export(ctx.self_id, export);
-        ctx
-    }
 
     #[test]
     fn test_multiple_rounds() {
