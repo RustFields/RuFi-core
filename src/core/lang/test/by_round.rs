@@ -18,7 +18,7 @@ mod by_round {
         //create the vm
         let vm = init_vm();
         //write the aggregate program
-        let program = |vm1| rep(vm1, || 0, |vm2, a| {
+        let program = |vm1| rep(vm1, |vm| (vm, 0), |vm2, a| {
             let (avm, res) = nbr(vm2, |_vm| (_vm,a));
             (avm, res + 1)
         });
@@ -45,7 +45,7 @@ mod by_round {
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
         // Program: rep(0, foldhood(0)(_ + _)(1))
         let program = |vm1| rep(vm1,
-                                || 0,
+                                |vm| (vm, 0),
                                 |vm2, _| { foldhood(vm2,
                                                     || 0,
                                                     | a, b | (a + b),
@@ -142,7 +142,7 @@ mod by_round {
     fn test_rep() {
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
         // Program: rep(9)(_ * 2)
-        let program = |vm| rep(vm, || 9, |vm1, a| (vm1, a * 2));
+        let program = |vm| rep(vm, |vm| (vm, 9), |vm1, a| (vm1, a * 2));
         // Check if rep use the initial value
         let result = round(init_with_ctx(context), program);
         assert_eq!(18, result.1);
@@ -163,12 +163,12 @@ mod by_round {
         // Program: rep(0) { x => branch(x % 2 == 0)(7)(rep(4)(_ => 4)); x + 1 }
         let program =
             |vm| rep(vm,
-                     || 0,
+                     |vm| (vm, 0),
                      |vm1, x| { let res = branch(vm1,
                                                  || x % 2 == 0,
                                                  |vm3| (vm3, 7),
                                                  |vm4| (rep(vm4,
-                                                            || 4,
+                                                            |vm| (vm, 4),
                                                             |vm5, _| (vm5, 4))));
                          return (res.0, x + 1)
                      });
