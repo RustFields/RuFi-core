@@ -30,6 +30,28 @@ pub fn vm(self_id: i32, local_sensor: HashMap<SensorId, Box<dyn Any>>, nbr_senso
     let context = Context::new(self_id, local_sensor, nbr_sensor, exports);
     init_with_ctx(context)
 }
+pub fn compose<A, F, G>(expr1: F, expr2: G) -> impl Fn(RoundVM) -> (RoundVM, A)
+    where
+        F: Fn(RoundVM) -> (RoundVM, A),
+        G: Fn(RoundVM, A) -> (RoundVM, A),
+{
+    move |vm| {
+        let (vm_, res) = expr1(vm);
+        expr2(vm_, res)
+    }
+}
+pub fn combine<A, F, G, H>(expr1: F, expr2: G, comb: H) -> impl Fn(RoundVM) -> (RoundVM, A)
+    where
+        F: Fn(RoundVM) -> (RoundVM, A),
+        G: Fn(RoundVM) -> (RoundVM, A),
+        H: Fn(A, A) -> A,
+{
+    move |vm| {
+        let (vm_, res1) = expr1(vm);
+        let (vm__, res2) = expr2(vm_);
+        (vm__, comb(res1, res2))
+    }
+}
 
 pub fn assert_equivalence<A,F, G>(exec_order: Vec<i32>, nbrs: HashMap<i32, Vec<i32>>, program_1: F, program_2: G) -> bool
     where
