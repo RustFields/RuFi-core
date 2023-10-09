@@ -6,9 +6,10 @@ mod by_round {
     use crate::core::export::export::Export;
     use crate::core::lang::execution::round;
     use crate::core::lang::lang::{branch, foldhood, mid, nbr, rep};
-    use crate::core::lang::test::utils::{init_vm, init_with_ctx, push_to_ctx};
+    use crate::core::lang::test::utils::{combine, init_vm, init_with_ctx, push_to_ctx};
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
+    use crate::core::sensor_id::sensor_id::SensorId;
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use crate::export;
     use crate::path;
@@ -65,6 +66,62 @@ mod by_round {
     }
 
     #[test]
+    // This test differs from the Scala counterpart: in Rust, we can't assert the equality of two Exports, so we assert the equality of the root values instead
+    fn export_should_compose() {
+        fn ctx() -> Context {
+            Context::new(0, HashMap::from([(SensorId::new("sensor".to_string()), Box::new(5) as Box<dyn Any>)]),Default::default(), Default::default())
+        }
+
+        let expr_1 = |vm: RoundVM| (vm, 1);
+        let expr_2 = |vm| rep(vm, |vm1| (vm1, 7), |vm2, val| (vm2, val + 1));
+        let expr_3 = |vm| {
+            foldhood(vm, |vm1| (vm1, 0), |a, b| (a + b), |vm2| nbr(vm2, |vm3| {
+                let val = vm3.local_sense::<i32>(&SensorId::new("sensor".to_string())).unwrap().clone();
+                (vm3, val)
+            }))
+        };
+
+        let (mut vm_, _) = round(init_vm(), combine(expr_1, expr_1.clone(), |a, b| a + b));
+        assert_eq!(2, vm_.export_data().root::<i32>().clone());
+
+        let (mut vm_, _) = round(init_vm(), combine(expr_2, expr_2.clone(), |a, b| a + b));
+        assert_eq!(16, vm_.export_data().root::<i32>().clone());
+
+        let (mut vm_, _) = round(init_with_ctx(ctx()), combine(expr_3, expr_3.clone(), |a, b| a + b));
+        assert_eq!(10, vm_.export_data().root::<i32>().clone());
+
+        let (mut vm_, _) =
+            round(
+                init_vm(),
+                |vm|
+                    rep(vm, |vm1| (vm1, 0),
+                        |vm2, _| {
+                            rep(vm2, |vm3| (vm3, 0), |vm4, _| expr_1(vm4))
+                        }));
+        assert_eq!(1, vm_.export_data().root::<i32>().clone());
+
+        let (mut vm_, _) =
+            round(
+                init_vm(),
+                |vm|
+                    rep(vm, |vm1| (vm1, 0),
+                        |vm2, _| {
+                            rep(vm2, |vm3| (vm3, 0), |vm4, _| expr_2(vm4))
+                        }));
+        assert_eq!(8, vm_.export_data().root::<i32>().clone());
+
+        let (mut vm_, _) =
+            round(
+                init_with_ctx(ctx()),
+                |vm|
+                    rep(vm, |vm1| (vm1, 0),
+                        |vm2, _| {
+                            rep(vm2, |vm3| (vm3, 0), |vm4, _| expr_3(vm4))
+                        }));
+        assert_eq!(5, vm_.export_data().root::<i32>().clone());
+    }
+
+    #[test]
     fn test_foldhood_basic() {
         // Export of device 2: Export(/ -> 1, FoldHood(0) -> 1)
         let export_dev_2 = export!((path!(), 1), (path!(FoldHood(0)), 1));
@@ -105,6 +162,19 @@ mod by_round {
 
     #[test]
     fn test_nbr() {
+        fn create_exports_nbr_test() -> HashMap<i32, Export> {
+            // Create this export: Map(
+            //       1 -> Export(/ -> "any", FoldHood(0) -> 1, FoldHood(0) / Nbr(0) -> 1),
+            //       2 -> Export(/ -> "any", FoldHood(0) -> 2, FoldHood(0) / Nbr(0) -> 2)
+            //     )
+            let export_dev_1 = export!((path!(), "any"), (path!(FoldHood(0)), 1), (path!(Nbr(0), FoldHood(0)), 1));
+            let export_dev_2 = export!((path!(), "any"), (path!(FoldHood(0)), 2), (path!(Nbr(0), FoldHood(0)), 2));
+            let mut exports: HashMap<i32, Export> = HashMap::new();
+            exports.insert(1, export_dev_1);
+            exports.insert(2, export_dev_2);
+            exports
+        }
+
         // 1 - NBR needs not to be nested into fold
         let context = Context::new(0, Default::default(), Default::default(), Default::default());
         let result = round(init_with_ctx(context), |vm| nbr(vm, |vm1| (vm1, 7)));
@@ -122,19 +192,6 @@ mod by_round {
                                     });
         let result = round(init_with_ctx(context), program);
         assert_eq!(2, result.1);
-    }
-
-    fn create_exports_nbr_test() -> HashMap<i32, Export> {
-        // Create this export: Map(
-        //       1 -> Export(/ -> "any", FoldHood(0) -> 1, FoldHood(0) / Nbr(0) -> 1),
-        //       2 -> Export(/ -> "any", FoldHood(0) -> 2, FoldHood(0) / Nbr(0) -> 2)
-        //     )
-        let export_dev_1 = export!((path!(), "any"), (path!(FoldHood(0)), 1), (path!(Nbr(0), FoldHood(0)), 1));
-        let export_dev_2 = export!((path!(), "any"), (path!(FoldHood(0)), 2), (path!(Nbr(0), FoldHood(0)), 2));
-        let mut exports: HashMap<i32, Export> = HashMap::new();
-        exports.insert(1, export_dev_1);
-        exports.insert(2, export_dev_2);
-        exports
     }
 
     #[test]
@@ -183,5 +240,25 @@ mod by_round {
         let context = Context::new(0, Default::default(), Default::default(), exports);
         let result = round(init_with_ctx(context), program);
         assert_eq!(2, result.1);
+    }
+
+    #[test]
+    fn test_sense() {
+        // Sense should simply evaluate to the last value read by sensor
+        fn ctx() -> Context {
+            Context::new(0, HashMap::from([(SensorId::new("a".to_string()), Box::new(7) as Box<dyn Any>), (SensorId::new("b".to_string()), Box::new("right") as Box<dyn Any>)]), Default::default(), Default::default())
+        }
+
+        let (_, res) = round(init_with_ctx(ctx()), |vm| {
+            let val = vm.local_sense::<i32>(&SensorId::new("a".to_string())).unwrap().clone();
+            (vm, val)
+        });
+        assert_eq!(7, res);
+
+        let (_, res) = round(init_with_ctx(ctx()), |vm| {
+            let val = vm.local_sense::<&str>(&SensorId::new("b".to_string())).unwrap().clone();
+            (vm, val)
+        });
+        assert_eq!("right", res);
     }
 }
