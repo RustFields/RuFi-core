@@ -1,3 +1,43 @@
+## [13.0.0](https://github.com/RustFields/RuFi-core/compare/12.0.2...13.0.0) (2023-10-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* moved functions to test/utils
+* change the signature of foldhood to accept constructs as inits
+* change the signature of rep to accept constructs as inits
+
+### Features
+
+* **test:** add utility to assert the equivalence of programs ([3cd824e](https://github.com/RustFields/RuFi-core/commit/3cd824ecf3de761e6b9198296f23d9b34c54c2d1))
+* **test:** add utility to create a fully connected topology ([f63df0b](https://github.com/RustFields/RuFi-core/commit/f63df0b9a06082f8d0ba3c612a04d65861654607))
+* **test:** add utility to create vms ([1396037](https://github.com/RustFields/RuFi-core/commit/139603707d865b71c74c98fc2f81384734e7a15b))
+
+
+### Tests
+
+* add first two tests by equivalence ([321e7f4](https://github.com/RustFields/RuFi-core/commit/321e7f45fb0f51cefc71e2ad8cd0bf623e9c59a0))
+* add more tests by round ([c0ef14d](https://github.com/RustFields/RuFi-core/commit/c0ef14da57d45719efa045e61ce9dce9629887e8))
+
+
+### General maintenance
+
+* **build:** add rand dependency ([77ed738](https://github.com/RustFields/RuFi-core/commit/77ed738f3765a7d4941f9b446e6090d4ab301278))
+
+
+### Style improvements
+
+* change indentation and use trailing commas in `lang.rs` ([bb932bb](https://github.com/RustFields/RuFi-core/commit/bb932bb797b0ea1d22ee1199c227d121c5c8e174))
+
+
+### Refactoring
+
+* change the signature of foldhood to accept constructs as inits ([cac82cb](https://github.com/RustFields/RuFi-core/commit/cac82cba90cc2ca97ae93bbfcb996fec8157c91d))
+* change the signature of rep to accept constructs as inits ([543e120](https://github.com/RustFields/RuFi-core/commit/543e1201529333ae216f3e72bcb8d2ebcc92894f))
+* move lang tests on subdirectory and separate tests by round from by equivalence ([4231aff](https://github.com/RustFields/RuFi-core/commit/4231aff009135fd43fbee094845532c6d02a2111))
+* moved functions to test/utils ([93e26d6](https://github.com/RustFields/RuFi-core/commit/93e26d6e92b6dcbd305f3b49e1b2c2f26b50a489))
+* **test:** restructure tests ([2bee87b](https://github.com/RustFields/RuFi-core/commit/2bee87b15e338dc39351f75c25da5e95e311e555))
+
 ## [12.0.2](https://github.com/RustFields/RuFi-core/compare/12.0.1...12.0.2) (2023-07-31)
 
 
