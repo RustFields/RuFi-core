@@ -1,3 +1,26 @@
+## [13.0.1](https://github.com/RustFields/RuFi-core/compare/13.0.0...13.0.1) (2023-10-11)
+
+
+### Dependency updates
+
+* **deps:** update dependency semantic-release-preconfigured-conventional-commits to v1.1.68 ([a157fce](https://github.com/RustFields/RuFi-core/commit/a157fce2204dacdfb92fe7a5ce6dce7fa027a31a))
+* **deps:** update node.js to 18.18 ([05c6f86](https://github.com/RustFields/RuFi-core/commit/05c6f861926f3c9da1de16524f2af228feabc605))
+
+
+### Bug Fixes
+
+* fix branch signature ([7059bcf](https://github.com/RustFields/RuFi-core/commit/7059bcfc0e20af4088dd912920e3ba7508c66ad8))
+
+
+### Build and continuous integration
+
+* **deps:** update actions/checkout action to v4 ([ddfdcd8](https://github.com/RustFields/RuFi-core/commit/ddfdcd83b3a8e90b91fce946b45a5bcc9475f626))
+
+
+### Refactoring
+
+* refactor branch signature ([360d29b](https://github.com/RustFields/RuFi-core/commit/360d29b1d9b7d3b41a31f53f2f4d48ad4a4c64f3))
+
 ## [13.0.0](https://github.com/RustFields/RuFi-core/compare/12.0.2...13.0.0) (2023-10-09)
 
 
