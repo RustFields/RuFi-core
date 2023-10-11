@@ -1,15 +1,17 @@
 use crate::core::lang::lang::{foldhood, mid, nbr};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
-pub fn mux<A, TH, EL>(vm: RoundVM, cond: bool, th: TH, el: EL) -> (RoundVM, A)
+pub fn mux<A, C, TH, EL>(vm: RoundVM, cond: C, th: TH, el: EL) -> (RoundVM, A)
     where
+        C: Fn(RoundVM) -> (RoundVM, bool),
         TH: Fn(RoundVM) -> (RoundVM, A),
         EL: Fn(RoundVM) -> (RoundVM, A),
 {
-    if cond {
-        th(vm)
+    let (vm_, flag) = cond(vm);
+    if flag {
+        th(vm_)
     } else {
-        el(vm)
+        el(vm_)
     }
 }
 
@@ -26,7 +28,7 @@ pub fn foldhood_plus<A: Copy + 'static, F, G, H>(vm: RoundVM, init: F, aggr: G, 
         |vm1| {
             let (vm_, self_id) = mid(vm1);
             let (vm__, nbr_id) = nbr(vm_, |vm2| mid(vm2));
-            mux(vm__, self_id == nbr_id, expr, init)
+            mux(vm__, |vm3| (vm3, self_id == nbr_id), expr, init)
         }
     )
 }
