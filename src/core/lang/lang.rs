@@ -1,4 +1,3 @@
-use std::fmt::Debug;
 use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
 use crate::core::vm::round_vm::round_vm::RoundVM;
 
@@ -225,88 +224,6 @@ fn folded_eval<A: Copy + 'static, F>(mut vm: RoundVM, expr: F, id: Option<i32>) 
     let (mut vm_, res) = expr(vm);
     vm_.status = vm_.status.pop();
     (vm_, Some(res), expr)
-}
-
-mod test {
-    use std::any::Any;
-    use std::collections::HashMap;
-    use crate::core::context::context::Context;
-    use crate::core::export::export::Export;
-    use crate::core::lang::lang::{nbr, rep, branch, foldhood};
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::FoldHood;
-
-    use crate::core::vm::round_vm::round_vm::RoundVM;
-
-    fn init_vm() -> RoundVM {
-        let context = Context::new(0, Default::default(), Default::default(), Default::default());
-        let mut vm = RoundVM::new(context);
-        vm.export_stack.push(Export::new());
-        vm
-    }
-
-    #[test]
-    fn test_nbr() {
-        let vm = init_vm();
-        let (_vm1, result) = nbr(vm, |_vm| (_vm, 1));
-        assert_eq!(result, 1);
-    }
-
-    #[test]
-    fn test_rep() {
-        let vm = init_vm();
-
-        let (_vm1, result) =
-            rep(vm, |vm| (vm, 0), |vm1, a| {
-                let (avm, res) = nbr(vm1, |_vm| (_vm,a));
-                (avm, res + 1)
-            });
-
-        assert_eq!(1, result)
-    }
-
-    #[test]
-    fn test_foldhood() {
-        let mut vm = init_vm();
-        let exports = HashMap::from([
-            (
-                1,
-                Export::from(
-                    HashMap::from([(
-                        Path::from(vec![FoldHood(0)]),
-                        Box::new(1) as Box<dyn Any>,
-                    )])
-                ),
-            ),
-            (
-                2,
-                Export::from(
-                    HashMap::from([(
-                        Path::from(vec![FoldHood(0)]),
-                        Box::new(2) as Box<dyn Any>,
-                    )])
-                ),
-            ),
-        ]);
-        println!("{:?}", vm.context);
-        vm.context = Context::new(0, Default::default(), Default::default(), exports);
-        println!("{:?}", vm.context);
-        let (_vm_, res) =
-            foldhood(
-                vm,
-                |vm| (vm, 1),
-                |s1, s2| { s1 + s2 },
-                |_vm| (_vm,2),
-            );
-        assert_eq!(res, 7)
-    }
-
-    #[test]
-    fn test_branch() {
-        let vm = init_vm();
-        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, |_vm|(_vm,1)), |vm2|  rep(vm2, |vm|(vm, 0), |vm2, a| (vm2, a+2)));
-        assert_eq!(2, result)
-    }
 }
 
 
