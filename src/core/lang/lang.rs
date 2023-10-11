@@ -53,13 +53,18 @@ where
 /// the updated value
 pub fn rep<A: Copy + 'static, F, G>(mut vm: RoundVM, init: F, fun: G) -> (RoundVM, A)
 where
-    F: Fn() -> A,
+    F: Fn(RoundVM) -> (RoundVM, A),
     G: Fn(RoundVM, A) -> (RoundVM, A),
 {
     vm.nest_in(Rep(vm.index().clone()));
     let (mut vm_, val) = locally(vm, |vm1| {
-        let prev = vm1.previous_round_val().unwrap_or(&init()).clone();
-        fun(vm1, prev)
+        if vm1.previous_round_val::<A>().is_some() {
+            let prev = vm1.previous_round_val::<A>().unwrap().clone();
+            fun(vm1, prev)
+        } else {
+            let init_args = init(vm1);
+            fun(init_args.0, init_args.1)
+        }
     });
     let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
     vm_.nest_out(true);
@@ -87,13 +92,13 @@ where
 /// the aggregated value
 pub fn foldhood<A: Copy + 'static, F, G, H>(mut vm: RoundVM, init: F, aggr: G, expr: H) -> (RoundVM, A)
 where
-    F: Fn() -> A,
+    F: Fn(RoundVM) -> (RoundVM, A),
     G: Fn(A, A) -> A,
     H: Fn(RoundVM) -> (RoundVM, A),
 {
     vm.nest_in(FoldHood(vm.index().clone()));
     let nbrs = vm.aligned_neighbours::<A>().clone();
-    let (vm_, local_init) = locally(vm, |vm_| (vm_, init()));
+    let (vm_, local_init) = locally(vm, |vm_| init(vm_));
     let temp_vec: Vec<A> = Vec::new();
     let (mut vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
     let val = nbrs_vec.iter().fold(local_init, |x, y| aggr(x, y.clone()));
@@ -201,7 +206,7 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
 ///
 /// * `vm` - The current VM.
 /// * `expr` - The expression to evaluate, which should return a value of type `A`.
-/// * `id` - The id of the neighbor.. It is of type `i32`.
+/// * `id` - The id of the neighbor. It is of type `i32`.
 ///
 /// # Generic Parameters
 ///
@@ -252,7 +257,7 @@ mod test {
         let vm = init_vm();
 
         let (_vm1, result) =
-            rep(vm, || 0, |vm1, a| {
+            rep(vm, |vm| (vm, 0), |vm1, a| {
                 let (avm, res) = nbr(vm1, |_vm| (_vm,a));
                 (avm, res + 1)
             });
@@ -266,29 +271,32 @@ mod test {
         let exports = HashMap::from([
             (
                 1,
-                Export::from(HashMap::from([(
-                    Path::from(vec![FoldHood(0)]),
-                    Box::new(1) as Box<dyn Any>
-                )])),
+                Export::from(
+                    HashMap::from([(
+                        Path::from(vec![FoldHood(0)]),
+                        Box::new(1) as Box<dyn Any>,
+                    )])
+                ),
             ),
             (
                 2,
-                Export::from(HashMap::from([(
-                    Path::from(vec![FoldHood(0)]),
-                    Box::new(2) as Box<dyn Any>
-                )])),
+                Export::from(
+                    HashMap::from([(
+                        Path::from(vec![FoldHood(0)]),
+                        Box::new(2) as Box<dyn Any>,
+                    )])
+                ),
             ),
         ]);
         println!("{:?}", vm.context);
         vm.context = Context::new(0, Default::default(), Default::default(), exports);
         println!("{:?}", vm.context);
         let (_vm_, res) =
-            foldhood(vm,
-                     || 1,
-                     |s1, s2| {
-                         s1 + s2
-                     },
-                     |_vm| (_vm,2)
+            foldhood(
+                vm,
+                |vm| (vm, 1),
+                |s1, s2| { s1 + s2 },
+                |_vm| (_vm,2),
             );
         assert_eq!(res, 7)
     }
@@ -296,7 +304,7 @@ mod test {
     #[test]
     fn test_branch() {
         let vm = init_vm();
-        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, |_vm|(_vm,1)), |vm2|  rep(vm2, ||0, |vm2, a| (vm2, a+2)));
+        let (_vm1, result) = branch(vm, || false, |vm1| nbr(vm1, |_vm|(_vm,1)), |vm2|  rep(vm2, |vm|(vm, 0), |vm2, a| (vm2, a+2)));
         assert_eq!(2, result)
     }
 }
