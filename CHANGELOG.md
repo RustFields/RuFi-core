@@ -1,3 +1,16 @@
+## [13.1.0](https://github.com/RustFields/RuFi-core/compare/13.0.1...13.1.0) (2023-10-12)
+
+
+### Features
+
+* add mux and foldhood_plus builtins ([6d35008](https://github.com/RustFields/RuFi-core/commit/6d350087564c4c4cf6e145aaae3c3e9205f18dfe))
+
+
+### Bug Fixes
+
+* fix mux signature ([74f8fa8](https://github.com/RustFields/RuFi-core/commit/74f8fa8187c5c3ecb39d376842bdd77c9600bbdd))
+* remove unused imports ([5499128](https://github.com/RustFields/RuFi-core/commit/5499128f07628125570968a2d95a08879a13efc8))
+
 ## [13.0.1](https://github.com/RustFields/RuFi-core/compare/13.0.0...13.0.1) (2023-10-11)
 
 
