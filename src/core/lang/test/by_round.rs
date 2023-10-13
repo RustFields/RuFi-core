@@ -2,6 +2,7 @@
 mod by_round {
     use std::any::Any;
     use std::collections::HashMap;
+    use std::rc::Rc;
     use crate::core::context::context::Context;
     use crate::core::export::export::Export;
     use crate::core::lang::execution::round;
@@ -9,7 +10,7 @@ mod by_round {
     use crate::core::lang::test::utils::{combine, init_vm, init_with_ctx, push_to_ctx};
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::SensorId;
+    use crate::core::sensor_id::sensor_id::sensor;
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use crate::export;
     use crate::path;
@@ -69,14 +70,14 @@ mod by_round {
     // This test differs from the Scala counterpart: in Rust, we can't assert the equality of two Exports, so we assert the equality of the root values instead
     fn export_should_compose() {
         fn ctx() -> Context {
-            Context::new(0, HashMap::from([(SensorId::new("sensor".to_string()), Box::new(5) as Box<dyn Any>)]),Default::default(), Default::default())
+            Context::new(0, HashMap::from([(sensor("sensor"), Rc::new(Box::new(5) as Box<dyn Any>))]),Default::default(), Default::default())
         }
 
         let expr_1 = |vm: RoundVM| (vm, 1);
         let expr_2 = |vm| rep(vm, |vm1| (vm1, 7), |vm2, val| (vm2, val + 1));
         let expr_3 = |vm| {
             foldhood(vm, |vm1| (vm1, 0), |a, b| (a + b), |vm2| nbr(vm2, |vm3| {
-                let val = vm3.local_sense::<i32>(&SensorId::new("sensor".to_string())).unwrap().clone();
+                let val = vm3.local_sense::<i32>(&sensor("sensor")).unwrap().clone();
                 (vm3, val)
             }))
         };
@@ -246,17 +247,17 @@ mod by_round {
     fn test_sense() {
         // Sense should simply evaluate to the last value read by sensor
         fn ctx() -> Context {
-            Context::new(0, HashMap::from([(SensorId::new("a".to_string()), Box::new(7) as Box<dyn Any>), (SensorId::new("b".to_string()), Box::new("right") as Box<dyn Any>)]), Default::default(), Default::default())
+            Context::new(0, HashMap::from([(sensor("a"), Rc::new(Box::new(7) as Box<dyn Any>)), (sensor("b"), Rc::new(Box::new("right") as Box<dyn Any>))]), Default::default(), Default::default())
         }
 
         let (_, res) = round(init_with_ctx(ctx()), |vm| {
-            let val = vm.local_sense::<i32>(&SensorId::new("a".to_string())).unwrap().clone();
+            let val = vm.local_sense::<i32>(&sensor("a")).unwrap().clone();
             (vm, val)
         });
         assert_eq!(7, res);
 
         let (_, res) = round(init_with_ctx(ctx()), |vm| {
-            let val = vm.local_sense::<&str>(&SensorId::new("b".to_string())).unwrap().clone();
+            let val = vm.local_sense::<&str>(&sensor("b")).unwrap().clone();
             (vm, val)
         });
         assert_eq!("right", res);

@@ -1,6 +1,7 @@
 use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::Debug;
+use std::rc::Rc;
 use crate::core::context::context::Context;
 use crate::core::export::export::Export;
 use crate::core::lang::execution::round;
@@ -26,7 +27,7 @@ pub fn push_to_ctx<A: Copy + 'static>(mut ctx: Context, path: Path, val: A) -> C
     ctx
 }
 
-pub fn vm(self_id: i32, local_sensor: HashMap<SensorId, Box<dyn Any>>, nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>, exports: HashMap<i32, Export>) -> RoundVM {
+pub fn vm(self_id: i32, local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>, nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>, exports: HashMap<i32, Export>) -> RoundVM {
     let context = Context::new(self_id, local_sensor, nbr_sensor, exports);
     init_with_ctx(context)
 }
