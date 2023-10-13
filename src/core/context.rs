@@ -4,12 +4,14 @@ use crate::core::path::path::path::Path;
 use crate::core::sensor_id::sensor_id::SensorId;
 use std::any::Any;
 use std::collections::HashMap;
+use std::rc::Rc;
 
 pub mod context {
     use crate::core::export::export::Export;
     use crate::core::sensor_id::sensor_id::SensorId;
     use std::any::Any;
     use std::collections::HashMap;
+    use std::rc::Rc;
 
     /// # Context implementation
     ///
@@ -20,11 +22,11 @@ pub mod context {
     /// * `nbr_sensor` The values perceived by the sensors for each neighbor of the device.
     ///
     /// * `exports` All the export that are available to the device.
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct Context {
         pub(crate) self_id: i32,
-        pub(crate) local_sensor: HashMap<SensorId, Box<dyn Any>>,
-        pub(crate) nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
+        pub(crate) local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>,
+        pub(crate) nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>,
         pub(crate) exports: HashMap<i32, Export>,
     }
 }
@@ -47,8 +49,8 @@ impl Context {
     /// The new Context.
     pub fn new(
         self_id: i32,
-        local_sensor: HashMap<SensorId, Box<dyn Any>>,
-        nbr_sensor: HashMap<SensorId, HashMap<i32, Box<dyn Any>>>,
+        local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>,
+        nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>,
         exports: HashMap<i32, Export>,
     ) -> Self {
         Self {
@@ -133,19 +135,20 @@ mod test {
     use crate::core::export::export::Export;
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::SensorId;
+    use crate::core::sensor_id::sensor_id::{sensor, SensorId};
     use std::any::Any;
     use std::collections::HashMap;
+    use std::rc::Rc;
     use crate::{export, path};
 
     fn context_builder() -> Context {
         let local_sensor = HashMap::from([(
-            SensorId::new("test".to_string()),
-            Box::new(10) as Box<dyn Any>,
+            sensor("test"),
+            Rc::new(Box::new(10) as Box<dyn Any>),
         )]);
         let nbr_sensor = HashMap::from([(
-            SensorId::new("test".to_string()),
-            HashMap::from([(0, Box::new(10) as Box<dyn Any>)]),
+            sensor("test"),
+            HashMap::from([(0, Rc::new(Box::new(10) as Box<dyn Any>))]),
         )]);
         let export = HashMap::from([(
             0,

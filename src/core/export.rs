@@ -20,10 +20,9 @@ pub mod export {
     #[macro_export]
     macro_rules! export {
         ($($x:expr),*) => {{
-            use std::rc::Rc;
             let mut temp_map = HashMap::new();
             $(
-                temp_map.insert($x.0, Rc::new(Box::new($x.1) as Box<dyn Any>));
+                temp_map.insert($x.0, std::rc::Rc::new(Box::new($x.1) as Box<dyn Any>));
             )*
             Export { map: temp_map }
         }};
@@ -117,6 +116,7 @@ impl From<HashMap<Path, Rc<Box<dyn Any>>>> for Export {
 mod tests {
     use super::*;
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
+    use crate::{export, path};
 
     #[test]
     fn test_new_empty() {
@@ -126,28 +126,27 @@ mod tests {
 
     #[test]
     fn test_new() {
+        /* showing how the macros saves us from writing this:
         let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
         map.insert(Path::from(vec![Rep(0), Nbr(0)]), Rc::new(Box::new(10)));
-        let export = Export::from(map);
+        let export = Export::from(map);*/
+        let export = export!((path!(Rep(0), Nbr(0)), 10));
         assert_eq!(export.map.len(), 1);
     }
 
     #[test]
     fn test_put() {
-        let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
-        map.insert(Path::from(vec![Rep(0)]), Rc::new(Box::new(10)));
-        let mut export = Export::from(map);
-        export.put(Path::from(vec![Rep(0), Nbr(0)]), || 20);
+        let mut export = export!((path!(Rep(0)), 10));
+        export.put(path!(Rep(0), Nbr(0)), || 20);
         export.put(Path::from(vec![Nbr(0)]), || "foo");
         assert_eq!(export.paths().len(), 3);
     }
 
     #[test]
     fn test_get() {
-        let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
-        map.insert(Path::from(vec![Rep(0), Nbr(0)]), Rc::new(Box::new(10)));
-        let export = Export::from(map);
+        let export = export!((path!(Nbr(0), Rep(0)), 10));
         assert_eq!(
+            //path is written in reverse order in the macro
             export.get::<i32>(&Path::from(vec![Rep(0), Nbr(0)])).unwrap(),
             &10
         );
@@ -155,43 +154,35 @@ mod tests {
 
     #[test]
     fn test_get_none() {
-        let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
-        map.insert(Path::from(vec![Rep(0), Nbr(0)]), Rc::new(Box::new(10)));
-        let export = Export::from(map);
+        let export = export!((path!(Rep(0), Nbr(0)), 10));
         assert_eq!(export.get::<String>(&Path::from(vec![Rep(0), Nbr(0)])), None);
     }
 
     #[test]
     fn test_root() {
-        let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
-        map.insert(Path::new(), Rc::new(Box::new(10)));
-        let export = Export::from(map);
+        let export = export!((Path::new(), 10));
         assert_eq!(export.root::<i32>(), &10);
     }
 
     #[test]
     #[should_panic]
     fn test_root_panic() {
-        let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
-        map.insert(Path::new(), Rc::new(Box::new(10)));
-        let export = Export::from(map);
+        let export = export!((Path::new(), 10));
         assert_eq!(export.root::<String>(), &"foo");
     }
 
     #[test]
     fn test_paths() {
-        let mut map: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
+        let export = export!((Path::new(), 10));
         let mut map2: HashMap<Path, Rc<Box<dyn Any>>> = HashMap::new();
-        map.insert(Path::new(), Rc::new(Box::new(10)));
         map2.insert(Path::new(), Rc::new(Box::new(10)));
-        let export = Export::from(map);
         assert!(export.map.keys().eq(map2.keys()));
     }
 
     #[test]
     fn test_empty_state() {
         let export: Export = Export::new();
-        let path = Path::from(vec![Nbr(0), Rep(0)]);
+        let path = path!(Nbr(0), Rep(0));
         assert_eq!(export.get::<i32>(&Path::new()), None);
         assert_eq!(export.get::<i32>(&path), None);
     }
@@ -213,7 +204,7 @@ mod tests {
     #[test]
     fn test_non_root_path() {
         let mut export: Export = Export::new();
-        let path = Path::from(vec![Nbr(0), Rep(0)]);
+        let path = path!(Nbr(0), Rep(0));
         export.put(path.clone(), || String::from("bar"));
         assert_eq!(export.get::<String>(&path).unwrap(), &String::from("bar"));
     }

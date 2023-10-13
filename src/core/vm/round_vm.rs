@@ -19,7 +19,7 @@ pub mod round_vm {
     /// * `status` - The status of the current round.
     ///
     /// * `export_stack` - The stack of exports of the current round.
-    #[derive(Debug)]
+    #[derive(Debug, Clone)]
     pub struct RoundVM {
         pub(crate) context: Context,
         pub(crate) status: VMStatus,
@@ -292,22 +292,23 @@ mod tests {
     use crate::core::export::export::Export;
     use crate::core::path::path::path::Path;
     use crate::core::path::slot::slot::Slot::{Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::SensorId;
+    use crate::core::sensor_id::sensor_id::{sensor, SensorId};
     use crate::core::vm::round_vm::round_vm::RoundVM;
     use std::any::Any;
     use std::collections::HashMap;
+    use std::rc::Rc;
     use crate::core::vm::vm_status::vm_status::VMStatus;
     use crate::export;
     use crate::path;
 
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(
-            SensorId::new("sensor1".to_string()),
-            Box::new(10) as Box<dyn Any>,
+            sensor("sensor1"),
+            Rc::new(Box::new(10) as Box<dyn Any>),
         )]);
         let nbr_sensor = HashMap::from([(
-            SensorId::new("sensor1".to_string()),
-            HashMap::from([(0, Box::new(4) as Box<dyn Any>)]),
+            sensor("sensor1"),
+            HashMap::from([(0, Rc::new(Box::new(4) as Box<dyn Any>))]),
         )]);
         let exports = HashMap::from([
             (
@@ -316,7 +317,7 @@ mod tests {
                     Path::from(vec![Rep(0), Nbr(0)]),
                     Box::new(10) as Box<dyn Any>,
                 )]))*/
-                export!((path!(Rep(0), Nbr(0)), 10))
+                export!((path!(Nbr(0), Rep(0)), 10))
             ),
             (
                 0,
@@ -324,7 +325,7 @@ mod tests {
                     Path::from(vec![Rep(0), Nbr(0)]),
                     Box::new(2) as Box<dyn Any>,
                 )]))*/
-                export!((path!(Rep(0), Nbr(0)), 2))
+                export!((path!(Nbr(0), Rep(0)), 2))
             ),
         ]);
 
