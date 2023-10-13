@@ -12,7 +12,7 @@ pub mod round_vm {
     use crate::core::export::export::Export;
     use crate::core::vm::vm_status::vm_status::VMStatus;
 
-    /// A Round correspond to a local computation in a device. Create the context, evaluate the aggregate program and share the exports to the neighborhood.
+    ///
     ///
     /// * `context` - The context of the current round.
     ///
@@ -297,6 +297,8 @@ mod tests {
     use std::any::Any;
     use std::collections::HashMap;
     use crate::core::vm::vm_status::vm_status::VMStatus;
+    use crate::export;
+    use crate::path;
 
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(
@@ -310,26 +312,25 @@ mod tests {
         let exports = HashMap::from([
             (
                 7,
-                Export::from(HashMap::from([(
+                /*Export::from(HashMap::from([(
                     Path::from(vec![Rep(0), Nbr(0)]),
                     Box::new(10) as Box<dyn Any>,
-                )])),
+                )]))*/
+                export!((path!(Rep(0), Nbr(0)), 10))
             ),
             (
                 0,
-                Export::from(HashMap::from([(
+                /*Export::from(HashMap::from([(
                     Path::from(vec![Rep(0), Nbr(0)]),
                     Box::new(2) as Box<dyn Any>,
-                )])),
+                )]))*/
+                export!((path!(Rep(0), Nbr(0)), 2))
             ),
         ]);
 
         let context = Context::new(7, local_sensor, nbr_sensor, exports);
         let mut vm = RoundVM::new(context);
-        vm.export_stack.push(Export::from(HashMap::from([(
-            Path::new(),
-            Box::new(0) as Box<dyn Any>,
-        )])));
+        vm.export_stack.push(export!((Path::new(), 0)));
         let mut status = VMStatus::new();
         status.neighbour = Some(0);
         vm.status = status;
