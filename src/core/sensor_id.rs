@@ -8,6 +8,10 @@ pub mod sensor_id {
     pub struct SensorId {
         pub(crate) name: String,
     }
+
+    pub fn sensor(name: &str) -> SensorId {
+        SensorId::new(name.to_string())
+    }
 }
 
 impl SensorId {
