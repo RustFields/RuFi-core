@@ -21,9 +21,9 @@ pub mod round_vm {
     /// * `export_stack` - The stack of exports of the current round.
     #[derive(Debug, Clone)]
     pub struct RoundVM {
-        pub(crate) context: Context,
+        pub context: Context,
         pub(crate) status: VMStatus,
-        pub(crate) export_stack: Vec<Export>,
+        pub export_stack: Vec<Export>,
         pub(crate) isolated: bool,
     }
 }
