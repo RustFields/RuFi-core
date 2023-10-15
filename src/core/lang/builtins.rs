@@ -28,7 +28,7 @@ pub fn foldhood_plus<A: Copy + 'static, F, G, H>(vm: RoundVM, init: F, aggr: G, 
         |vm1| {
             let (vm_, self_id) = mid(vm1);
             let (vm__, nbr_id) = nbr(vm_, |vm2| mid(vm2));
-            mux(vm__, |vm3| (vm3, self_id == nbr_id), expr, init)
+            mux(vm__, |vm3| (vm3, self_id == nbr_id), init, expr)
         }
     )
 }
