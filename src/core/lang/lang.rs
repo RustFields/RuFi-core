@@ -93,17 +93,31 @@ pub fn foldhood<A: Copy + 'static, F, G, H>(mut vm: RoundVM, init: F, aggr: G, e
 where
     F: Fn(RoundVM) -> (RoundVM, A),
     G: Fn(A, A) -> A,
-    H: Fn(RoundVM) -> (RoundVM, A),
+    H: Fn(RoundVM) -> (RoundVM, A) + Copy
 {
     vm.nest_in(FoldHood(vm.index().clone()));
     let nbrs = vm.aligned_neighbours::<A>().clone();
     let (vm_, local_init) = locally(vm, |vm_| init(vm_));
     let temp_vec: Vec<A> = Vec::new();
-    let (mut vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
-    let val = nbrs_vec.iter().fold(local_init, |x, y| aggr(x, y.clone()));
-    let res = vm__.nest_write(true, val);
-    vm__.nest_out(true);
-    (vm__, res)
+    let (vm__, nbrs_vec) = nbrs_computation(vm_, expr, temp_vec, nbrs, local_init);
+    let (mut vm___, res) = isolate(vm__, |vm_| {
+        let val = nbrs_vec.iter().fold(local_init, |x, y| aggr(x, y.clone()));
+        (vm_, val)
+    } );
+    let res_ = vm___.nest_write(true, res);
+    vm___.nest_out(true);
+    (vm___, res_)
+    /*vm.clone().nest(FoldHood(vm.index().clone()), true, true, || {
+        let mut vm_ = vm.clone();
+        let nbrs = vm_.aligned_neighbours::<A>().clone();
+        let nbr_field = nbrs.iter().map(|id| {
+             match vm_.folded_eval(|| expr, id.clone()) {
+                Some(val) => val,
+                _ => panic!("Error in foldhood")
+            }
+        });
+        todo!()
+    })*/
 }
 
 /// A utility function used by the `foldhood` function.
