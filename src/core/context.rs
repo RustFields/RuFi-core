@@ -25,9 +25,9 @@ pub mod context {
     #[derive(Debug, Clone)]
     pub struct Context {
         pub(crate) self_id: i32,
-        pub(crate) local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>,
-        pub(crate) nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>,
-        pub(crate) exports: HashMap<i32, Export>,
+        pub local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>,
+        pub nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>,
+        pub exports: HashMap<i32, Export>,
     }
 }
 
