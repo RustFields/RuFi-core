@@ -197,6 +197,16 @@ fn locally<A: Copy + 'static>(mut vm: RoundVM, expr: impl Fn(RoundVM) -> (RoundV
     (vm_, result)
 }
 
+fn isolate<A: Copy + 'static, F>(mut vm: RoundVM, expr: F) -> (RoundVM, A)
+where
+    F: Fn(RoundVM) -> (RoundVM, A)
+{
+    vm.status = vm.status.fold_out();
+    let (mut vm_, result) = expr(vm);
+    vm_.status = vm_.status.fold_into(None);
+    (vm_, result)
+}
+
 /// Perform a folded evaluation of the given expression in the given neighbor and return the result.
 /// Used by the `foldhood` function.
 /// Same behavior as the folded_eval function in src/core/lang/round_vm.rs.
