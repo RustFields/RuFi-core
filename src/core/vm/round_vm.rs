@@ -255,8 +255,9 @@ impl RoundVM {
     {
         let was_isolated = self.isolated;
         self.isolated = true;
+        let result = expr();
         self.isolated = was_isolated;
-        expr()
+        result
     }
 
     /// Check if folding is not being performed on neighbor.
