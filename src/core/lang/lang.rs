@@ -23,12 +23,14 @@ where
     vm.nest_in(Nbr(vm.index().clone()));
     let (mut vm_ ,val) = match vm.neighbor() {
         Some(nbr) if nbr.clone() != vm.self_id() => {
-            let cloned_val = vm.neighbor_val::<A>().unwrap().clone();
-            (vm, cloned_val)
+            match vm.neighbor_val::<A>() {
+                Some(val) => (vm.clone(), val.clone()),
+                _ => expr(vm.clone())
+            }
         }
         _ => expr(vm)
     };
-    let res = vm_.nest_write(vm_.only_when_folding_on_self(), val);
+    let res = vm_.nest_write(vm_.unless_folding_on_others(), val);
     vm_.nest_out(true);
     (vm_, res)
 }
@@ -107,17 +109,6 @@ where
     let res_ = vm___.nest_write(true, res);
     vm___.nest_out(true);
     (vm___, res_)
-    /*vm.clone().nest(FoldHood(vm.index().clone()), true, true, || {
-        let mut vm_ = vm.clone();
-        let nbrs = vm_.aligned_neighbours::<A>().clone();
-        let nbr_field = nbrs.iter().map(|id| {
-             match vm_.folded_eval(|| expr, id.clone()) {
-                Some(val) => val,
-                _ => panic!("Error in foldhood")
-            }
-        });
-        todo!()
-    })*/
 }
 
 /// A utility function used by the `foldhood` function.
