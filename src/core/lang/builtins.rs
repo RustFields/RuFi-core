@@ -8,10 +8,12 @@ pub fn mux<A, C, TH, EL>(vm: RoundVM, cond: C, th: TH, el: EL) -> (RoundVM, A)
         EL: Fn(RoundVM) -> (RoundVM, A),
 {
     let (vm_, flag) = cond(vm);
+    let(th_vm, th_val) = th(vm_);
+    let(el_vm, el_val) = el(th_vm);
     if flag {
-        th(vm_)
+        (el_vm, th_val)
     } else {
-        el(vm_)
+        (el_vm, el_val)
     }
 }
 
