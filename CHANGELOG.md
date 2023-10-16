@@ -1,3 +1,32 @@
+## [14.0.0](https://github.com/RustFields/RuFi-core/compare/13.1.0...14.0.0) (2023-10-16)
+
+
+### ⚠ BREAKING CHANGES
+
+* make vm clonable by using Rc with Box of Any
+* made export only take a reference to Any
+
+### Features
+
+* add isolate function ([1d7111c](https://github.com/RustFields/RuFi-core/commit/1d7111c06c2c953a7073dbf4a12f601e4a4cfc65))
+* add utility function to shorten sensor creation ([55183c4](https://github.com/RustFields/RuFi-core/commit/55183c4c7a2fc1a90fd3301b6688071ed8947a12))
+
+
+### Bug Fixes
+
+* fix isolate executing expr in the wrong time ([6f3f4b4](https://github.com/RustFields/RuFi-core/commit/6f3f4b4d679e9c00404907b80c03feef8c47e322))
+* fix mux to compute both th and el before returning ([b0ebaeb](https://github.com/RustFields/RuFi-core/commit/b0ebaebd352488b0c427d36b78efee2ea1a37a7c))
+* make some fields public ([b9447a0](https://github.com/RustFields/RuFi-core/commit/b9447a0d188dcaeec4a2ab50c5b11ec086dbc13b))
+* prevent nbr from panicking ([d43db17](https://github.com/RustFields/RuFi-core/commit/d43db176d0e0e963e5bd4637950045e43a4e5edb))
+* switch then and else in the mux call inside foldhood_plus ([6a5b541](https://github.com/RustFields/RuFi-core/commit/6a5b541806685ddb5e66998dc82fac1f05c1b3a2))
+
+
+### Refactoring
+
+* made export only take a reference to Any ([c9b06e5](https://github.com/RustFields/RuFi-core/commit/c9b06e5bacacff371b7c63dd062d2c049980b282))
+* make vm clonable by using Rc with Box of Any ([b3b74f3](https://github.com/RustFields/RuFi-core/commit/b3b74f373bdb93a87d236ae1a3c09037ac7dcc79))
+* use isolate function inside foldhood ([15147d9](https://github.com/RustFields/RuFi-core/commit/15147d981e7d6b07761295e42cf4408641969b20))
+
 ## [13.1.0](https://github.com/RustFields/RuFi-core/compare/13.0.1...13.1.0) (2023-10-12)
 
 
