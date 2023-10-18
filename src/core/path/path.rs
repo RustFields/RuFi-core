@@ -1,15 +1,13 @@
+use crate::core::path::slot::Slot;
 
-pub mod path {
-    use crate::core::path::slot::slot::Slot;
+/// A Path is a collection of Slots that behave like an immutable stack
+#[derive(PartialEq, Debug, Clone, Eq, Hash)]
+pub struct Path {
+    pub slots: Vec<Slot>,
+}
 
-    /// A Path is a collection of Slots that behave like an immutable stack
-    #[derive(PartialEq, Debug, Clone, Eq, Hash)]
-    pub struct Path {
-        pub(crate) slots: Vec<Slot>,
-    }
-
-    #[macro_export]
-    macro_rules! path {
+#[macro_export]
+macro_rules! path {
         ($($x:expr),*) => {{
             let mut temp_vec = Vec::new();
             $(
@@ -18,10 +16,6 @@ pub mod path {
             Path { slots: temp_vec }
         }};
     }
-}
-
-use crate::core::path::path::path::Path;
-use crate::core::path::slot::slot::Slot;
 
 impl Path {
     /// Factory method to create a new Path
@@ -122,8 +116,8 @@ impl From<Vec<Slot>> for Path {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
+    use crate::core::path::slot::Slot::{Branch, Nbr, Rep};
+    use super::*;
 
     #[test]
     fn test_is_root() {

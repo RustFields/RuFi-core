@@ -1,5 +1,5 @@
-use crate::core::path::slot::slot::Slot::{Branch, FoldHood, Nbr, Rep};
-use crate::core::vm::round_vm::round_vm::RoundVM;
+use crate::core::path::slot::Slot::{Branch, FoldHood, Nbr, Rep};
+use crate::core::vm::round_vm::RoundVM;
 
 /// Observes the value of an expression across neighbors, producing a “field of fields”.
 ///

@@ -1,24 +1,17 @@
-use crate::core::path::slot::slot::Slot;
-
-/// A slot is a representation for a construct of the language that forms an execution path.
-pub mod slot {
-
-    /// # Slot is an enum that represents the different constructs of the language.
-    ///
-    /// * `Nbr(index)` - The value of an expression across neighbours.
-    /// * `Rep(index)` - It iteratively updates the value of the input expression at each device using the last computed value.
-    /// * `Branch(index)` - Partition the domain into two subspaces that do not interact with each other.
-    /// * `Exchange(index)` - The exchange construct handles neighbour-to-neighbour propagation of partial accumulates.
-    #[derive(PartialEq, Debug, Clone, Eq, Hash)]
-    pub enum Slot {
-        Nbr(i32),
-        Rep(i32),
-        FoldHood(i32),
-        Branch(i32),
-        Exchange(i32),
-    }
+/// # Slot is an enum that represents the different constructs of the language.
+///
+/// * `Nbr(index)` - The value of an expression across neighbours.
+/// * `Rep(index)` - It iteratively updates the value of the input expression at each device using the last computed value.
+/// * `Branch(index)` - Partition the domain into two subspaces that do not interact with each other.
+/// * `Exchange(index)` - The exchange construct handles neighbour-to-neighbour propagation of partial accumulates.
+#[derive(PartialEq, Debug, Clone, Eq, Hash)]
+pub enum Slot {
+    Nbr(i32),
+    Rep(i32),
+    FoldHood(i32),
+    Branch(i32),
+    Exchange(i32),
 }
-
 impl Slot {
     /// String representation of the Slot.
     ///

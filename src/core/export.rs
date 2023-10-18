@@ -1,24 +1,17 @@
-use crate::core::export::export::Export;
-use crate::core::path::path::path::Path;
 use std::any::Any;
 use std::collections::HashMap;
 use std::rc::Rc;
+use crate::core::path::path::Path;
 
-pub mod export {
-    use crate::core::path::path::path::Path;
-    use std::any::Any;
-    use std::collections::HashMap;
-    use std::rc::Rc;
+/// Abstraction for the result of local computation.
+/// It is an AST decorated with the computation value.
+#[derive(Debug, Clone)]
+pub struct Export {
+    pub(crate) map: HashMap<Path, Rc<Box<dyn Any>>>,
+}
 
-    /// Abstraction for the result of local computation.
-    /// It is an AST decorated with the computation value.
-    #[derive(Debug, Clone)]
-    pub struct Export {
-        pub(crate) map: HashMap<Path, Rc<Box<dyn Any>>>,
-    }
-
-    #[macro_export]
-    macro_rules! export {
+#[macro_export]
+macro_rules! export {
         ($($x:expr),*) => {{
             let mut temp_map = HashMap::new();
             $(
@@ -27,7 +20,6 @@ pub mod export {
             Export { map: temp_map }
         }};
     }
-}
 
 impl Export {
     /// Create new Export.
@@ -114,9 +106,9 @@ impl From<HashMap<Path, Rc<Box<dyn Any>>>> for Export {
 
 #[cfg(test)]
 mod tests {
+    use crate::core::path::slot::Slot::{Nbr, Rep};
+    use crate::path;
     use super::*;
-    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
-    use crate::{export, path};
 
     #[test]
     fn test_new_empty() {
