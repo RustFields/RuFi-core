@@ -1,3 +1,20 @@
+## [15.0.0](https://github.com/RustFields/RuFi-core/compare/14.0.0...15.0.0) (2023-10-18)
+
+
+### ⚠ BREAKING CHANGES
+
+* change module structures
+
+### Bug Fixes
+
+* add missing imports ([a770dfe](https://github.com/RustFields/RuFi-core/commit/a770dfeb6c3499964480b40767012c58224fdf5d))
+* fix macros accessing private fields ([b9f8833](https://github.com/RustFields/RuFi-core/commit/b9f8833804e9a42622908b5255f9690495ad0641))
+
+
+### Refactoring
+
+* change module structures ([dd92fdf](https://github.com/RustFields/RuFi-core/commit/dd92fdf9b356dae41c13cbf12f87a83b625a53de))
+
 ## [14.0.0](https://github.com/RustFields/RuFi-core/compare/13.1.0...14.0.0) (2023-10-16)
 
 
