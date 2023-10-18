@@ -3,7 +3,7 @@ use crate::core::path::slot::Slot;
 /// A Path is a collection of Slots that behave like an immutable stack
 #[derive(PartialEq, Debug, Clone, Eq, Hash)]
 pub struct Path {
-    pub slots: Vec<Slot>,
+    slots: Vec<Slot>,
 }
 
 #[macro_export]
@@ -13,7 +13,8 @@ macro_rules! path {
             $(
                 temp_vec.push($x);
             )*
-            Path { slots: temp_vec }
+            temp_vec.reverse();
+            Path::from(temp_vec)
         }};
     }
 

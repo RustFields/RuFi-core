@@ -17,7 +17,7 @@ macro_rules! export {
             $(
                 temp_map.insert($x.0, std::rc::Rc::new(Box::new($x.1) as Box<dyn Any>));
             )*
-            Export { map: temp_map }
+            Export::from(temp_map)
         }};
     }
 
