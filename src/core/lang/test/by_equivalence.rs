@@ -6,6 +6,7 @@ mod by_equivalence {
     use crate::core::lang::test::utils::{assert_equivalence, fully_connected_topology_map};
     use crate::core::vm::round_vm::RoundVM;
 
+
     struct Fixture {
         exec_order: Vec<i32>,
         nbrs: HashMap<i32, Vec<i32>>,
@@ -19,6 +20,57 @@ mod by_equivalence {
                 exec_order: std::iter::repeat_with(|| rng.gen_range(0..3)).take(100).collect(),
                 nbrs: fully_connected_topology_map(vec![0, 1, 2]),
             }
+        }
+    }
+
+    #[cfg(test)]
+    mod macros {
+        use crate::core::lang::test::by_equivalence::by_equivalence::Fixture;
+        use crate::core::lang::test::utils::assert_equivalence;
+        use crate::{nbr, mid, rep, lift, foldhood_plus};
+        use crate::core::lang::lang::{mid, nbr, rep};
+        use crate::core::lang::builtins::{foldhood_plus, mux};
+        use crate::core::sensor_id::sensor;
+        use crate::core::vm::round_vm::RoundVM;
+
+        #[test]
+        fn macros() {
+            let fixture = Fixture::new();
+
+            let program_1 = nbr!(mid!());
+            let program_2 = |vm| nbr(vm, |vm| mid(vm));
+
+            assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
+        }
+
+        #[test]
+        fn gradient() {
+            let fixture = Fixture::new();
+            fn is_source(vm: RoundVM) -> (RoundVM, bool) {
+                let val = vm.local_sense::<bool>(&sensor("source")).unwrap().clone();
+                (vm, val)
+            }
+
+
+            let gradient_1 =
+                rep!(
+                    lift!(f64::INFINITY),
+                    |vm, d| {
+                        mux(
+                            vm,
+                            is_source,
+                            lift!(0.0),
+                            foldhood_plus!(
+                                lift!(f64::INFINITY),
+                                |a, b| a.min(b),
+                                |vm| {
+                                    let (vm_, val) = nbr(vm, lift!(d));
+                                    (vm_, val + 1.0)
+                                }
+                            )
+                        )
+                    }
+                );
         }
     }
 
