@@ -1,150 +1,144 @@
 use std::collections::LinkedList;
-use crate::core::path::path::path::Path;
-use crate::core::vm::vm_status::vm_status::VMStatus;
+use crate::core::path::path::Path;
+use crate::core::path::slot::Slot;
 
-pub mod vm_status {
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot;
-    use std::collections::LinkedList;
+/// # Models the status of the virtual machine.
+///
+/// * `path` - The path of the computation.
+/// * `index` - The index of the current slot.
+/// * `neighbour` - The id of the current neighbour. If the current slot is not a folding slot, this value is None.
+/// * `stack` - Stack that contains the list of the statuses
+#[derive(Debug, PartialEq, Clone)]
+pub struct VMStatus {
+    pub(crate) path: Path,
+    pub(crate) index: i32,
+    pub(crate) neighbour: Option<i32>,
+    pub(crate) stack: LinkedList<(Path, i32, Option<i32>)>,
+}
 
-    /// # Models the status of the virtual machine.
+impl VMStatus {
+    /// Create new VMStatus.
     ///
-    /// * `path` - The path of the computation.
-    /// * `index` - The index of the current slot.
-    /// * `neighbour` - The id of the current neighbour. If the current slot is not a folding slot, this value is None.
-    /// * `stack` - Stack that contains the list of the statuses
-    #[derive(Debug, PartialEq, Clone)]
-    pub struct VMStatus {
-        pub(crate) path: Path,
-        pub(crate) index: i32,
-        pub(crate) neighbour: Option<i32>,
-        pub(crate) stack: LinkedList<(Path, i32, Option<i32>)>,
+    /// # Returns
+    ///
+    /// The new VMStatus.
+    pub fn new() -> Self {
+        Self {
+            path: Path::new(),
+            index: 0,
+            neighbour: None,
+            stack: LinkedList::new(),
+        }
     }
 
-    impl VMStatus {
-        /// Create new VMStatus.
-        ///
-        /// # Returns
-        ///
-        /// The new VMStatus.
-        pub fn new() -> Self {
-            Self {
-                path: Path::new(),
-                index: 0,
-                neighbour: None,
-                stack: LinkedList::new(),
-            }
-        }
+    /// Whether the VM is folding or not.
+    ///
+    /// # Returns
+    ///
+    /// True if the VM is folding, false otherwise.
+    pub fn is_folding(&self) -> bool {
+        self.neighbour.is_some()
+    }
 
-        /// Whether the VM is folding or not.
-        ///
-        /// # Returns
-        ///
-        /// True if the VM is folding, false otherwise.
-        pub fn is_folding(&self) -> bool {
-            self.neighbour.is_some()
+    /// Fold the current slot into the given neighbour.
+    ///
+    /// # Arguments
+    /// * `neighbour` he id of the neighbour.
+    ///
+    /// # Returns
+    ///
+    /// A new VMStatus with the given neighbour.
+    pub fn fold_into(&self, neighbour: Option<i32>) -> Self {
+        Self {
+            path: self.path.clone(),
+            index: self.index.clone(),
+            neighbour,
+            stack: self.stack.clone(),
         }
+    }
 
-        /// Fold the current slot into the given neighbour.
-        ///
-        /// # Arguments
-        /// * `neighbour` he id of the neighbour.
-        ///
-        /// # Returns
-        ///
-        /// A new VMStatus with the given neighbour.
-        pub fn fold_into(&self, neighbour: Option<i32>) -> Self {
-            Self {
-                path: self.path.clone(),
-                index: self.index.clone(),
-                neighbour,
-                stack: self.stack.clone(),
-            }
+    /// Fold out of the current slot.
+    ///
+    /// # Returns
+    ///
+    /// A new VMStatus with no neighbour.
+    pub fn fold_out(&self) -> Self {
+        Self {
+            path: self.path.clone(),
+            index: self.index.clone(),
+            neighbour: None,
+            stack: self.stack.clone(),
         }
+    }
 
-        /// Fold out of the current slot.
-        ///
-        /// # Returns
-        ///
-        /// A new VMStatus with no neighbour.
-        pub fn fold_out(&self) -> Self {
-            Self {
-                path: self.path.clone(),
-                index: self.index.clone(),
-                neighbour: None,
-                stack: self.stack.clone(),
-            }
+    /// Push the current status on the stack.
+    ///
+    /// # Returns
+    ///
+    /// A new VMStatus with the current status pushed on the stack.
+    pub fn push(&self) -> Self {
+        let mut new_stack = self.stack.clone();
+        new_stack.push_front((
+            self.path.clone(),
+            self.index.clone(),
+            self.neighbour.clone(),
+        ));
+        Self {
+            path: self.path.clone(),
+            index: self.index.clone(),
+            neighbour: self.neighbour.clone(),
+            stack: new_stack,
         }
+    }
 
-        /// Push the current status on the stack.
-        ///
-        /// # Returns
-        ///
-        /// A new VMStatus with the current status pushed on the stack.
-        pub fn push(&self) -> Self {
-            let mut new_stack = self.stack.clone();
-            new_stack.push_front((
-                self.path.clone(),
-                self.index.clone(),
-                self.neighbour.clone(),
-            ));
-            Self {
-                path: self.path.clone(),
-                index: self.index.clone(),
-                neighbour: self.neighbour.clone(),
+    /// Pop the current status from the stack.
+    ///
+    /// # Returns
+    ///
+    /// A new VMStatus with the current status popped from the stack.
+    pub fn pop(&self) -> Self {
+        let mut new_stack = self.stack.clone();
+        let front = new_stack.pop_front();
+        match front {
+            Some((p, i, n)) => Self {
+                path: p.clone(),
+                index: i.clone(),
+                neighbour: n.clone(),
                 stack: new_stack,
-            }
+            },
+            _ => panic!(),
         }
+    }
 
-        /// Pop the current status from the stack.
-        ///
-        /// # Returns
-        ///
-        /// A new VMStatus with the current status popped from the stack.
-        pub fn pop(&self) -> Self {
-            let mut new_stack = self.stack.clone();
-            let front = new_stack.pop_front();
-            match front {
-                Some((p, i, n)) => Self {
-                    path: p.clone(),
-                    index: i.clone(),
-                    neighbour: n.clone(),
-                    stack: new_stack,
-                },
-                _ => panic!(),
-            }
+    /// Nest the given slot.
+    ///
+    /// # Arguments
+    ///
+    /// * `slot` the slot to nest.
+    ///
+    /// # Returns
+    ///
+    /// A new VMStatus with the given slot nested.
+    pub fn nest(&self, slot: Slot) -> Self {
+        Self {
+            path: self.path.push(slot),
+            index: 0,
+            neighbour: self.neighbour.clone(),
+            stack: self.stack.clone(),
         }
+    }
 
-        /// Nest the given slot.
-        ///
-        /// # Arguments
-        ///
-        /// * `slot` the slot to nest.
-        ///
-        /// # Returns
-        ///
-        /// A new VMStatus with the given slot nested.
-        pub fn nest(&self, slot: Slot) -> Self {
-            Self {
-                path: self.path.push(slot),
-                index: 0,
-                neighbour: self.neighbour.clone(),
-                stack: self.stack.clone(),
-            }
-        }
-
-        /// Increment the index of the current slot.
-        ///
-        /// # Returns
-        ///
-        /// A new VMStatus with the index incremented.
-        pub fn inc_index(&self) -> Self {
-            Self {
-                path: self.path.clone(),
-                index: self.index + 1,
-                neighbour: self.neighbour.clone(),
-                stack: self.stack.clone(),
-            }
+    /// Increment the index of the current slot.
+    ///
+    /// # Returns
+    ///
+    /// A new VMStatus with the index incremented.
+    pub fn inc_index(&self) -> Self {
+        Self {
+            path: self.path.clone(),
+            index: self.index + 1,
+            neighbour: self.neighbour.clone(),
+            stack: self.stack.clone(),
         }
     }
 }
@@ -162,9 +156,9 @@ impl From<Path> for VMStatus {
 
 #[cfg(test)]
 mod test {
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
-    use crate::core::vm::vm_status::vm_status::VMStatus;
+    use crate::core::path::path::Path;
+    use crate::core::path::slot::Slot::{Nbr, Rep};
+    use super::*;
 
     #[test]
     fn test_empty() {

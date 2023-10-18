@@ -1,18 +1,13 @@
-use crate::core::sensor_id::sensor_id::SensorId;
-
-pub mod sensor_id {
-    /// # A virtual representation of a sensor.
-    ///
-    /// `name` is the name of the sensor
-    #[derive(PartialEq, Debug, Clone, Eq, Hash)]
-    pub struct SensorId {
-        pub(crate) name: String,
-    }
-
-    pub fn sensor(name: &str) -> SensorId {
+/// # A virtual representation of a sensor.
+///
+/// `name` is the name of the sensor
+#[derive(PartialEq, Debug, Clone, Eq, Hash)]
+pub struct SensorId {
+    pub(crate) name: String,
+}
+pub fn sensor(name: &str) -> SensorId {
         SensorId::new(name.to_string())
     }
-}
 
 impl SensorId {
     /// Given a string, creates a new sensor id.
@@ -31,7 +26,7 @@ impl SensorId {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::sensor_id::sensor_id::SensorId;
+    use crate::core::sensor_id::SensorId;
 
     #[test]
     fn test_new() {

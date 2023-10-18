@@ -1,5 +1,5 @@
 use crate::core::lang::lang::{foldhood, mid, nbr};
-use crate::core::vm::round_vm::round_vm::RoundVM;
+use crate::core::vm::round_vm::RoundVM;
 
 pub fn mux<A, C, TH, EL>(vm: RoundVM, cond: C, th: TH, el: EL) -> (RoundVM, A)
     where

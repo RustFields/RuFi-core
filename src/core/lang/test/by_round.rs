@@ -3,17 +3,17 @@ mod by_round {
     use std::any::Any;
     use std::collections::HashMap;
     use std::rc::Rc;
-    use crate::core::context::context::Context;
-    use crate::core::export::export::Export;
+    use crate::core::context::Context;
+    use crate::core::export::Export;
     use crate::core::lang::execution::round;
     use crate::core::lang::lang::{branch, foldhood, mid, nbr, rep};
     use crate::core::lang::test::utils::{combine, init_vm, init_with_ctx, push_to_ctx};
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{FoldHood, Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::sensor;
-    use crate::core::vm::round_vm::round_vm::RoundVM;
+    use crate::core::path::path::Path;
+    use crate::core::path::slot::Slot::Rep;
+    use crate::core::sensor_id::sensor;
+    use crate::core::vm::round_vm::RoundVM;
     use crate::export;
-    use crate::path;
+
 
     #[test]
     fn test_multiple_rounds() {

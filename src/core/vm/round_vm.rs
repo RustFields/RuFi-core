@@ -1,31 +1,23 @@
-use crate::core::context::context::Context;
-use crate::core::export::export::Export;
-use crate::core::path::path::path::Path;
-use crate::core::path::slot::slot::Slot;
-use crate::core::sensor_id::sensor_id::SensorId;
-use crate::core::vm::round_vm::round_vm::RoundVM;
-use crate::core::vm::vm_status::vm_status::VMStatus;
+use crate::core::context::Context;
+use crate::core::export::Export;
+use crate::core::path::path::Path;
+use crate::core::path::slot::Slot;
+use crate::core::sensor_id::SensorId;
+use crate::core::vm::vm_status::VMStatus;
 
-
-pub mod round_vm {
-    use crate::core::context::context::Context;
-    use crate::core::export::export::Export;
-    use crate::core::vm::vm_status::vm_status::VMStatus;
-
-    ///
-    ///
-    /// * `context` - The context of the current round.
-    ///
-    /// * `status` - The status of the current round.
-    ///
-    /// * `export_stack` - The stack of exports of the current round.
-    #[derive(Debug, Clone)]
-    pub struct RoundVM {
-        pub context: Context,
-        pub(crate) status: VMStatus,
-        pub export_stack: Vec<Export>,
-        pub(crate) isolated: bool,
-    }
+/// A Round correspond to a local computation in a device. Create the context, evaluate the aggregate program and share the exports to the neighborhood.
+///
+/// * `context` - The context of the current round.
+///
+/// * `status` - The status of the current round.
+///
+/// * `export_stack` - The stack of exports of the current round.
+#[derive(Debug, Clone)]
+pub struct RoundVM {
+    pub context: Context,
+    pub(crate) status: VMStatus,
+    pub export_stack: Vec<Export>,
+    pub(crate) isolated: bool,
 }
 
 impl RoundVM {
@@ -289,18 +281,22 @@ impl RoundVM {
 
 #[cfg(test)]
 mod tests {
-    use crate::core::context::context::Context;
-    use crate::core::export::export::Export;
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::{sensor, SensorId};
-    use crate::core::vm::round_vm::round_vm::RoundVM;
     use std::any::Any;
     use std::collections::HashMap;
     use std::rc::Rc;
-    use crate::core::vm::vm_status::vm_status::VMStatus;
+    use crate::core::vm::vm_status::VMStatus;
     use crate::export;
     use crate::path;
+    use crate::core::context::Context;
+    use crate::core::export::Export;
+    use crate::core::path::path::Path;
+    use crate::core::path::slot::Slot::{Nbr, Rep};
+    use crate::core::sensor_id::{sensor, SensorId};
+    use crate::core::vm::round_vm::RoundVM;
+    use crate::core::vm::vm_status::VMStatus;
+    use std::any::Any;
+    use std::collections::HashMap;
+
 
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(

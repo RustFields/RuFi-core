@@ -1,34 +1,25 @@
-use crate::core::context::context::Context;
-use crate::core::export::export::Export;
-use crate::core::path::path::path::Path;
-use crate::core::sensor_id::sensor_id::SensorId;
+use crate::core::export::Export;
+use crate::core::path::path::Path;
+use crate::core::sensor_id::SensorId;
 use std::any::Any;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-pub mod context {
-    use crate::core::export::export::Export;
-    use crate::core::sensor_id::sensor_id::SensorId;
-    use std::any::Any;
-    use std::collections::HashMap;
-    use std::rc::Rc;
-
-    /// # Context implementation
-    ///
-    /// * `selfId` The ID of the device that this context is for.
-    ///
-    /// * `local_sensor` The values perceived by the local sensors of the device.
-    ///
-    /// * `nbr_sensor` The values perceived by the sensors for each neighbor of the device.
-    ///
-    /// * `exports` All the export that are available to the device.
-    #[derive(Debug, Clone)]
-    pub struct Context {
-        pub(crate) self_id: i32,
-        pub local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>,
-        pub nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>,
-        pub exports: HashMap<i32, Export>,
-    }
+/// # Context implementation
+///
+/// * `selfId` The ID of the device that this context is for.
+///
+/// * `local_sensor` The values perceived by the local sensors of the device.
+///
+/// * `nbr_sensor` The values perceived by the sensors for each neighbor of the device.
+///
+/// * `exports` All the export that are available to the device.
+#[derive(Debug, Clone)]
+pub struct Context {
+    pub(crate) self_id: i32,
+    pub local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>,
+    pub nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>,
+    pub exports: HashMap<i32, Export>,
 }
 
 impl Context {
@@ -131,11 +122,10 @@ impl Context {
 
 #[cfg(test)]
 mod test {
-    use crate::core::context::context::Context;
-    use crate::core::export::export::Export;
-    use crate::core::path::path::path::Path;
-    use crate::core::path::slot::slot::Slot::{Branch, Nbr, Rep};
-    use crate::core::sensor_id::sensor_id::{sensor, SensorId};
+    use super::*;
+    use crate::core::path::path::Path;
+    use crate::core::path::slot::Slot::{Branch, Nbr, Rep};
+    use crate::core::sensor_id::{sensor, SensorId};
     use std::any::Any;
     use std::collections::HashMap;
     use std::rc::Rc;

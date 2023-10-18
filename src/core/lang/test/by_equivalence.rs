@@ -4,7 +4,7 @@ mod by_equivalence {
     use rand::Rng;
     use crate::core::lang::lang::{foldhood, mid, nbr, rep};
     use crate::core::lang::test::utils::{assert_equivalence, fully_connected_topology_map};
-    use crate::core::vm::round_vm::round_vm::RoundVM;
+    use crate::core::vm::round_vm::RoundVM;
 
     struct Fixture {
         exec_order: Vec<i32>,
