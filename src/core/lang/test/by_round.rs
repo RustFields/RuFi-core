@@ -9,10 +9,10 @@ mod by_round {
     use crate::core::lang::lang::{branch, foldhood, mid, nbr, rep};
     use crate::core::lang::test::utils::{combine, init_vm, init_with_ctx, push_to_ctx};
     use crate::core::path::path::Path;
-    use crate::core::path::slot::Slot::Rep;
+    use crate::core::path::slot::Slot::{FoldHood, Rep, Nbr};
     use crate::core::sensor_id::sensor;
     use crate::core::vm::round_vm::RoundVM;
-    use crate::export;
+    use crate::{export, path};
 
 
     #[test]

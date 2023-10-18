@@ -293,11 +293,6 @@ mod tests {
     use crate::core::path::slot::Slot::{Nbr, Rep};
     use crate::core::sensor_id::{sensor, SensorId};
     use crate::core::vm::round_vm::RoundVM;
-    use crate::core::vm::vm_status::VMStatus;
-    use std::any::Any;
-    use std::collections::HashMap;
-
-
     fn round_vm_builder() -> RoundVM {
         let local_sensor = HashMap::from([(
             sensor("sensor1"),
