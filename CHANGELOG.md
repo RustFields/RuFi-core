@@ -1,3 +1,10 @@
+## [15.1.0](https://github.com/RustFields/RuFi-core/compare/15.0.0...15.1.0) (2023-10-19)
+
+
+### Features
+
+* add macros for creating lambdas with language constructs ([81f6bad](https://github.com/RustFields/RuFi-core/commit/81f6badae937c8d994d11b851fe4a8eaf6c7888a))
+
 ## [15.0.0](https://github.com/RustFields/RuFi-core/compare/14.0.0...15.0.0) (2023-10-18)
 
 
