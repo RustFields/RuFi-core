@@ -1,3 +1,15 @@
+## [15.1.1](https://github.com/RustFields/RuFi-core/compare/15.1.0...15.1.1) (2023-10-25)
+
+
+### Dependency updates
+
+* **deps:** update node.js to v20 ([2c48a47](https://github.com/RustFields/RuFi-core/commit/2c48a4733e1fc491c59ae80dfeed9a869e8a68c2))
+
+
+### Documentation
+
+* add comments to mux and foldhood_plus ([fa4c26a](https://github.com/RustFields/RuFi-core/commit/fa4c26a36277135d7279a52b83c7e72fdff389b1))
+
 ## [15.1.0](https://github.com/RustFields/RuFi-core/compare/15.0.0...15.1.0) (2023-10-19)
 
 
