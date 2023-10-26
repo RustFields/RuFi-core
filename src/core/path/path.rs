@@ -1,7 +1,9 @@
+use std::fmt::{Display, Formatter};
+use serde::{Deserialize, Serialize};
 use crate::core::path::slot::Slot;
 
 /// A Path is a collection of Slots that behave like an immutable stack
-#[derive(PartialEq, Debug, Clone, Eq, Hash)]
+#[derive(PartialEq, Debug, Clone, Eq, Hash, Serialize, Deserialize)]
 pub struct Path {
     slots: Vec<Slot>,
 }
@@ -115,9 +117,15 @@ impl From<Vec<Slot>> for Path {
     }
 }
 
+impl Display for Path {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        self.to_str().fmt(f)
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use crate::core::path::slot::Slot::{Branch, Nbr, Rep};
+    use crate::core::path::slot::Slot::*;
     use super::*;
 
     #[test]
@@ -171,5 +179,17 @@ mod tests {
         let path = Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)]);
         assert!(path.matches(&Path::from(vec![Rep(0), Nbr(0), Nbr(1), Branch(0)])));
         assert!(!path.matches(&Path::from(vec![Nbr(0), Nbr(1), Branch(0)])))
+    }
+
+    #[test]
+    fn test_serialize_and_deserialize() {
+        let path = path!(Rep(0), FoldHood(0), Nbr(0), Nbr(1));
+        let path_str = serde_json::to_string(&path).unwrap();
+        println!("{}", path_str);
+        let path_des = serde_json::from_str(&path_str).unwrap();
+        assert_eq!(path, path_des);
+        let path2_str = "P://Nbr(0)";
+        let path2_des: Path = serde_json::from_str(path2_str).unwrap();
+        assert_eq!(path2_des, path!(Nbr(0)));
     }
 }

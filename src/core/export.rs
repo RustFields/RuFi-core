@@ -1,12 +1,16 @@
 use std::any::Any;
 use std::collections::HashMap;
+use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
+use ser::*;
+use serde::{Deserialize, Serialize};
 use crate::core::path::path::Path;
 
 /// Abstraction for the result of local computation.
 /// It is an AST decorated with the computation value.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Export {
+    #[serde(serialize_with = "serialize_rc_box_any_map", deserialize_with = "deserialize_rc_box_any_map")]
     pub(crate) map: HashMap<Path, Rc<Box<dyn Any>>>,
 }
 
@@ -101,6 +105,82 @@ impl From<HashMap<Path, Rc<Box<dyn Any>>>> for Export {
         Self {
             map
         }
+    }
+}
+
+/// Since the types inside an Export map can be various, we compare the serialized string versions
+/// of the Exports. This will introduce a performance overhead in the presence of very large maps.
+/// If a more memory efficient implementation is needed, we would need to downcast the types and
+/// check the equality of the correctly downcasted data.
+impl PartialEq for Export {
+    fn eq(&self, other: &Self) -> bool {
+        // Serialize self and other to JSON strings and compare them
+        let self_json = serde_json::to_string(self).unwrap();
+        let other_json = serde_json::to_string(other).unwrap();
+        self_json == other_json
+    }
+}
+
+impl Display for Export {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        serde_json::to_string(&self).fmt(f)
+    }
+}
+
+impl Eq for Export {}
+
+/// Private module that defines custom serializer and deserializer
+mod ser {
+    use std::any::Any;
+    use std::collections::HashMap;
+    use std::rc::Rc;
+    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    use serde::ser::SerializeMap;
+    use crate::core::path::path::Path;
+
+    pub fn serialize_rc_box_any_map<S>(data: &HashMap<Path, Rc<Box<dyn Any>>>, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: Serializer,
+    {
+        // Serialize the data and wrap it in a HashMap<Path, [u8]>
+        let serializable_data: HashMap<String, String> =
+            data
+                .iter()
+                .map(|(key, value)| {
+                    let key_str = serde_json::to_string(key).unwrap();
+                    // if value is an i32, cast as String, otherwise panic
+                    if let Some(value) = value.downcast_ref::<i32>() {
+                        (key_str, value.clone().to_string())
+                    } else if let Some(value) = value.downcast_ref::<bool>() {
+                        (key_str, value.clone().to_string())
+                    } else if let Some(value) = value.downcast_ref::<String>() {
+                        (key_str, value.clone())
+                    } else{
+                        panic!("Cannot serialize type {:?}", value)
+                    }
+                })
+                .collect();
+        serializable_data.serialize(serializer)
+    }
+
+    pub fn deserialize_rc_box_any_map<'de, D>(deserializer: D) -> Result<HashMap<Path, Rc<Box<dyn Any>>>, D::Error>
+        where
+            D: Deserializer<'de>,
+    {
+        // Deserialize the data and wrap it in a HashMap<i32, Rc<Box<dyn Any>>
+        let data: HashMap<String, String> = Deserialize::deserialize(deserializer)?;
+
+        // Convert the deserialized data back into HashMap<i32, Rc<Box<dyn Any>>
+        let deserialized_data: HashMap<Path, Rc<Box<dyn Any>>> =
+            data
+                .into_iter()
+                .map(|(key, value)| {
+                    let path: Path = serde_json::from_str(&key).unwrap();
+                    (path, Rc::new(Box::new(value) as Box<dyn Any>))
+                })
+                .collect();
+
+        Ok(deserialized_data)
     }
 }
 
@@ -212,4 +292,23 @@ mod tests {
         export.put(Path::new(), || 77);
         assert_eq!(export.get::<i32>(&Path::new()).unwrap(), &77);
     }
+
+    #[test]
+    fn test_serialize_and_deserialize() {
+        let export = export![
+            (path!(Rep(0), Nbr(0)), 10),
+            (path!(Nbr(0)), 10),
+            (path!(Rep(0)), 10),
+            (Path::new(), 10)
+        ];
+
+        export.map.iter().for_each(|(k, v)| {
+            println!("{}", k);
+        });
+        let export_ser = serde_json::to_string(&export).unwrap();
+        println!("{}", export_ser);
+        let export_des: Export = serde_json::from_str(&export_ser).unwrap();
+        println!("{}", export_des);
+    }
+
 }
