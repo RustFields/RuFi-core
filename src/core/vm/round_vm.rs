@@ -214,8 +214,9 @@ impl RoundVM {
             tmp = self
                 .context
                 .exports
-                .iter()
-                .filter(|(id, _)| id.clone() != &self.self_id())
+                .clone()
+                .into_iter()
+                .filter(|(id, _)| id != &self.self_id())
                 .filter(|(_, export)| {
                     self.status.path.is_root()
                         || export.get::<A>(&self.status.path).is_some()
@@ -343,7 +344,7 @@ mod tests {
     #[test]
     fn test_register_root() {
         let mut vm = round_vm_builder();
-        vm.register_root(Box::new(expr)());
+        vm.register_root(expr());
         assert_eq!(vm.export_data().root::<i32>(), &expr())
     }
 

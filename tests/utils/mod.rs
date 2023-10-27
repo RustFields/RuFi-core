@@ -1,9 +1,9 @@
-use crate::core::context::Context;
-use crate::core::export::Export;
-use crate::core::lang::execution::round;
-use crate::core::path::path::Path;
-use crate::core::sensor_id::SensorId;
-use crate::core::vm::round_vm::RoundVM;
+use rufi_core::core::context::Context;
+use rufi_core::core::export::Export;
+use rufi_core::core::lang::execution::round;
+use rufi_core::core::path::path::Path;
+use rufi_core::core::sensor_id::SensorId;
+use rufi_core::core::vm::round_vm::RoundVM;
 use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::Debug;
@@ -30,16 +30,6 @@ pub fn push_to_ctx<A: Copy + 'static>(mut ctx: Context, path: Path, val: A) -> C
 pub fn vm(self_id: i32, local_sensor: HashMap<SensorId, Rc<Box<dyn Any>>>, nbr_sensor: HashMap<SensorId, HashMap<i32, Rc<Box<dyn Any>>>>, exports: HashMap<i32, Export>) -> RoundVM {
     let context = Context::new(self_id, local_sensor, nbr_sensor, exports);
     init_with_ctx(context)
-}
-pub fn compose<A, F, G>(expr1: F, expr2: G) -> impl Fn(RoundVM) -> (RoundVM, A)
-    where
-        F: Fn(RoundVM) -> (RoundVM, A),
-        G: Fn(RoundVM, A) -> (RoundVM, A),
-{
-    move |vm| {
-        let (vm_, res) = expr1(vm);
-        expr2(vm_, res)
-    }
 }
 pub fn combine<A, F, G, H>(expr1: F, expr2: G, comb: H) -> impl Fn(RoundVM) -> (RoundVM, A)
     where
