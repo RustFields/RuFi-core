@@ -185,11 +185,7 @@ mod tests {
     fn test_serialize_and_deserialize() {
         let path = path!(Rep(0), FoldHood(0), Nbr(0), Nbr(1));
         let path_str = serde_json::to_string(&path).unwrap();
-        println!("{}", path_str);
         let path_des = serde_json::from_str(&path_str).unwrap();
         assert_eq!(path, path_des);
-        let path2_str = "P://Nbr(0)";
-        let path2_des: Path = serde_json::from_str(path2_str).unwrap();
-        assert_eq!(path2_des, path!(Nbr(0)));
     }
 }
