@@ -360,14 +360,16 @@ mod tests {
             (path!(Rep(0)), 10),
             (Path::new(), 10)
         ];
-
-        export.map.iter().for_each(|(k, v)| {
-            println!("{}", k);
-        });
         let export_ser = serde_json::to_string(&export).unwrap();
-        println!("{}", export_ser);
+        // this deserialized export will have string representations of the values of the original map
+        // thus we need to parse the values of the deserialized export to get the actual values
         let export_des: Export = serde_json::from_str(&export_ser).unwrap();
-        println!("{}", export_des);
+        let value_at_nbr = export.get::<i32>(&path!(Nbr(0))).unwrap();
+        let value_at_nbr_des = export_des.get_deserialized::<i32>(&path!(Nbr(0))).unwrap();
+        assert_eq!(value_at_nbr, &value_at_nbr_des);
+        let root_value = export.root::<i32>();
+        let root_value_des = export_des.root_deserialized::<i32>().unwrap();
+        assert_eq!(root_value, &root_value_des);
     }
 
 }
