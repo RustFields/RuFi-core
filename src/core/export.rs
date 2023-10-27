@@ -4,6 +4,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
 use ser::*;
 use serde::{Deserialize, Serialize};
+use sede::{serialize_rc_box_any_map, deserialize_rc_box_any_map};
 use crate::core::path::path::Path;
 
 /// Abstraction for the result of local computation.
@@ -108,34 +109,13 @@ impl From<HashMap<Path, Rc<Box<dyn Any>>>> for Export {
     }
 }
 
-/// Since the types inside an Export map can be various, we compare the serialized string versions
-/// of the Exports. This will introduce a performance overhead in the presence of very large maps.
-/// If a more memory efficient implementation is needed, we would need to downcast the types and
-/// check the equality of the correctly downcasted data.
-impl PartialEq for Export {
-    fn eq(&self, other: &Self) -> bool {
-        // Serialize self and other to JSON strings and compare them
-        let self_json = serde_json::to_string(self).unwrap();
-        let other_json = serde_json::to_string(other).unwrap();
-        self_json == other_json
-    }
-}
-
-impl Display for Export {
-    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        serde_json::to_string(&self).fmt(f)
-    }
-}
-
-impl Eq for Export {}
-
-/// Private module that defines custom serializer and deserializer
-mod ser {
+/// This private module is needed to serialize and deserialize the HashMap<Path, Rc<Box<dyn Any>>>.
+mod sede {
     use std::any::Any;
     use std::collections::HashMap;
     use std::rc::Rc;
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
-    use serde::ser::SerializeMap;
+    use serde::{Deserializer, Serialize, Serializer};
+    use serde::de::Visitor;
     use crate::core::path::path::Path;
 
     pub fn serialize_rc_box_any_map<S>(data: &HashMap<Path, Rc<Box<dyn Any>>>, serializer: S) -> Result<S::Ok, S::Error>
@@ -163,24 +143,53 @@ mod ser {
         serializable_data.serialize(serializer)
     }
 
+    struct ExportMapVisitor;
+
+    impl<'de> Visitor<'de> for ExportMapVisitor {
+        type Value = HashMap<Path, Rc<Box<dyn Any>>>;
+        fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+            formatter.write_str("a map of Paths and Any")
+        }
+
+        fn visit_map<A>(self, mut map: A) -> Result<Self::Value, A::Error>
+            where
+                A: serde::de::MapAccess<'de>,
+        {
+            let mut result = HashMap::new();
+            while let Some((key, value)) = map.next_entry::<String, String>()? {
+                let path: Path = serde_json::from_str(&key).unwrap();
+                let value: Rc<Box<dyn Any>> = Rc::new(Box::new(value) as Box<dyn Any>);
+                result.insert(path, value);
+            }
+            Ok(result)
+        }
+    }
+
     pub fn deserialize_rc_box_any_map<'de, D>(deserializer: D) -> Result<HashMap<Path, Rc<Box<dyn Any>>>, D::Error>
         where
             D: Deserializer<'de>,
     {
-        // Deserialize the data and wrap it in a HashMap<i32, Rc<Box<dyn Any>>
-        let data: HashMap<String, String> = Deserialize::deserialize(deserializer)?;
+        deserializer.deserialize_map(ExportMapVisitor)
+    }
+}
 
-        // Convert the deserialized data back into HashMap<i32, Rc<Box<dyn Any>>
-        let deserialized_data: HashMap<Path, Rc<Box<dyn Any>>> =
-            data
-                .into_iter()
-                .map(|(key, value)| {
-                    let path: Path = serde_json::from_str(&key).unwrap();
-                    (path, Rc::new(Box::new(value) as Box<dyn Any>))
-                })
-                .collect();
+/// Since the types inside an Export map can be various, we compare the serialized string versions
+/// of the Exports. This will introduce a performance overhead in the presence of very large maps.
+/// If a more memory efficient implementation is needed, we would need to downcast the types and
+/// check the equality of the correctly downcasted data.
+impl PartialEq for Export {
+    fn eq(&self, other: &Self) -> bool {
+        // Serialize self and other to JSON strings and compare them
+        self.to_string() == other.to_string()
+    }
+}
 
-        Ok(deserialized_data)
+impl Eq for Export {}
+
+impl Display for Export {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let string = serde_json::to_string(&self);
+        write!(f, "{}", string.unwrap())
     }
 }
 
