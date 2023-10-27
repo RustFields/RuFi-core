@@ -112,6 +112,10 @@ impl Export {
     /// # Returns
     ///
     /// The root value.
+    ///
+    /// # Panics
+    /// * Panics if there is not a root value (a value at the empty Path).
+    /// * Panics if the type of the root value is not the same as the type of the requested value.
     pub fn root<A: 'static>(&self) -> &A {
         self.get(&Path::new()).unwrap()
     }
