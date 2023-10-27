@@ -2,7 +2,7 @@ use std::any::Any;
 use std::collections::HashMap;
 use std::fmt::{Debug, Display, Formatter};
 use std::rc::Rc;
-use ser::*;
+use std::str::FromStr;
 use serde::{Deserialize, Serialize};
 use sede::{serialize_rc_box_any_map, deserialize_rc_box_any_map};
 use crate::core::path::path::Path;
@@ -78,6 +78,31 @@ impl Export {
             .and_then(|value| value.downcast_ref::<A>())
     }
 
+    /// Returns the value at the given Path, deserializing it from a String.
+    /// This method is needed to retrieve a value from a deserialized Export.
+    ///
+    /// # Arguments
+    ///
+    /// * `path` - The Path where to get the value.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of the value to get  to return. It must have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// The deserialized value at the given Path.
+    ///
+    /// # Panics
+    /// * Panics if there is not a value at the given Path.
+    pub fn get_deserialized<A>(&self, path: &Path) -> Result<A, <A as FromStr>::Err>
+        where
+            A: FromStr,
+    {
+        let value_str = self.get::<String>(path).unwrap();
+        A::from_str(value_str)
+    }
+
     /// Obtain the root value.
     ///
     /// # Generic Parameters
@@ -89,6 +114,27 @@ impl Export {
     /// The root value.
     pub fn root<A: 'static>(&self) -> &A {
         self.get(&Path::new()).unwrap()
+    }
+
+    /// Obtain the root value, deserializing it from a String.
+    /// This method is needed to retrieve a value from a deserialized Export.
+    ///
+    /// # Generic Parameters
+    ///
+    /// * `A` - The type of the value to return. It must have a `'static` lifetime.
+    ///
+    /// # Returns
+    ///
+    /// The deserialized root value.
+    ///
+    /// # Panics
+    /// * Panics if there is not a root value (a value at the empty Path).
+    /// * Panics if the type of the root value is not the same as the type of the requested value.
+    pub fn root_deserialized<A>(&self) -> Result<A, <A as FromStr>::Err>
+        where
+            A: FromStr,
+    {
+        self.get_deserialized(&Path::new())
     }
 
     /// Returns the HashMap of the Export.
