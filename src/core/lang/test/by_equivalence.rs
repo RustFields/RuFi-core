@@ -42,36 +42,6 @@ mod by_equivalence {
 
             assert_equivalence(fixture.exec_order, fixture.nbrs, program_1, program_2);
         }
-
-        #[test]
-        fn gradient() {
-            let fixture = Fixture::new();
-            fn is_source(vm: RoundVM) -> (RoundVM, bool) {
-                let val = vm.local_sense::<bool>(&sensor("source")).unwrap().clone();
-                (vm, val)
-            }
-
-
-            let gradient_1 =
-                rep!(
-                    lift!(f64::INFINITY),
-                    |vm, d| {
-                        mux(
-                            vm,
-                            is_source,
-                            lift!(0.0),
-                            foldhood_plus!(
-                                lift!(f64::INFINITY),
-                                |a, b| a.min(b),
-                                |vm| {
-                                    let (vm_, val) = nbr(vm, lift!(d));
-                                    (vm_, val + 1.0)
-                                }
-                            )
-                        )
-                    }
-                );
-        }
     }
 
     #[test]
