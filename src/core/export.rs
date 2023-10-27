@@ -223,19 +223,6 @@ mod sede {
     }
 }
 
-/// Since the types inside an Export map can be various, we compare the serialized string versions
-/// of the Exports. This will introduce a performance overhead in the presence of very large maps.
-/// If a more memory efficient implementation is needed, we would need to downcast the types and
-/// check the equality of the correctly downcasted data.
-impl PartialEq for Export {
-    fn eq(&self, other: &Self) -> bool {
-        // Serialize self and other to JSON strings and compare them
-        self.to_string() == other.to_string()
-    }
-}
-
-impl Eq for Export {}
-
 impl Display for Export {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let string = serde_json::to_string(&self);
@@ -371,5 +358,4 @@ mod tests {
         let root_value_des = export_des.root_deserialized::<i32>().unwrap();
         assert_eq!(root_value, &root_value_des);
     }
-
 }
